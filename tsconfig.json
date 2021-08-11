@@ -13,7 +13,6 @@
 		"outDir": "dist",
 		"baseUrl": "./src/",
 		"incremental": true,
-		// Change this paths keys
 		"paths": {
 			"@error/*": ["error/*"],
 			"@apiRoutes/*": ["api/*"],

@@ -1,9 +1,8 @@
 import express from 'express';
-import bodyParser from 'body-parser';
 import cors from 'cors';
 import config from '@config/config_BE';
 import routes from '@apiRoutes/index';
-import { logInfo } from '../error/logger';
+import { logInfo } from '@error/logger';
 import * as appRoutePath from 'app-root-path';
 
 export default ({ app }: { app: express.Application }) => {
@@ -30,16 +29,17 @@ export default ({ app }: { app: express.Application }) => {
 
   // Middleware that transforms the raw string of req.body into json
   app.use(
-    bodyParser.json({
+    express.json({
       limit: '50mb'
     })
   );
   app.use(
-    bodyParser.urlencoded({
+    express.urlencoded({
       extended: true,
       limit: '50mb'
     })
   );
+
   //app.use(bodyParser.json());
 
   // Load API routes
