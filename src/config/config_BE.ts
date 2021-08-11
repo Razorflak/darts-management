@@ -8,6 +8,7 @@ if (envFound.error) {
   throw new Error("⚠️  Couldn't find .env file  ⚠️");
 }
 export default {
+  env: process.env.NODE_ENV,
   /**
    * Your favorite port
    */

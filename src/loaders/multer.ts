@@ -1,6 +1,6 @@
-import * as multer from 'multer';
+import multer from 'multer';
 import { logInfo } from '../error/logger';
-import * as appRoutePath from 'app-root-path';
+import appRoutePath from 'app-root-path';
 import path from 'path';
 
 const storageImgCommerce = multer.diskStorage({

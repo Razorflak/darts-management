@@ -1,7 +1,7 @@
 import { terminal } from 'terminal-kit';
 import { GeneralError } from './generalError';
 ///import winston from "winston";
-import logger from '../loaders/logger';
+import logger from '@loaders/winston';
 
 export function logError(err: GeneralError): void {
   if (err.level === GeneralError.CRITICAL_ERROR) {

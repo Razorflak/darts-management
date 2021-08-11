@@ -1,8 +1,12 @@
 {
-	"eslint.validate": [
-		"typescript"
-	],
-	"editor.codeActionsOnSave": {
-	  "source.fixAll.eslint": true,
-	},
-  }
+  "eslint.validate": ["typescript", "json"],
+  "editor.codeActionsOnSave": {
+    "source.fixAll.eslint": true
+  },
+  "[json]": {
+    "editor.defaultFormatter": "esbenp.prettier-vscode"
+  },
+  "editor.formatOnSave": true,
+  "json.format.enable": false,
+  "editor.tabSize": 2
+}
