@@ -5,7 +5,12 @@ export class GeneralError extends Error {
   level: string;
   httpCodeError: number;
 
-  constructor(code: number, message: string, httpCodeError: number = null, level: string = GeneralError.CRITICAL_ERROR) {
+  constructor(
+    code: number,
+    message: string,
+    httpCodeError: number = null,
+    level: string = GeneralError.CRITICAL_ERROR
+  ) {
     super(message);
     this.code = code;
     this.level = level;
