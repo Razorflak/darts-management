@@ -3,12 +3,13 @@
   "version": "0.0.1",
   "main": "dist/server.js",
   "scripts": {
-    "start": "tsc && node dist/server.js",
+    "start": "npm run startAllDev",
     "test": "echo \"Error: no test specified\" && exit 1",
     "start:dev": "ts-node -r tsconfig-paths/register src/server.ts",
     "start:prod": "npm run build && node -r ts-node/register/transpile-only -r tsconfig-paths/register ./dist/server.js",
     "lint": "eslint \"**/*.{ts,tsx,json}\" --fix",
-    "build": "tsc"
+    "build": "tsc",
+    "startAllDev": "concurrently \"npm run start:dev\" \"cd src/client/ && ng serve\""
   },
   "author": "",
   "license": "ISC",
@@ -27,6 +28,7 @@
   },
   "dependencies": {
     "app-root-path": "^3.0.0",
+    "concurrently": "^6.2.1",
     "cors": "^2.8.5",
     "dotenv": "^10.0.0",
     "eslint-config-prettier": "^8.3.0",

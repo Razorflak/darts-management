@@ -1,24 +1,24 @@
 {
-	"compilerOptions": {
-		"module": "commonjs",
-		"declaration": true,
-		"removeComments": true,
-		"emitDecoratorMetadata": true,
-		"experimentalDecorators": true,
-		"allowSyntheticDefaultImports": true,
-		"esModuleInterop": true,
-		"target": "es2019",
-		"sourceMap": true,
-		"lib": ["esnext", "dom"],
-		"outDir": "dist",
-		"baseUrl": "./src/",
-		"incremental": true,
-		"paths": {
-			"@error/*": ["error/*"],
-			"@apiRoutes/*": ["api/*"],
-			"@config/*": ["config/*"],
-			"@loaders/*": ["loaders/*"]
-		}
-	},
-	"exclude": ["node_modules", "dist"]
+  "compilerOptions": {
+    "module": "commonjs",
+    "declaration": true,
+    "removeComments": true,
+    "emitDecoratorMetadata": true,
+    "experimentalDecorators": true,
+    "allowSyntheticDefaultImports": true,
+    "esModuleInterop": true,
+    "target": "es2019",
+    "sourceMap": true,
+    "lib": ["esnext", "dom"],
+    "outDir": "dist",
+    "baseUrl": "./src/",
+    "incremental": true,
+    "paths": {
+      "@error/*": ["error/*"],
+      "@apiRoutes/*": ["api/*"],
+      "@config/*": ["config/*"],
+      "@loaders/*": ["loaders/*"]
+    }
+  },
+  "exclude": ["node_modules", "dist", "src/client"]
 }
