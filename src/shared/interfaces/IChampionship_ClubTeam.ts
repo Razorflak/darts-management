@@ -1,4 +1,4 @@
-import IChampionship from './Championship';
+import IChampionship from './IChampionship';
 import IClubTeam from './IClubTeam';
 
 export default interface IChampionship_ClubTeam {
