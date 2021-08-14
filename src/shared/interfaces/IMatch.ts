@@ -5,5 +5,5 @@ export default interface IMatch {
   id: string;
   teams: ITeam[];
   sets: ISet[];
-  winner: IMatch;
+  winner: ITeam;
 }
