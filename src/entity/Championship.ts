@@ -1,13 +1,13 @@
 import IChampionship from '@interface/IChampionship';
 import IChampionshipClubTeam from '@interface/IChampionshipClubTeam';
 import ICommitte from '@interface/ICommitte';
-import { Column, Entity, ManyToMany, ManyToOne, PrimaryColumn } from 'typeorm';
+import { Column, Entity, ManyToMany, ManyToOne, PrimaryGeneratedColumn } from 'typeorm';
 import ChampionshipClubTeam from './ChampionshipClubTeam';
 import Committe from './Committe';
 
 @Entity()
 export default class Championship implements IChampionship {
-  @PrimaryColumn()
+  @PrimaryGeneratedColumn()
   id: string;
 
   @ManyToMany(() => ChampionshipClubTeam, { cascade: true })

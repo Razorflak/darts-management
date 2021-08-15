@@ -1,9 +1,9 @@
 import 'reflect-metadata';
 import { createConnection } from 'typeorm';
-import User from '@entity/User';
+import DataTestingInsertion from 'mocks/DataTestingInsertion';
 
 export default createConnection()
   .then((connection) => {
-    connection.createQueryBuilder().delete().from(User).execute();
+    DataTestingInsertion(connection);
   })
   .catch((error) => console.log(error));

@@ -8,5 +8,13 @@
   },
   "editor.formatOnSave": true,
   "json.format.enable": false,
-  "editor.tabSize": 2
+  "editor.tabSize": 2,
+  "advancedNewFile.exclude": {
+    "node_modules": true,
+    "node_modules_electron": true,
+    "dev": true,
+    "dist": true
+  },
+  "advancedNewFile.showInformationMessages": true,
+  "advancedNewFile.convenienceOptions": ["last", "current", "root"]
 }
