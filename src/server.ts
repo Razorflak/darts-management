@@ -3,6 +3,7 @@ import config from '@config/config_BE';
 import { logInfo, typeMessage } from '@error/logger';
 
 import loaderExpress from '@loaders/express';
+import loaderTypeORM from '@loaders/typeORM';
 
 async function startServer() {
   const app = express();
@@ -18,8 +19,9 @@ async function startServer() {
 
   // Pour le moment on fait les appels 1 à 1
   //TODO Revoir pour factoriser ça quand ça deviendra charger...
-  loaderExpress({
-    app
+  loaderExpress({ app });
+  loaderTypeORM.then(() => {
+    logInfo('##########Server listening on port: ' + config.port + '##########', typeMessage.Succesful);
   });
   //await require("@loaders/dbPostgres");
 
