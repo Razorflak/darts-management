@@ -4,10 +4,9 @@ import { Connection } from 'typeorm';
 import Club from '@entity/Club';
 import Championship from '@entity/Championship';
 import IChampionship from '@interface/IChampionship';
-import clubsRaw = require('../data/clubs44.json');
-import playerRaw = require('../data/playerData44.json');
 import Player from '@entity/Player';
 import { logInfo, typeMessage } from '@error/logger';
+import fs from 'fs';
 
 export default async function (connection: Connection) {
   const manager = connection.manager;
@@ -31,37 +30,45 @@ export default async function (connection: Connection) {
     end_date: new Date('03/09/2021')
   } as IChampionship);
 
-  clubsRaw.forEach((element) => {
-    manager.insert(Club, {
-      name: element.name,
-      city: element.city,
-      postcode: element.postcode.toString(),
-      committe: committeID
+  if (fs.existsSync('../data/clubs44.json')) {
+    const raw = fs.readFileSync('../data/clubs44.json', 'utf8');
+    const clubsRaw = JSON.parse(raw);
+    clubsRaw.forEach((element) => {
+      manager.insert(Club, {
+        name: element.name,
+        city: element.city,
+        postcode: element.postcode.toString(),
+        committe: committeID
+      });
     });
-  });
+  }
 
-  playerRaw.forEach(async (element) => {
-    const club = await manager.findOne(Club, {
-      where: {
-        name: element.club
+  if (fs.existsSync('../data/playerData44.json')) {
+    const raw = fs.readFileSync('../data/playerData44.json', 'utf8');
+    const playersRaw = JSON.parse(raw);
+    playersRaw.forEach(async (element) => {
+      const club = await manager.findOne(Club, {
+        where: {
+          name: element.club
+        }
+      });
+      const dateParts = element.birthDay.split('/');
+      const dateObject = new Date(+dateParts[2], +dateParts[1] - 1, +dateParts[0]);
+      if (club) {
+        manager
+          .insert(Player, {
+            firstname: element.firstname,
+            lastname: element.lastname,
+            club: club,
+            birthCity: element.birthCity,
+            birthDay: dateObject,
+            mail: element.mail,
+            licenceNumber: element.licenceNumber?.toString()
+          })
+          .catch((error) => {
+            logInfo('Error when inserting player data \n' + error, typeMessage.Error);
+          });
       }
     });
-    const dateParts = element.birthDay.split('/');
-    const dateObject = new Date(+dateParts[2], +dateParts[1] - 1, +dateParts[0]);
-    if (club) {
-      manager
-        .insert(Player, {
-          firstname: element.firstname,
-          lastname: element.lastname,
-          club: club,
-          birthCity: element.birthCity,
-          birthDay: dateObject,
-          mail: element.mail,
-          licenceNumber: element.licenceNumber?.toString()
-        })
-        .catch((error) => {
-          logInfo('Error when inserting player data \n' + error, typeMessage.Error);
-        });
-    }
-  });
+  }
 }
