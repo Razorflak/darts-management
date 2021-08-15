@@ -17,7 +17,9 @@
       "@error/*": ["error/*"],
       "@apiRoutes/*": ["api/*"],
       "@config/*": ["config/*"],
-      "@loaders/*": ["loaders/*"]
+      "@loaders/*": ["loaders/*"],
+      "@entity/*": ["entity/*"],
+      "@interface/*": ["shared/interfaces/*"]
     }
   },
   "exclude": ["node_modules", "dist", "src/client"]
