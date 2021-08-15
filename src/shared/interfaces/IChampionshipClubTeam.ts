@@ -2,7 +2,7 @@ import IChampionship from './IChampionship';
 import IClubTeam from './IClubTeam';
 import IPlayer from './IPlayer';
 
-export default interface IChampionship_ClubTeam {
+export default interface IChampionshipClubTeam {
   id: string;
   clubteam: IClubTeam;
   championship: IChampionship;
