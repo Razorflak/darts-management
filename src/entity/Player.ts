@@ -1,4 +1,4 @@
-import { Entity, PrimaryGeneratedColumn, Column, ManyToOne, JoinColumn, ManyToMany, JoinTable } from 'typeorm';
+import { Entity, PrimaryGeneratedColumn, Column, ManyToOne, ManyToMany, JoinTable } from 'typeorm';
 import IPlayer from '@interface/IPlayer';
 import IChampionshipClubTeam from '@interface/IChampionshipClubTeam';
 import IChampionshipMatchClubTeam from '@interface/IChampionshipMatchClubTeam';
