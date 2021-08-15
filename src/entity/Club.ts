@@ -14,7 +14,7 @@ export default class Club implements IClub {
   @Column()
   name: string;
 
-  @Column()
+  @Column({ nullable: true })
   adress: string;
 
   @Column()
@@ -23,6 +23,6 @@ export default class Club implements IClub {
   @Column()
   postcode: string;
 
-  @Column()
+  @Column({ nullable: true })
   logo: string;
 }

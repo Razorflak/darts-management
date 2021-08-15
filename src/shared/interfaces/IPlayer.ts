@@ -9,8 +9,10 @@ export default interface IPlayer {
   team: ITeam;
   firstname: string;
   lastname: string;
-  birth_day: Date;
+  birthDay: Date;
+  birthCity: string;
   licenceNumber: string;
+  mail: string;
   championshipClubTeam: IChampionshipClubTeam[];
   championshipMatchClubTeam: IChampionshipMatchClubTeam[];
   //Data possibly related to the player

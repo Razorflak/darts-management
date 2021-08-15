@@ -12,23 +12,29 @@ export default class Player implements IPlayer {
   @PrimaryGeneratedColumn()
   id: string;
 
-  @ManyToOne(() => Club, (club) => club.id)
+  @ManyToOne(() => Club, (club) => club.id, { onDelete: 'SET NULL' })
   club: IClub;
 
   @ManyToMany(() => Team)
   @JoinTable()
   team: ITeam;
 
-  @Column()
+  @Column({ nullable: true })
   firstname: string;
 
-  @Column()
+  @Column({ nullable: true })
   lastname: string;
 
-  @Column()
-  birth_day: Date;
+  @Column({ nullable: true })
+  birthDay: Date;
 
-  @Column()
+  @Column({ nullable: true })
+  birthCity: string;
+
+  @Column({ nullable: true })
+  mail: string;
+
+  @Column({ nullable: true })
   licenceNumber: string;
 
   @ManyToMany(() => ChampionshipClubTeam, { cascade: true })
