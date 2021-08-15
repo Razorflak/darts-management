@@ -1,5 +1,5 @@
+import IChampionshipMatchClubTeam from '@interface/IChampionshipMatchClubTeam';
 import IChampionship from './IChampionship';
-import IChampionshipMatchClubTeam from './IChampionshipMatchClubTeam';
 import IMatch from './IMatch';
 
 export default interface IChampionshipMatch {

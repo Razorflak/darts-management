@@ -10,10 +10,10 @@ export default class Championship implements IChampionship {
   @PrimaryColumn()
   id: string;
 
-  @ManyToMany(() => ChampionshipClubTeam)
+  @ManyToMany(() => ChampionshipClubTeam, { cascade: true })
   championshipClubTeam: IChampionshipClubTeam[];
 
-  @ManyToOne(() => Committe, (committe) => committe.id)
+  @ManyToOne(() => Committe, (committe) => committe.id, { onDelete: 'CASCADE' })
   committe: ICommitte;
 
   @Column()

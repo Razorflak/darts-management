@@ -1,12 +1,21 @@
+import IChampionshipClubTeam from '@interface/IChampionshipClubTeam';
 import IClub from '@interface/IClub';
-import ICommitte from '@interface/ICommitte';
+import IClubTeam from '@interface/IClubTeam';
+import { Column, Entity, ManyToOne, OneToMany, PrimaryGeneratedColumn } from 'typeorm';
+import ChampionshipClubTeam from './ChampionshipClubTeam';
+import Club from './Club';
 
-export default class ClubTeam implements IClub {
+@Entity()
+export default class ClubTeam implements IClubTeam {
+  @PrimaryGeneratedColumn()
   id: string;
-  committe: ICommitte;
+
+  @ManyToOne(() => Club, (club) => club.id, { onDelete: 'CASCADE' })
+  club: IClub;
+
+  @Column()
   name: string;
-  adress: string;
-  city: string;
-  postcode: string;
-  logo: string;
+
+  @OneToMany(() => ChampionshipClubTeam, (championshipClubTeam) => championshipClubTeam.id)
+  championshipClubTeam: IChampionshipClubTeam[];
 }

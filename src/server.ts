@@ -20,9 +20,7 @@ async function startServer() {
   // Pour le moment on fait les appels 1 à 1
   //TODO Revoir pour factoriser ça quand ça deviendra charger...
   loaderExpress({ app });
-  loaderTypeORM.then(() => {
-    logInfo('##########Server listening on port: ' + config.port + '##########', typeMessage.Succesful);
-  });
+  loaderTypeORM;
   //await require("@loaders/dbPostgres");
 
   //await insertDonneesTest();
