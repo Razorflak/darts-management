@@ -9,6 +9,8 @@ if (envFound.error) {
 }
 export default {
   env: process.env.NODE_ENV,
+  activJwtAuth: process.env.ACTIVE_TOKEN_AUTH,
+  tokenDuration: process.env.TOKEN_DURATION,
   /**
    * Your favorite port
    */
