@@ -1,17 +1,9 @@
-import { Entity, PrimaryGeneratedColumn, Column } from 'typeorm';
+import { Entity, PrimaryGeneratedColumn, Column, OneToOne, JoinColumn } from 'typeorm';
 import IUser from '@interface/IUser';
 import IPlayer from '@interface/IPlayer';
+import Player from './Player';
 @Entity()
-export class User implements IUser {
-  // @PrimaryGeneratedColumn()
-  // id: string;
-  // @Column()
-  // firstName: string;
-  // @Column()
-  // lastName: string;
-  // @Column()
-  // age: number;
-
+export default class User implements IUser {
   @PrimaryGeneratedColumn()
   id: string;
 
@@ -21,7 +13,8 @@ export class User implements IUser {
   @Column()
   password: string;
 
-  // @Column({ nullable: true })
+  @OneToOne(() => Player)
+  @JoinColumn()
   player: IPlayer;
 
   @Column({ nullable: true })

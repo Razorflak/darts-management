@@ -1,16 +1,19 @@
-import IChampionshipMatch_ClubTeam from './IChampionshipMatch_ClubTeam';
-import IChampionship_ClubTeam from './IChampionship_ClubTeam';
+import IChampionshipMatchClubTeam from './IChampionshipMatchClubTeam';
+import IChampionshipClubTeam from './IChampionshipClubTeam';
+import IClub from './IClub';
+import ITeam from './ITeam';
 
 export default interface IPlayer {
   id: string;
-  user_id?: string;
-  club_id?: string;
-  team_id?: string;
-  firstname?: string;
-  lastname?: string;
-  birth_day?: Date;
-  licence_number?: string;
-  championship_ClubTeam: IChampionship_ClubTeam[];
-  championshipMatch_ClubTeam: IChampionshipMatch_ClubTeam[];
+  club: IClub;
+  team: ITeam;
+  firstname: string;
+  lastname: string;
+  birthDay: Date;
+  birthCity: string;
+  licenceNumber: string;
+  mail: string;
+  championshipClubTeam: IChampionshipClubTeam[];
+  championshipMatchClubTeam: IChampionshipMatchClubTeam[];
   //Data possibly related to the player
 }

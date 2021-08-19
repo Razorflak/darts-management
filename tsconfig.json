@@ -7,6 +7,7 @@
     "experimentalDecorators": true,
     "allowSyntheticDefaultImports": true,
     "esModuleInterop": true,
+    "resolveJsonModule": true,
     "target": "es2019",
     "sourceMap": true,
     "lib": ["esnext", "dom"],

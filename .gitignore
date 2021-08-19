@@ -7,4 +7,4 @@ temp/
 dist/*
 log/*
 ormconfig.json
-src/data
+src/data/*

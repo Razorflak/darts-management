@@ -1,4 +1,4 @@
-import IChampionship_ClubTeam from './IChampionship_ClubTeam';
+import IChampionshipClubTeam from './IChampionshipClubTeam';
 import ICommitte from './ICommitte';
 
 export default interface IChampionship {
@@ -7,5 +7,5 @@ export default interface IChampionship {
   name: string;
   start_date: Date;
   end_date: Date;
-  championship_ClubTeam: IChampionship_ClubTeam[];
+  championshipClubTeam: IChampionshipClubTeam[];
 }

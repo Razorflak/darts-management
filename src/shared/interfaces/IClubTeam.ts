@@ -1,11 +1,11 @@
-import IChampionship_ClubTeam from './IChampionship_ClubTeam';
+import IChampionshipClubTeam from './IChampionshipClubTeam';
 import IClub from './IClub';
 
 export default interface IClubTeam {
   id: string;
   club: IClub;
   name: string;
-  championship_ClubTeam: IChampionship_ClubTeam[];
+  championshipClubTeam: IChampionshipClubTeam[];
 
   //Data possibly related to the team
 }
