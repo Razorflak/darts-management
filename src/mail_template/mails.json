@@ -1,0 +1,6 @@
+{
+  "validationEmail": {
+    "subject": "[Darts Management] Validation email",
+    "template": "email_validation"
+  }
+}

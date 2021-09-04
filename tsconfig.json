@@ -20,7 +20,8 @@
       "@config/*": ["config/*"],
       "@loaders/*": ["loaders/*"],
       "@entity/*": ["entity/*"],
-      "@interface/*": ["shared/interfaces/*"]
+      "@interface/*": ["shared/interfaces/*"],
+      "@mailTemplate/*": ["mail_template/*"]
     }
   },
   "exclude": ["node_modules", "dist", "src/client"]
