@@ -1,4 +1,6 @@
 import { Router } from 'express';
+import MailService from 'services/mailer';
+import listEmailTemplate from '@mailTemplate/mails.json';
 
 const route = Router();
 export default (app: Router) => {
@@ -9,5 +11,18 @@ export default (app: Router) => {
   route.get('/test', async (req, res) => {
     const result = 'Dev Route';
     res.send(result);
+  });
+  route.get('/testmail', async (req, res) => {
+    try {
+      MailService.sendMail(
+        'tanguyj35@gmail.com',
+        listEmailTemplate.validationEmail.subject,
+        listEmailTemplate.validationEmail.template,
+        { firstName: 'Julien' }
+      );
+      res.send('TOTO');
+    } catch (error) {
+      res.send(error);
+    }
   });
 };

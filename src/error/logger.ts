@@ -1,12 +1,10 @@
 import { terminal } from 'terminal-kit';
-import { GeneralError } from './generalError';
 ///import winston from "winston";
 import logger from '@loaders/winston';
 
-export function logError(err: GeneralError): void {
-  if (err.level === GeneralError.CRITICAL_ERROR) {
-    terminal.red(err.message + '\n');
-  }
+// eslint-disable-next-line @typescript-eslint/no-explicit-any
+export function logError(err: any): void {
+  terminal.red(err.message + '\n');
   //Log vers les fichiers (avec winston)
   logger.error(err.code + ' : ' + err.message);
 }
@@ -16,7 +14,8 @@ export function logDev(message: string) {
   terminal.magenta(message);
 }
 
-export function logInfo(message: string, type: number = typeMessage.Info) {
+// eslint-disable-next-line @typescript-eslint/no-explicit-any
+export function logInfo(message: any, type: number = typeMessage.Info) {
   //Obligé de rajouter le saut d eligne à la main...
   message += '\n';
   switch (type) {

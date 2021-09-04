@@ -31,13 +31,6 @@ export default {
   api: {
     prefix: '/api'
   },
-  /**
-   * Mailgun email credentials
-   */
-  emails: {
-    apiKey: process.env.MAILGUN_API_KEY,
-    domain: process.env.MAILGUN_DOMAIN
-  },
 
   dbPostgres: {
     host: process.env.DBHOST,
@@ -45,6 +38,11 @@ export default {
     name: process.env.DBNAME,
     user: process.env.DBUSER,
     userPwd: process.env.USERPASSWORD
+  },
+
+  mailer: {
+    adress: process.env.EMAIL_ADRESS,
+    password: process.env.EMAIL_PASSWORD
   }
 };
 //# sourceMappingURL=index.js.map
