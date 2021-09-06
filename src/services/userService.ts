@@ -9,6 +9,7 @@ import { genereteRandomString } from 'helper/string';
 import UserValidator from 'shared/validators/UserValidator';
 import { InvalidDataError, FieldError } from '@error/InvalidDataError';
 import bcrypt from 'bcryptjs';
+import { generateTokenForUser } from './authentificationService';
 
 class UserService {
   /**
@@ -61,6 +62,33 @@ class UserService {
     } catch (error) {
       logError(error);
       throw error;
+    }
+  }
+  /**
+   * Check user infos and return an auth token
+   * @param {IUser} user
+   * @returns {Promise<string>}
+   */
+  async loginUser(user: IUser): Promise<string> {
+    try {
+      // If rules work for register, they work for login
+      UserValidator.validate(user);
+
+      const userDb = await getManager()
+        .getRepository(User)
+        .findOneOrFail({
+          where: {
+            mail: user.mail
+          }
+        });
+      //Check if acount mail adress is validated
+      if (!userDb.isAccountValidated) throw new Error();
+      // Compare password to the hash
+      if (!bcrypt.compare(user.password, userDb.password)) throw new Error();
+
+      return generateTokenForUser(userDb);
+    } catch (error) {
+      throw new Error(UserErrorMessage.loginError);
     }
   }
 }
