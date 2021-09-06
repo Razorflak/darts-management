@@ -4,5 +4,6 @@
 
   "passwordTooShort": "Password too short",
   "mailAdressAlreadyUsed": "Email adress already used",
-  "invalidEmailAdress": "Invalid email adress"
+  "invalidEmailAdress": "Invalid email adress",
+  "loginError": "Login error"
 }

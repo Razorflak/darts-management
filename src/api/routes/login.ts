@@ -3,12 +3,12 @@ import UserService from 'services/userService';
 
 const route = Router();
 export default (app: Router) => {
-  app.use('/register', route);
+  app.use('/login', route);
 
-  route.put('/', async (req, res) => {
+  route.post('/', async (req, res) => {
     try {
-      const result = await UserService.createUser(req.body);
-      res.send(result);
+      const result = await UserService.loginUser(req.body);
+      res.send({ token: result });
     } catch (error) {
       res.status(500).send({ message: error.message, error: error });
     }
