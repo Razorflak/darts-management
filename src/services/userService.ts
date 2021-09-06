@@ -53,7 +53,7 @@ class UserService {
         listEmailTemplate.validationEmail.template,
         createdUser
       );
-      // remove those because there are sensitive data, and useless for the Front
+      // remove those because they are sensitive data and useless for the Front
       delete createdUser.password;
       delete createdUser.emailValidationCode;
 
