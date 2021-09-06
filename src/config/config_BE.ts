@@ -32,14 +32,6 @@ export default {
     prefix: '/api'
   },
 
-  dbPostgres: {
-    host: process.env.DBHOST,
-    port: process.env.DBPORT,
-    name: process.env.DBNAME,
-    user: process.env.DBUSER,
-    userPwd: process.env.USERPASSWORD
-  },
-
   mailer: {
     adress: process.env.EMAIL_ADRESS,
     password: process.env.EMAIL_PASSWORD

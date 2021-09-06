@@ -22,7 +22,7 @@ export default class Match implements IMatch {
   })
   championshipMatch: IChampionshipMatch;
 
-  @OneToMany(() => Set, (set) => set.id)
+  @OneToMany(() => Set, (set) => set.id, { cascade: true })
   sets: ISet[];
 
   @ManyToOne(() => Team, (team) => team.id, { onDelete: 'CASCADE' })
