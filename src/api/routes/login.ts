@@ -8,7 +8,7 @@ export default (app: Router) => {
   route.post('/', async (req, res) => {
     try {
       const result = await UserService.loginUser(req.body);
-      res.send(result);
+      res.send({ token: result });
     } catch (error) {
       res.status(500).send({ message: error.message, error: error });
     }
