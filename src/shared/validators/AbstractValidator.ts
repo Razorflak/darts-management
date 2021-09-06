@@ -1,13 +1,18 @@
-export class AbstractValidator {
-  validators;
-  constructor(validators: IValidator[]) {
-    this.validators = validators;
-  }
+import { FieldError, InvalidDataError } from '@error/InvalidDataError';
 
-  validate() {
+export class AbstractValidator {
+  validators; // MUST BE OVERWRITE
+
+  validate(data: unknown) {
+    const issues = [];
     this.validators.forEach((element: IValidator) => {
-      element.validatorFunction(data);
+      if (!element.validatorFunction(data)) {
+        issues.push(new FieldError(element.field, element.errorMessage));
+      }
     });
+    if (issues.length > 0) {
+      throw new InvalidDataError('User', issues);
+    }
   }
 }
 

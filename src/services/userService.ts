@@ -1,3 +1,4 @@
+import UserErrorMessage from '@error/messages/UserErrorMessage.json';
 import listEmailTemplate from '@mailTemplate/mails.json';
 import User from '@entity/User';
 import { logError } from '@error/logger';
@@ -6,6 +7,8 @@ import { getManager } from 'typeorm';
 import mailer from './mailer';
 import { genereteRandomString } from 'helper/string';
 import UserValidator from 'shared/validators/UserValidator';
+import { InvalidDataError, FieldError } from '@error/InvalidDataError';
+import bcrypt from 'bcryptjs';
 
 class UserService {
   /**
@@ -16,13 +19,34 @@ class UserService {
    */
   async createUser(user: IUser): Promise<IUser> {
     try {
+      //Validate user data
       UserValidator.validate(user);
 
+      const userRepository = getManager().getRepository(User);
+      //Check if email adress already used
+      const existingUser = await userRepository.findOne({
+        where: {
+          mail: user.mail
+        }
+      });
+
+      if (existingUser) {
+        throw new InvalidDataError('User', [
+          new FieldError(UserErrorMessage.emailField, UserErrorMessage.mailAdressAlreadyUsed)
+        ]);
+      }
+
+      //Generate Validation code
       user.isAccountValidated = false;
       user.emailValidationCode = genereteRandomString(12);
-      const userRepository = getManager().getRepository(User);
-      const newUser = userRepository.create(user);
-      const createdUser = await userRepository.save(newUser);
+
+      //Encrypt password
+      user.password = await bcrypt.hash(user.password, await bcrypt.genSalt());
+
+      //Creation of the new user
+      const createdUser = await userRepository.save(userRepository.create(user));
+
+      //Send validation email adress
       mailer.sendMail(
         createdUser.mail,
         listEmailTemplate.validationEmail.subject,

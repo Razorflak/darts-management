@@ -1,0 +1,8 @@
+{
+  "passwordField": "User.password",
+  "emailField": "User.mail",
+
+  "passwordTooShort": "Password too short",
+  "mailAdressAlreadyUsed": "Email adress already used",
+  "invalidEmailAdress": "Invalid email adress"
+}

@@ -10,9 +10,7 @@ export default (app: Router) => {
       const result = await UserService.createUser(req.body);
       res.send(result);
     } catch (error) {
-      console.log(error);
-      console.log(new Error('TOTOJTA'));
-      res.status(500).send(error);
+      res.status(500).send({ error: error });
     }
   });
 };

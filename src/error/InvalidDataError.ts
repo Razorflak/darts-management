@@ -1,8 +1,8 @@
-export class InvalidData extends Error {
+export class InvalidDataError extends Error {
   fields: FieldError[];
 
-  constructor(message: string, fields: FieldError[]) {
-    super(message);
+  constructor(entity: string, fields: FieldError[]) {
+    super(`Invalid ${entity} data`);
     this.fields = fields;
   }
 }
