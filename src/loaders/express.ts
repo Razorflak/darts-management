@@ -2,7 +2,7 @@ import express from 'express';
 import cors from 'cors';
 import config from '@config/config_BE';
 import routes from '@apiRoutes/index';
-import { logInfo } from '@error/logger';
+import { logInfo } from '@error/Logger';
 import * as appRoutePath from 'app-root-path';
 
 export default ({ app }: { app: express.Application }) => {

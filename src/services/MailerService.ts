@@ -1,4 +1,4 @@
-import { logError, logInfo } from '@error/logger';
+import { logError, logInfo } from '@error/Logger';
 import nodeMailer from 'nodemailer';
 import hbs from 'nodemailer-handlebars';
 import config from '@config/config_BE';

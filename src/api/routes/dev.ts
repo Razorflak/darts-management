@@ -1,5 +1,5 @@
 import { Router } from 'express';
-import MailService from 'services/mailer';
+import MailService from 'services/MailerService';
 import listEmailTemplate from '@mailTemplate/mails.json';
 
 const route = Router();

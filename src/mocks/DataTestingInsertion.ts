@@ -5,7 +5,7 @@ import Club from '@entity/Club';
 import Championship from '@entity/Championship';
 import IChampionship from '@interface/IChampionship';
 import Player from '@entity/Player';
-import { logInfo, typeMessage } from '@error/logger';
+import { logInfo, typeMessage } from '@error/Logger';
 import fs from 'fs';
 
 export default async function (connection: Connection) {

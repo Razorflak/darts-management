@@ -1,8 +1,8 @@
 import express from 'express';
 import config from '@config/config_BE';
-import { logInfo, typeMessage } from '@error/logger';
+import { logInfo, typeMessage } from '@error/Logger';
 
-import loaderExpress from '@loaders/express';
+import loaderExpress from '@loaders/Express';
 import loaderTypeORM from '@loaders/typeORM';
 
 async function startServer() {

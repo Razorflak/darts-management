@@ -1,7 +1,7 @@
 import 'reflect-metadata';
 import { createConnection } from 'typeorm';
 import DataTestingInsertion from 'mocks/DataTestingInsertion';
-import { logInfo } from '@error/logger';
+import { logInfo } from '@error/Logger';
 
 export default createConnection()
   .then((connection) => {

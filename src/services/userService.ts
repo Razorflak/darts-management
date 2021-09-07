@@ -1,15 +1,15 @@
 import UserErrorMessage from '@error/messages/UserErrorMessage.json';
 import listEmailTemplate from '@mailTemplate/mails.json';
 import User from '@entity/User';
-import { logError } from '@error/logger';
+import { logError } from '@error/Logger';
 import IUser from '@interface/IUser';
 import { getManager } from 'typeorm';
-import mailer from './mailer';
+import mailer from './MailerService';
 import { genereteRandomString } from 'helper/string';
 import UserValidator from 'shared/validators/UserValidator';
 import { InvalidDataError, FieldError } from '@error/InvalidDataError';
 import bcrypt from 'bcryptjs';
-import { generateTokenForUser } from './authentificationService';
+import { generateTokenForUser } from './AuthentificationService';
 
 class UserService {
   /**

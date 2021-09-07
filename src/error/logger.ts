@@ -1,6 +1,6 @@
 import { terminal } from 'terminal-kit';
 ///import winston from "winston";
-import logger from '@loaders/winston';
+import logger from '@loaders/Winston';
 
 // eslint-disable-next-line @typescript-eslint/no-explicit-any
 export function logError(err: any): void {

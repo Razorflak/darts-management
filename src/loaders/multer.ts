@@ -1,5 +1,5 @@
 import multer from 'multer';
-import { logInfo } from '../error/logger';
+import { logInfo } from '../error/Logger';
 import appRoutePath from 'app-root-path';
 import path from 'path';
 
