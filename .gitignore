@@ -9,3 +9,4 @@ log/*
 ormconfig.json
 src/data/*
 .env
+src/config/*
