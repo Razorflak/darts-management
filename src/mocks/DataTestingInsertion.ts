@@ -29,9 +29,9 @@ export default async function (connection: Connection) {
     committe: committeID,
     end_date: new Date('03/09/2021')
   } as IChampionship);
+  if (fs.existsSync(__dirname + './../data/clubs44.json')) {
+    const raw = fs.readFileSync(__dirname + './../data/clubs44.json', 'utf8');
 
-  if (fs.existsSync('../data/clubs44.json')) {
-    const raw = fs.readFileSync('../data/clubs44.json', 'utf8');
     const clubsRaw = JSON.parse(raw);
     clubsRaw.forEach((element) => {
       manager.insert(Club, {
@@ -42,9 +42,8 @@ export default async function (connection: Connection) {
       });
     });
   }
-
-  if (fs.existsSync('../data/playerData44.json')) {
-    const raw = fs.readFileSync('../data/playerData44.json', 'utf8');
+  if (fs.existsSync(__dirname + './../data/playerData44.json')) {
+    const raw = fs.readFileSync(__dirname + './../data/playerData44.json', 'utf8');
     const playersRaw = JSON.parse(raw);
     playersRaw.forEach(async (element) => {
       const club = await manager.findOne(Club, {

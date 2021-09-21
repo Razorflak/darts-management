@@ -24,7 +24,8 @@
       "@loaders/*": ["loaders/*"],
       "@entity/*": ["entity/*"],
       "@interface/*": ["shared/interfaces/*"],
-      "@mailTemplate/*": ["mail_template/*"]
+      "@mailTemplate/*": ["mail_template/*"],
+      "@services/*": ["services/*"]
     }
   },
   "include": ["src/**/*"],

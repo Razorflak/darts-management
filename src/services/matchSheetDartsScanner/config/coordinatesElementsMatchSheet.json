@@ -1,0 +1,333 @@
+{
+  "calibrationWord": ["MMMMMM"],
+  "referenceSize": {
+    "x": 930,
+    "y": 1280
+  },
+  "data": {
+    "dateMatch1": [
+      { "x": 110, "y": 104 },
+      { "x": 134, "y": 129 }
+    ],
+    "dateMatch2": [
+      { "x": 136, "y": 104 },
+      { "x": 160, "y": 129 }
+    ],
+    "dateMatch3": [
+      { "x": 162, "y": 104 },
+      { "x": 185, "y": 129 }
+    ],
+    "dateMatch4": [
+      { "x": 187, "y": 104 },
+      { "x": 211, "y": 129 }
+    ],
+    "dateMatch5": [
+      { "x": 213, "y": 104 },
+      { "x": 237, "y": 129 }
+    ],
+    "dateMatch6": [
+      { "x": 239, "y": 104 },
+      { "x": 263, "y": 129 }
+    ],
+    "lieu": [
+      { "x": 342, "y": 102 },
+      { "x": 895, "y": 129 }
+    ],
+    "division": [
+      { "x": 135, "y": 142 },
+      { "x": 169, "y": 169 }
+    ],
+    "poule": [
+      { "x": 265, "y": 142 },
+      { "x": 298, "y": 169 }
+    ],
+    "journee": [
+      { "x": 412, "y": 142 },
+      { "x": 445, "y": 169 }
+    ],
+    "equipeA": [
+      { "x": 126, "y": 182 },
+      { "x": 445, "y": 208 }
+    ],
+    "equipeB": [
+      { "x": 571, "y": 182 },
+      { "x": 894, "y": 208 }
+    ],
+    "licenceA": [
+      { "x": 343, "y": 244 },
+      { "x": 445, "y": 270 }
+    ],
+    "licenceB": [
+      { "x": 343, "y": 271 },
+      { "x": 445, "y": 298 }
+    ],
+    "licenceC": [
+      { "x": 343, "y": 299 },
+      { "x": 445, "y": 326 }
+    ],
+    "licenceD": [
+      { "x": 343, "y": 327 },
+      { "x": 445, "y": 354 }
+    ],
+    "licenceE": [
+      { "x": 792, "y": 244 },
+      { "x": 894, "y": 270 }
+    ],
+    "licenceF": [
+      { "x": 792, "y": 271 },
+      { "x": 894, "y": 298 }
+    ],
+    "licenceG": [
+      { "x": 792, "y": 299 },
+      { "x": 894, "y": 326 }
+    ],
+    "licenceH": [
+      { "x": 792, "y": 327 },
+      { "x": 894, "y": 354 }
+    ],
+    "doubleA1": [
+      { "x": 66, "y": 381 },
+      { "x": 445, "y": 408 }
+    ],
+    "doubleA2": [
+      { "x": 66, "y": 409 },
+      { "x": 445, "y": 435 }
+    ],
+    "doubleE1": [
+      { "x": 515, "y": 381 },
+      { "x": 894, "y": 408 }
+    ],
+    "doubleE2": [
+      { "x": 515, "y": 409 },
+      { "x": 894, "y": 435 }
+    ],
+    "licenceY": [
+      { "x": 343, "y": 466 },
+      { "x": 445, "y": 493 }
+    ],
+    "licenceZ": [
+      { "x": 792, "y": 466 },
+      { "x": 894, "y": 493 }
+    ],
+    "remplaceJoueurA": [
+      { "x": 256, "y": 505 },
+      { "x": 290, "y": 532 }
+    ],
+    "remplaceJoueurAMatch": [
+      { "x": 412, "y": 505 },
+      { "x": 445, "y": 532 }
+    ],
+    "remplaceJoueurB": [
+      { "x": 705, "y": 505 },
+      { "x": 739, "y": 532 }
+    ],
+    "remplaceJoueurBMatch": [
+      { "x": 861, "y": 505 },
+      { "x": 894, "y": 532 }
+    ]
+  },
+  "checkbox": {
+    "match1_gagnant_EquipeA": [
+      { "x": 92, "y": 623 },
+      { "x": 117, "y": 645 }
+    ],
+    "match1_gagnant_Manche1_EquipeA": [
+      { "x": 40, "y": 658 },
+      { "x": 65, "y": 680 }
+    ],
+    "match1_gagnant_Manche2_EquipeA": [
+      { "x": 66, "y": 658 },
+      { "x": 91, "y": 680 }
+    ],
+    "match1_gagnant_Manche3_EquipeA": [
+      { "x": 92, "y": 658 },
+      { "x": 117, "y": 680 }
+    ],
+    "match1_gagnant_Manche1_EquipeB": [
+      { "x": 40, "y": 681 },
+      { "x": 65, "y": 702 }
+    ],
+    "match1_gagnant_Manche2_EquipeB": [
+      { "x": 66, "y": 681 },
+      { "x": 91, "y": 702 }
+    ],
+    "match1_gagnant_Manche_3EquipeB": [
+      { "x": 92, "y": 681 },
+      { "x": 117, "y": 702 }
+    ],
+
+    "match2_gagnant_EquipeA": [
+      { "x": 196, "y": 623 },
+      { "x": 221, "y": 645 }
+    ],
+    "match2_gagnant_Manche1_EquipeA": [
+      { "x": 144, "y": 658 },
+      { "x": 169, "y": 680 }
+    ],
+    "match2_gagnant_Manche2_EquipeA": [
+      { "x": 170, "y": 658 },
+      { "x": 195, "y": 680 }
+    ],
+    "match2_gagnantManche3EquipeA": [
+      { "x": 196, "y": 658 },
+      { "x": 221, "y": 680 }
+    ],
+    "match2_gagnant_Manche1_EquipeB": [
+      { "x": 144, "y": 681 },
+      { "x": 169, "y": 702 }
+    ],
+    "match2_gagnant_Manche2_EquipeB": [
+      { "x": 170, "y": 681 },
+      { "x": 195, "y": 702 }
+    ],
+    "match2_gagnant_Manche3_EquipeB": [
+      { "x": 196, "y": 681 },
+      { "x": 221, "y": 702 }
+    ],
+
+    "match3_gagnant_EquipeA": [
+      { "x": 300, "y": 624 },
+      { "x": 324, "y": 645 }
+    ],
+    "match3_gagnant_Manche1_EquipeA": [
+      { "x": 248, "y": 658 },
+      { "x": 275, "y": 680 }
+    ],
+    "match3_gagnant_Manche2_EquipeA": [
+      { "x": 274, "y": 658 },
+      { "x": 299, "y": 680 }
+    ],
+    "match3_gagnantManche3EquipeA": [
+      { "x": 300, "y": 658 },
+      { "x": 325, "y": 680 }
+    ],
+    "match3_gagnant_Manche1_EquipeB": [
+      { "x": 248, "y": 681 },
+      { "x": 274, "y": 702 }
+    ],
+    "match3_gagnant_Manche2_EquipeB": [
+      { "x": 274, "y": 681 },
+      { "x": 299, "y": 702 }
+    ],
+    "match3_gagnant_Manche3_EquipeB": [
+      { "x": 300, "y": 681 },
+      { "x": 325, "y": 702 }
+    ],
+
+    "match4_gagnant_EquipeA": [
+      { "x": 404, "y": 623 },
+      { "x": 428, "y": 645 }
+    ],
+    "match4_gagnant_Manche1_EquipeA": [
+      { "x": 352, "y": 658 },
+      { "x": 379, "y": 680 }
+    ],
+    "match4_gagnant_Manche2_EquipeA": [
+      { "x": 378, "y": 658 },
+      { "x": 402, "y": 680 }
+    ],
+    "match4_gagnantManche3EquipeA": [
+      { "x": 404, "y": 658 },
+      { "x": 429, "y": 680 }
+    ],
+    "match4_gagnant_Manche1_EquipeB": [
+      { "x": 352, "y": 681 },
+      { "x": 378, "y": 702 }
+    ],
+    "match4_gagnant_Manche2_EquipeB": [
+      { "x": 378, "y": 681 },
+      { "x": 403, "y": 702 }
+    ],
+    "match4_gagnant_Manche3_EquipeB": [
+      { "x": 404, "y": 681 },
+      { "x": 429, "y": 702 }
+    ],
+
+    "match5_gagnant_EquipeA": [
+      { "x": 508, "y": 623 },
+      { "x": 533, "y": 645 }
+    ],
+    "match5_gagnant_Manche1_EquipeA": [
+      { "x": 456, "y": 658 },
+      { "x": 483, "y": 680 }
+    ],
+    "match5_gagnant_Manche2_EquipeA": [
+      { "x": 482, "y": 658 },
+      { "x": 507, "y": 680 }
+    ],
+    "match5_gagnantManche3EquipeA": [
+      { "x": 507, "y": 658 },
+      { "x": 533, "y": 680 }
+    ],
+    "match5_gagnant_Manche1_EquipeB": [
+      { "x": 456, "y": 681 },
+      { "x": 482, "y": 702 }
+    ],
+    "match5_gagnant_Manche2_EquipeB": [
+      { "x": 482, "y": 681 },
+      { "x": 507, "y": 702 }
+    ],
+    "match5_gagnant_Manche3_EquipeB": [
+      { "x": 508, "y": 681 },
+      { "x": 533, "y": 702 }
+    ],
+
+    "match6_gagnant_EquipeA": [
+      { "x": 610, "y": 623 },
+      { "x": 635, "y": 645 }
+    ],
+    "match6_gagnant_Manche1_EquipeA": [
+      { "x": 558, "y": 658 },
+      { "x": 583, "y": 680 }
+    ],
+    "match6_gagnant_Manche2_EquipeA": [
+      { "x": 584, "y": 658 },
+      { "x": 609, "y": 680 }
+    ],
+    "match6_gagnantManche3EquipeA": [
+      { "x": 609, "y": 658 },
+      { "x": 635, "y": 680 }
+    ],
+    "match6_gagnant_Manche1_EquipeB": [
+      { "x": 558, "y": 681 },
+      { "x": 584, "y": 702 }
+    ],
+    "match6_gagnant_Manche2_EquipeB": [
+      { "x": 584, "y": 681 },
+      { "x": 609, "y": 702 }
+    ],
+    "match6_gagnant_Manche3_EquipeB": [
+      { "x": 610, "y": 681 },
+      { "x": 635, "y": 702 }
+    ],
+
+    "match7_gagnant_EquipeA": [
+      { "x": 714, "y": 623 },
+      { "x": 739, "y": 645 }
+    ],
+    "match7_gagnant_Manche1_EquipeA": [
+      { "x": 662, "y": 658 },
+      { "x": 687, "y": 680 }
+    ],
+    "match7_gagnant_Manche2_EquipeA": [
+      { "x": 688, "y": 658 },
+      { "x": 713, "y": 680 }
+    ],
+    "match7_gagnantManche3EquipeA": [
+      { "x": 713, "y": 658 },
+      { "x": 739, "y": 680 }
+    ],
+    "match7_gagnant_Manche1_EquipeB": [
+      { "x": 662, "y": 681 },
+      { "x": 688, "y": 702 }
+    ],
+    "match7_gagnant_Manche2_EquipeB": [
+      { "x": 688, "y": 681 },
+      { "x": 713, "y": 702 }
+    ],
+    "match7_gagnant_Manche3_EquipeB": [
+      { "x": 714, "y": 681 },
+      { "x": 739, "y": 702 }
+    ]
+  }
+}
