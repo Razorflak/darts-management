@@ -35,6 +35,11 @@ export default {
   mailer: {
     adress: process.env.EMAIL_ADRESS,
     password: process.env.EMAIL_PASSWORD
+  },
+
+  matchSheetScanner: {
+    pathImageMagick: process.env.PATH_IMAGEMAGICK,
+    pathTmpProcessFolder: process.env.PATH_TMP_SCAN_PROCESS
   }
 };
 //# sourceMappingURL=index.js.map
