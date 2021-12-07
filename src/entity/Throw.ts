@@ -1,7 +1,7 @@
 import ILeg from '@interface/ILeg';
 import IPlayer from '@interface/IPlayer';
 import IThrow from '@interface/IThrow';
-import { Column, Entity, PrimaryGeneratedColumn, ManyToOne, ManyToMany } from 'typeorm';
+import { Column, Entity, PrimaryGeneratedColumn, ManyToOne } from 'typeorm';
 import Leg from './Leg';
 import Player from './Player';
 
@@ -19,7 +19,7 @@ export default class Throw implements IThrow {
   @Column()
   score: number;
 
-  @ManyToMany(() => Leg, (leg) => leg.id, { onDelete: 'CASCADE' })
+  @ManyToOne(() => Leg, (leg) => leg.id, { onDelete: 'CASCADE' })
   leg: ILeg;
 
   @ManyToOne(() => Player, (player) => player.id)
