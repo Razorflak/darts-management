@@ -1,0 +1,47 @@
+Les matchs seront numéroté de la façon suivant:
+Finale 1
+Demi 2, 3
+Quart 4, 5, 6, 7
+...
+
+Pour calculer le match vers le quel doit aller le gagnat on fera le calcul suivant:
+truncate(numMatch/2) 
+exemple: Gagné le 1/4 de final 5 fera: truncate(5/2) = 2  donc match numéroté 2
+
+------------------------
+Calcul de nombre de pahse nécessaire au tournois:
+x = 1
+while (x < nbrJoueur){
+	x * 2
+}
+nbrPhase = x / 2 
+
+------------------------
+Pour générer le nombre de match nécéssaire à une phase final
+nbrPhase * 2 - 1 = des matchs de 1 à 127
+
+------------------------
+Pour calculer quel phase final le match correspond
+exemple 17 = 16  31 = 16
+x = 1
+while(numMatch > x){
+	x*2
+}
+phase = `{x/2}e de final`
+
+------------------------
+Pour les poules, simplement se fair rencontrer toutes les équipes de la phase ?
+
+------------------------
+Pour le format double KO, en attente du format pour touver un algo pour simuler cette merde ...
+
+Pour un tournois à double élimination:
+Pour placer le joueur perdant dans le son match suivant
+Un tour sur Deux on le déplace simplement dans le match à index négatif correspondant
+exemple, le joeur perd le nomMatch = 4 go numMatch = -4  --> (numMatch * -1)
+Dans l'autre cas, on le déplace au match de position inverse
+pour calculer voici la formule
+Si 1/4 de final on a phase = 4
+numMatch - (phase * 2 - 1) = -7
+
+
