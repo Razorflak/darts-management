@@ -1,0 +1,13 @@
+{
+	"name": "@wdfd/biome-config",
+	"type": "module",
+	"version": "0.0.0",
+	"private": true,
+	"license": "MIT",
+	"exports": {
+		"./biome": "./biome.json"
+	},
+	"publishConfig": {
+		"access": "public"
+	}
+}

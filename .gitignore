@@ -1,0 +1,34 @@
+# Ignorer les dossiers node_modules partout dans le repo (mono repo)
+**/node_modules/
+
+# Ignorer les dossiers de build / production
+**/build/
+**/dist/
+
+# Ignorer les dossiers de cache / coverage
+**/.cache/
+**/coverage/
+
+# Ignorer les fichiers logs
+*.log
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
+
+# Ignorer les fichiers d'environnement locaux
+.env
+.env.local
+.env.*.local
+
+# Ignorer les fichiers spécifiques aux systèmes
+.DS_Store
+Thumbs.db
+
+# Ignorer les fichiers IDE / éditeur
+.vscode/
+.idea/
+*.suo
+*.ntvs*
+*.njsproj
+*.sln
+

@@ -1,0 +1,16 @@
+{
+  "name": "@wdfd/vitest-config",
+  "type": "module",
+  "files": [
+    "*.js"
+  ],
+  "version": "0.0.0",
+  "private": true,
+  "license": "MIT",
+  "publishConfig": {
+    "access": "public"
+  },
+  "dependencies": {
+    "vitest": "^3.0.0"
+  }
+}

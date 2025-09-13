@@ -1,0 +1,19 @@
+{
+  "name": "@wdfd/sample",
+  "type": "module",
+  "version": "1.0.0",
+  "main": "src/index.ts",
+  "scripts": {
+    "test": "test",
+    "dev": "tsx watch src",
+    "typecheck": "tsc --noEmit"
+  },
+  "author": "jta",
+  "license": "ISC",
+  "description": "",
+  "dependencies": {},
+  "devDependencies": {
+    "@wdfd/biome-config": "workspace:*",
+    "@wdfd/typescript-config": "workspace:*"
+  }
+}
