@@ -1,5 +1,5 @@
 {
-	"name": "@wdfd/biome-config",
+	"name": "@darts-management/biome-config",
 	"type": "module",
 	"version": "0.0.0",
 	"private": true,

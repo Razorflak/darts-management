@@ -1,5 +1,5 @@
 {
-	"extends": ["@wdfd/biome-config/biome"],
+	"extends": ["@darts-management/biome-config/biome"],
 	"files": {
 		"ignore": ["dist", "node_modules"]
 	}

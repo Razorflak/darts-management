@@ -1,5 +1,5 @@
 {
-  "name": "@wdfd/sample",
+  "name": "@darts-management/sample",
   "type": "module",
   "version": "1.0.0",
   "main": "src/index.ts",
@@ -13,7 +13,7 @@
   "description": "",
   "dependencies": {},
   "devDependencies": {
-    "@wdfd/biome-config": "workspace:*",
-    "@wdfd/typescript-config": "workspace:*"
+    "@darts-management/biome-config": "workspace:*",
+    "@darts-management/typescript-config": "workspace:*"
   }
 }

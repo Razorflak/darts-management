@@ -1,0 +1,24 @@
+@import 'tailwindcss';
+@import '$lib/styles/theme.css';
+
+/* Flowbite-Svelte : scan des classes Tailwind utilisées */
+@source "../../node_modules/flowbite-svelte/dist";
+
+/* Dark mode basé sur la classe .dark uniquement (jamais ajoutée = toujours light) */
+@custom-variant dark (&:where(.dark, .dark *));
+
+@layer base {
+	/* Taille de base confortable pour un public peu à l'aise avec le numérique */
+	html {
+		font-size: 16px;
+	}
+	@media (min-width: 768px) {
+		html {
+			font-size: 18px;
+		}
+	}
+	body {
+		font-family: var(--font-sans);
+		-webkit-font-smoothing: antialiased;
+	}
+}

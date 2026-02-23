@@ -2,3 +2,7 @@ packages:
   - "docs"
   - "apps/*"
   - "packages/**"
+onlyBuiltDependencies:
+  - esbuild
+  - prisma
+  - "@prisma/engines"

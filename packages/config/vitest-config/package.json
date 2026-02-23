@@ -1,5 +1,5 @@
 {
-  "name": "@wdfd/vitest-config",
+  "name": "@darts-management/vitest-config",
   "type": "module",
   "files": [
     "*.js"
@@ -11,6 +11,6 @@
     "access": "public"
   },
   "dependencies": {
-    "vitest": "^3.0.0"
+    "vitest": "^4.0.18"
   }
 }

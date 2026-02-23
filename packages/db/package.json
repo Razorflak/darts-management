@@ -1,0 +1,23 @@
+{
+	"name": "@darts-management/db",
+	"private": true,
+	"version": "1.0.0",
+	"type": "module",
+	"exports": {
+		".": "./src/index.ts"
+	},
+	"scripts": {
+		"db:migrate": "prisma migrate deploy",
+		"db:migrate:dev": "prisma migrate dev --skip-generate",
+		"db:migrate:reset": "prisma migrate reset --skip-generate",
+		"typecheck": "tsc --noEmit"
+	},
+	"dependencies": {
+		"postgres": "^3.4.5"
+	},
+	"devDependencies": {
+		"@darts-management/biome-config": "workspace:*",
+		"@darts-management/typescript-config": "workspace:*",
+		"prisma": "^6.0.0"
+	}
+}
