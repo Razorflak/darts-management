@@ -35,7 +35,7 @@ Permettre à un organisateur de créer un tournoi complexe (multi-événements, 
 - [ ] Assignation automatique des arbitres aux matchs (joueur disponible dans le tournoi)
 - [ ] Saisie des résultats par l'admin du tournoi (depuis feuilles de match papier)
 - [ ] Avancement automatique des phases (remplissage des cases au fil des résultats)
-- [ ] Classements et tableaux mis à jour en temps réel (SSE)
+- [ ] Classements et tableaux (rafraîchissement manuel en v1.0)
 - [ ] Tableau de bord de la journée : vision globale de tous les matchs
 
 ### Out of Scope
@@ -75,7 +75,7 @@ Prototype frontend complet pour le wizard de création (SvelteKit + Svelte 5 run
 ## Constraints
 
 - **Tech stack** : SvelteKit (full-stack, server routes) + TypeScript + PostgreSQL — décision arrêtée
-- **Auth** : Lucia v3 — sessions-based, intégration SvelteKit native
+- **Auth** : Better Auth v1.4.x — sessions-based, intégration SvelteKit native (Lucia v3 déprécié mars 2025)
 - **Pas d'ORM** : requêtes SQL brutes uniquement via le package `packages/db`
 - **Saisie résultats** : admin du tournoi uniquement (feuilles papier → saisie) — pas de temps réel joueur
 - **Arbitrage** : toujours un joueur inscrit au tournoi, assigné automatiquement par le système
@@ -85,11 +85,29 @@ Prototype frontend complet pour le wizard de création (SvelteKit + Svelte 5 run
 | Decision | Rationale | Outcome |
 |----------|-----------|---------|
 | SvelteKit full-stack (pas de backend séparé) | Partage de types natif, un seul déploiement, monorepo déjà structuré | — Pending |
-| Lucia v3 pour l'auth | Intégration SvelteKit native, sessions-based, 100% TypeScript, pas de service externe | — Pending |
+| Better Auth v1.4.x pour l'auth (remplace Lucia v3) | Lucia v3 déprécié mars 2025. Better Auth = même ergonomie, PostgreSQL first-class, activement maintenu | ✓ Good |
 | Génération de tous les matchs au lancement | Vision globale de la journée, anticipe l'optimisation des plannings | — Pending |
 | Format set/manche configurable par phase | Anticipe un changement de règlement fédéral | — Pending |
-| SSE pour le temps réel | Plus simple que WebSocket, suffisant pour updates de résultats/classements | — Pending |
+| SSE pour le temps réel | Plus simple que WebSocket, suffisant pour updates de résultats/classements | — Pending (v1.1) |
 | Prototype = exploration (non bloquant) | Le wizard est une bonne base UI/UX mais l'archi peut évoluer | — Pending |
 
+## Current Milestone: v1.0 — Tournoi de bout en bout
+
+**Goal:** Permettre à un organisateur de mener un tournoi complet : création → inscription → lancement → arbitrage → résultats → classements.
+
+**Target features:**
+- Wizard de création + persistance PostgreSQL
+- Auth (Better Auth v1.4.x) + rôles (organisateur, admin tournoi, joueur, admin fédéral)
+- Hiérarchie fédérale (Fédération > Ligues > Comités > Clubs)
+- Inscription des joueurs + check-in jour J
+- Lancement et génération automatique de tous les matchs
+- Format set/manche configurable par phase
+- Assignation automatique des arbitres
+- Saisie des résultats + avancement automatique des phases
+- Classements (rafraîchissement manuel)
+- Tableau de bord de la journée
+
+**Deferred to v1.1:** SSE temps réel
+
 ---
-*Last updated: 2026-02-27 after initialization*
+*Last updated: 2026-02-28 after milestone v1.0 scoping*
