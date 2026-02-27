@@ -84,36 +84,36 @@
 
 | Requirement | Phase | Status |
 |-------------|-------|--------|
-| AUTH-01 | Phase 1 | Pending |
-| AUTH-02 | Phase 1 | Pending |
-| AUTH-03 | Phase 1 | Pending |
-| AUTH-04 | Phase 1 | Pending |
-| ORG-01 | Phase 1 | Pending |
-| ORG-02 | Phase 1 | Pending |
-| ORG-03 | Phase 1 | Pending |
-| EVENT-01 | Phase 2 | Pending |
-| EVENT-02 | Phase 2 | Pending |
-| EVENT-03 | Phase 2 | Pending |
-| EVENT-04 | Phase 2 | Pending |
-| EVENT-05 | Phase 2 | Pending |
-| EVENT-06 | Phase 2 | Pending |
-| PLAYER-01 | Phase 3 | Pending |
-| PLAYER-02 | Phase 3 | Pending |
-| PLAYER-03 | Phase 3 | Pending |
-| PLAYER-04 | Phase 3 | Pending |
-| LAUNCH-01 | Phase 4 | Pending |
-| LAUNCH-02 | Phase 4 | Pending |
-| LAUNCH-03 | Phase 4 | Pending |
-| LAUNCH-04 | Phase 4 | Pending |
-| LAUNCH-05 | Phase 4 | Pending |
-| RESULT-01 | Phase 5 | Pending |
-| RESULT-02 | Phase 5 | Pending |
-| RESULT-03 | Phase 5 | Pending |
-| RESULT-04 | Phase 5 | Pending |
-| VIEW-01 | Phase 6 | Pending |
-| VIEW-02 | Phase 6 | Pending |
-| VIEW-03 | Phase 6 | Pending |
-| VIEW-04 | Phase 6 | Pending |
+| AUTH-01 | Phase 1 — Foundation | Pending |
+| AUTH-02 | Phase 1 — Foundation | Pending |
+| AUTH-03 | Phase 1 — Foundation | Pending |
+| AUTH-04 | Phase 1 — Foundation | Pending |
+| ORG-01 | Phase 1 — Foundation | Pending |
+| ORG-02 | Phase 1 — Foundation | Pending |
+| ORG-03 | Phase 1 — Foundation | Pending |
+| EVENT-01 | Phase 2 — Wizard Persistence | Pending |
+| EVENT-02 | Phase 2 — Wizard Persistence | Pending |
+| EVENT-03 | Phase 2 — Wizard Persistence | Pending |
+| EVENT-04 | Phase 2 — Wizard Persistence | Pending |
+| EVENT-05 | Phase 2 — Wizard Persistence | Pending |
+| EVENT-06 | Phase 2 — Wizard Persistence | Pending |
+| PLAYER-01 | Phase 3 — Player Registration | Pending |
+| PLAYER-02 | Phase 3 — Player Registration | Pending |
+| PLAYER-03 | Phase 3 — Player Registration | Pending |
+| PLAYER-04 | Phase 3 — Player Registration | Pending |
+| LAUNCH-01 | Phase 4 — Launch and Match Generation | Pending |
+| LAUNCH-02 | Phase 4 — Launch and Match Generation | Pending |
+| LAUNCH-03 | Phase 4 — Launch and Match Generation | Pending |
+| LAUNCH-04 | Phase 4 — Launch and Match Generation | Pending |
+| LAUNCH-05 | Phase 4 — Launch and Match Generation | Pending |
+| RESULT-01 | Phase 5 — Results and Advancement | Pending |
+| RESULT-02 | Phase 5 — Results and Advancement | Pending |
+| RESULT-03 | Phase 5 — Results and Advancement | Pending |
+| RESULT-04 | Phase 5 — Results and Advancement | Pending |
+| VIEW-01 | Phase 6 — Views and Dashboard | Pending |
+| VIEW-02 | Phase 6 — Views and Dashboard | Pending |
+| VIEW-03 | Phase 6 — Views and Dashboard | Pending |
+| VIEW-04 | Phase 6 — Views and Dashboard | Pending |
 
 **Coverage:**
 - v1 requirements: 30 total
@@ -122,4 +122,4 @@
 
 ---
 *Requirements defined: 2026-02-28*
-*Last updated: 2026-02-28 after initial definition*
+*Last updated: 2026-02-28 — roadmap created, phase names added to traceability*
