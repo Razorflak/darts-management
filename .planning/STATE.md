@@ -1,3 +1,16 @@
+---
+gsd_state_version: 1.0
+milestone: v1.0
+milestone_name: milestone
+status: unknown
+last_updated: "2026-02-28T19:35:00.089Z"
+progress:
+  total_phases: 1
+  completed_phases: 0
+  total_plans: 4
+  completed_plans: 3
+---
+
 # Project State
 
 ## Project Reference
@@ -10,24 +23,24 @@ See: .planning/PROJECT.md (updated 2026-02-28)
 ## Current Position
 
 Phase: 1 of 6 (Foundation)
-Plan: 2 of 4 in current phase
+Plan: 3 of 4 in current phase
 Status: In progress
-Last activity: 2026-02-28 — Completed plan 01-02: SvelteKit auth wiring, route groups, app shell
+Last activity: 2026-02-28 — Completed plan 01-03: Auth pages (login, register, password reset)
 
-Progress: [░░░░░░░░░░] 8% (2/24 plans estimated)
+Progress: [░░░░░░░░░░] 12% (3/24 plans estimated)
 
 ## Performance Metrics
 
 **Velocity:**
-- Total plans completed: 2
+- Total plans completed: 3
 - Average duration: 3 min
-- Total execution time: 6 min
+- Total execution time: 9 min
 
 **By Phase:**
 
 | Phase | Plans | Total | Avg/Plan |
 |-------|-------|-------|----------|
-| 01-foundation | 2 | 6 min | 3 min |
+| 01-foundation | 3 | 9 min | 3 min |
 
 *Updated after each plan completion*
 
@@ -49,6 +62,9 @@ Progress: [░░░░░░░░░░] 8% (2/24 plans estimated)
 - [01-02] flowbite-svelte v1.x Navbar children est un Snippet — NavLi n'a pas de prop active, activeUrl sur NavUl drive l'etat actif
 - [01-02] Root +page.svelte supprime — (app)/+page.svelte sert l'URL / via le route group
 - [01-02] sequence(betterAuthHandle, authHandle) — betterAuthHandle monte les routes /api/auth/*, authHandle populate locals manuellement
+- [Phase 01-03]: Better Auth v1.4.x: forgetPassword renamed to requestPasswordReset — plan had outdated method name
+- [Phase 01-03]: Flowbite-Svelte v1.x Alert icon: Svelte 5 snippet syntax ({#snippet icon()}) replaces legacy slot='icon'
+- [Phase 01-03]: Anti-enumeration pattern: void requestPasswordReset (do not await), always return sent=true
 
 ### Pending Todos
 
@@ -67,5 +83,5 @@ None yet.
 ## Session Continuity
 
 Last session: 2026-02-28
-Stopped at: Completed 01-02-PLAN.md — SvelteKit auth wiring, route groups, app shell
+Stopped at: Completed 01-03-PLAN.md — Auth pages: login, register, password reset
 Resume file: None
