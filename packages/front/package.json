@@ -16,6 +16,8 @@
 		"test": "npm run test:unit -- --run"
 	},
 	"dependencies": {
+		"@darts-management/db": "workspace:*",
+		"better-auth": "^1.4.20",
 		"flowbite-svelte": "^1.31.0",
 		"flowbite-svelte-icons": "^3.1.0",
 		"sortablejs": "^1.15.6"
