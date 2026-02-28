@@ -31,7 +31,13 @@ Decimal phases appear between their surrounding integers in numeric order.
   3. A user can reset a forgotten password via an email link
   4. An admin federal can create entities (Federation, Ligue, Comite, Club) and establish the parent-child hierarchy
   5. An organisateur can create events scoped to their entity (entity selector populated from DB)
-**Plans**: TBD
+**Plans**: 4 plans
+
+Plans:
+- [ ] 01-01-PLAN.md — DB foundation: Better Auth setup, permissions, SQL migrations, dev seed
+- [ ] 01-02-PLAN.md — SvelteKit wiring: hooks, app.d.ts, route groups, shell layout with navbar
+- [ ] 01-03-PLAN.md — Auth pages: register, login, password reset 3-step flow
+- [ ] 01-04-PLAN.md — Entity admin UI: flat list with grouping, creation form with parent selector
 
 ### Phase 2: Wizard Persistence
 **Goal**: The existing wizard prototype is wired to real server routes — an organisateur can create and publish an event that persists in PostgreSQL
@@ -97,7 +103,7 @@ Phases execute in numeric order: 1 → 2 → 3 → 4 → 5 → 6
 
 | Phase | Plans Complete | Status | Completed |
 |-------|----------------|--------|-----------|
-| 1. Foundation | 0/? | Not started | - |
+| 1. Foundation | 0/4 | Planned | - |
 | 2. Wizard Persistence | 0/? | Not started | - |
 | 3. Player Registration | 0/? | Not started | - |
 | 4. Launch and Match Generation | 0/? | Not started | - |
