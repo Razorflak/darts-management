@@ -7,15 +7,15 @@
 
 ### AUTH — Authentification & Rôles
 
-- [ ] **AUTH-01**: L'utilisateur peut s'inscrire avec email/mot de passe
-- [ ] **AUTH-02**: L'utilisateur peut se connecter et sa session persiste entre les rechargements
-- [ ] **AUTH-03**: L'utilisateur peut réinitialiser son mot de passe via email
-- [ ] **AUTH-04**: Le système distingue 4 rôles : joueur, admin tournoi, organisateur (entité), admin fédéral
+- [x] **AUTH-01**: L'utilisateur peut s'inscrire avec email/mot de passe
+- [x] **AUTH-02**: L'utilisateur peut se connecter et sa session persiste entre les rechargements
+- [x] **AUTH-03**: L'utilisateur peut réinitialiser son mot de passe via email
+- [x] **AUTH-04**: Le système distingue 4 rôles : joueur, admin tournoi, organisateur (entité), admin fédéral
 
 ### ORG — Hiérarchie fédérale
 
-- [ ] **ORG-01**: Un admin fédéral peut créer et gérer les entités (Fédération, Ligues, Comités, Clubs)
-- [ ] **ORG-02**: Les entités sont hiérarchisées (Ligue → Fédération, Comité → Ligue, Club → Comité)
+- [x] **ORG-01**: Un admin fédéral peut créer et gérer les entités (Fédération, Ligues, Comités, Clubs)
+- [x] **ORG-02**: Les entités sont hiérarchisées (Ligue → Fédération, Comité → Ligue, Club → Comité)
 - [ ] **ORG-03**: Un organisateur peut créer des événements au nom de son entité
 
 ### EVENT — Création & Configuration
@@ -84,12 +84,12 @@
 
 | Requirement | Phase | Status |
 |-------------|-------|--------|
-| AUTH-01 | Phase 1 — Foundation | Pending |
-| AUTH-02 | Phase 1 — Foundation | Pending |
-| AUTH-03 | Phase 1 — Foundation | Pending |
-| AUTH-04 | Phase 1 — Foundation | Pending |
-| ORG-01 | Phase 1 — Foundation | Pending |
-| ORG-02 | Phase 1 — Foundation | Pending |
+| AUTH-01 | Phase 1 — Foundation | Complete |
+| AUTH-02 | Phase 1 — Foundation | Complete |
+| AUTH-03 | Phase 1 — Foundation | Complete |
+| AUTH-04 | Phase 1 — Foundation | Complete |
+| ORG-01 | Phase 1 — Foundation | Complete |
+| ORG-02 | Phase 1 — Foundation | Complete |
 | ORG-03 | Phase 1 — Foundation | Pending |
 | EVENT-01 | Phase 2 — Wizard Persistence | Pending |
 | EVENT-02 | Phase 2 — Wizard Persistence | Pending |

@@ -10,24 +10,24 @@ See: .planning/PROJECT.md (updated 2026-02-28)
 ## Current Position
 
 Phase: 1 of 6 (Foundation)
-Plan: 0 of ? in current phase
-Status: Ready to plan
-Last activity: 2026-02-28 — Roadmap created, 30 v1 requirements mapped to 6 phases
+Plan: 1 of 4 in current phase
+Status: In progress
+Last activity: 2026-02-28 — Completed plan 01-01: DB foundation (Better Auth, permissions, migrations)
 
-Progress: [░░░░░░░░░░] 0%
+Progress: [░░░░░░░░░░] 4% (1/24 plans estimated)
 
 ## Performance Metrics
 
 **Velocity:**
-- Total plans completed: 0
-- Average duration: -
-- Total execution time: -
+- Total plans completed: 1
+- Average duration: 2 min
+- Total execution time: 2 min
 
 **By Phase:**
 
 | Phase | Plans | Total | Avg/Plan |
 |-------|-------|-------|----------|
-| - | - | - | - |
+| 01-foundation | 1 | 2 min | 2 min |
 
 *Updated after each plan completion*
 
@@ -40,6 +40,12 @@ Progress: [░░░░░░░░░░] 0%
 - Generation brackets: fonctions TypeScript pures (pas de bibliotheque externe)
 - Pas d'ORM: raw SQL uniquement via packages/db
 - Pattern donnees: toujours des equipes, meme en simples (equipe de 1 joueur)
+- [01-01] kysely-postgres-js dialect pour Better Auth — partage la connexion postgres.js existante (pas de dual-driver)
+- [01-01] node-pg-migrate remplace prisma migrate scripts (meilleur fit pour projet sans ORM)
+- [01-01] Tables Better Auth en camelCase — bug connu avec casing: "snake" + postgres.js dialect (issue #4789)
+- [01-01] requireEmailVerification: false — connexion immediate apres inscription (decision produit)
+- [01-01] defaultRole: "joueur" dans admin plugin — tous les nouveaux utilisateurs commencent en joueur
+- [01-01] sveltekitCookies en dernier plugin — obligatoire pour les form actions SvelteKit
 
 ### Pending Todos
 
@@ -58,5 +64,5 @@ None yet.
 ## Session Continuity
 
 Last session: 2026-02-28
-Stopped at: ROADMAP.md cree — 6 phases, 30/30 requirements mappes. Pret a planifier Phase 1.
+Stopped at: Completed 01-01-PLAN.md — DB foundation: Better Auth, permissions, migrations, dev seed
 Resume file: None
