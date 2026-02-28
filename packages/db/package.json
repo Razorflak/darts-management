@@ -7,17 +7,22 @@
 		".": "./src/index.ts"
 	},
 	"scripts": {
-		"db:migrate": "prisma migrate deploy",
-		"db:migrate:dev": "prisma migrate dev --skip-generate",
-		"db:migrate:reset": "prisma migrate reset --skip-generate",
+		"db:migrate": "node-pg-migrate up --database-url-var DATABASE_URL --migrations-dir src/schema",
+		"db:migrate:dev": "node-pg-migrate up --database-url-var DATABASE_URL --migrations-dir src/schema",
+		"db:migrate:create": "node-pg-migrate create --migrations-dir src/schema",
 		"typecheck": "tsc --noEmit"
 	},
 	"dependencies": {
+		"better-auth": "^1.4.20",
+		"kysely-postgres-js": "^3.0.0",
+		"nodemailer": "^8.0.1",
 		"postgres": "^3.4.5"
 	},
 	"devDependencies": {
 		"@darts-management/biome-config": "workspace:*",
 		"@darts-management/typescript-config": "workspace:*",
+		"@types/nodemailer": "^7.0.11",
+		"node-pg-migrate": "^8.0.4",
 		"prisma": "^6.0.0"
 	}
 }
