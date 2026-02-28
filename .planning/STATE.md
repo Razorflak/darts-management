@@ -10,24 +10,24 @@ See: .planning/PROJECT.md (updated 2026-02-28)
 ## Current Position
 
 Phase: 1 of 6 (Foundation)
-Plan: 1 of 4 in current phase
+Plan: 2 of 4 in current phase
 Status: In progress
-Last activity: 2026-02-28 — Completed plan 01-01: DB foundation (Better Auth, permissions, migrations)
+Last activity: 2026-02-28 — Completed plan 01-02: SvelteKit auth wiring, route groups, app shell
 
-Progress: [░░░░░░░░░░] 4% (1/24 plans estimated)
+Progress: [░░░░░░░░░░] 8% (2/24 plans estimated)
 
 ## Performance Metrics
 
 **Velocity:**
-- Total plans completed: 1
-- Average duration: 2 min
-- Total execution time: 2 min
+- Total plans completed: 2
+- Average duration: 3 min
+- Total execution time: 6 min
 
 **By Phase:**
 
 | Phase | Plans | Total | Avg/Plan |
 |-------|-------|-------|----------|
-| 01-foundation | 1 | 2 min | 2 min |
+| 01-foundation | 2 | 6 min | 3 min |
 
 *Updated after each plan completion*
 
@@ -46,6 +46,9 @@ Progress: [░░░░░░░░░░] 4% (1/24 plans estimated)
 - [01-01] requireEmailVerification: false — connexion immediate apres inscription (decision produit)
 - [01-01] defaultRole: "joueur" dans admin plugin — tous les nouveaux utilisateurs commencent en joueur
 - [01-01] sveltekitCookies en dernier plugin — obligatoire pour les form actions SvelteKit
+- [01-02] flowbite-svelte v1.x Navbar children est un Snippet — NavLi n'a pas de prop active, activeUrl sur NavUl drive l'etat actif
+- [01-02] Root +page.svelte supprime — (app)/+page.svelte sert l'URL / via le route group
+- [01-02] sequence(betterAuthHandle, authHandle) — betterAuthHandle monte les routes /api/auth/*, authHandle populate locals manuellement
 
 ### Pending Todos
 
@@ -64,5 +67,5 @@ None yet.
 ## Session Continuity
 
 Last session: 2026-02-28
-Stopped at: Completed 01-01-PLAN.md — DB foundation: Better Auth, permissions, migrations, dev seed
+Stopped at: Completed 01-02-PLAN.md — SvelteKit auth wiring, route groups, app shell
 Resume file: None
