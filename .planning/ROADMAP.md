@@ -12,7 +12,7 @@ Six phases carry the project from zero backend to a fully operational tournament
 
 Decimal phases appear between their surrounding integers in numeric order.
 
-- [ ] **Phase 1: Foundation** - Auth (Better Auth v1.4.x), full DB schema, and federal entity hierarchy
+- [x] **Phase 1: Foundation** - Auth (Better Auth v1.4.x), full DB schema, and federal entity hierarchy (completed 2026-02-28)
 - [ ] **Phase 2: Wizard Persistence** - Event and tournament configuration saved to PostgreSQL
 - [ ] **Phase 3: Player Registration** - Player self-registration, manual add, check-in jour J
 - [ ] **Phase 4: Launch and Match Generation** - Atomic match generation for all phase types with referee assignment
@@ -103,7 +103,7 @@ Phases execute in numeric order: 1 → 2 → 3 → 4 → 5 → 6
 
 | Phase | Plans Complete | Status | Completed |
 |-------|----------------|--------|-----------|
-| 1. Foundation | 3/4 | In Progress|  |
+| 1. Foundation | 4/4 | Complete   | 2026-02-28 |
 | 2. Wizard Persistence | 0/? | Not started | - |
 | 3. Player Registration | 0/? | Not started | - |
 | 4. Launch and Match Generation | 0/? | Not started | - |

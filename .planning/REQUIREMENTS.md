@@ -16,7 +16,7 @@
 
 - [x] **ORG-01**: Un admin fédéral peut créer et gérer les entités (Fédération, Ligues, Comités, Clubs)
 - [x] **ORG-02**: Les entités sont hiérarchisées (Ligue → Fédération, Comité → Ligue, Club → Comité)
-- [ ] **ORG-03**: Un organisateur peut créer des événements au nom de son entité
+- [x] **ORG-03**: Un organisateur peut créer des événements au nom de son entité
 
 ### EVENT — Création & Configuration
 
@@ -90,7 +90,7 @@
 | AUTH-04 | Phase 1 — Foundation | Complete |
 | ORG-01 | Phase 1 — Foundation | Complete |
 | ORG-02 | Phase 1 — Foundation | Complete |
-| ORG-03 | Phase 1 — Foundation | Pending |
+| ORG-03 | Phase 1 — Foundation | Complete |
 | EVENT-01 | Phase 2 — Wizard Persistence | Pending |
 | EVENT-02 | Phase 2 — Wizard Persistence | Pending |
 | EVENT-03 | Phase 2 — Wizard Persistence | Pending |

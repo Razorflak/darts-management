@@ -3,12 +3,12 @@ gsd_state_version: 1.0
 milestone: v1.0
 milestone_name: milestone
 status: unknown
-last_updated: "2026-02-28T19:35:00.089Z"
+last_updated: "2026-02-28T19:39:01Z"
 progress:
-  total_phases: 1
-  completed_phases: 0
+  total_phases: 6
+  completed_phases: 1
   total_plans: 4
-  completed_plans: 3
+  completed_plans: 4
 ---
 
 # Project State
@@ -22,25 +22,25 @@ See: .planning/PROJECT.md (updated 2026-02-28)
 
 ## Current Position
 
-Phase: 1 of 6 (Foundation)
-Plan: 3 of 4 in current phase
-Status: In progress
-Last activity: 2026-02-28 — Completed plan 01-03: Auth pages (login, register, password reset)
+Phase: 1 of 6 (Foundation) — COMPLETE
+Plan: 4 of 4 in current phase
+Status: Phase 1 complete
+Last activity: 2026-02-28 — Completed plan 01-04: Entity administration UI (admin list + creation form)
 
-Progress: [░░░░░░░░░░] 12% (3/24 plans estimated)
+Progress: [█░░░░░░░░░] 17% (4/24 plans estimated)
 
 ## Performance Metrics
 
 **Velocity:**
-- Total plans completed: 3
+- Total plans completed: 4
 - Average duration: 3 min
-- Total execution time: 9 min
+- Total execution time: 12 min
 
 **By Phase:**
 
 | Phase | Plans | Total | Avg/Plan |
 |-------|-------|-------|----------|
-| 01-foundation | 3 | 9 min | 3 min |
+| 01-foundation | 4 | 12 min | 3 min |
 
 *Updated after each plan completion*
 
@@ -65,6 +65,8 @@ Progress: [░░░░░░░░░░] 12% (3/24 plans estimated)
 - [Phase 01-03]: Better Auth v1.4.x: forgetPassword renamed to requestPasswordReset — plan had outdated method name
 - [Phase 01-03]: Flowbite-Svelte v1.x Alert icon: Svelte 5 snippet syntax ({#snippet icon()}) replaces legacy slot='icon'
 - [Phase 01-03]: Anti-enumeration pattern: void requestPasswordReset (do not await), always return sent=true
+- [01-04] $effect.pre() pour form repopulation — $state(form?.type) declenche state_referenced_locally warning Svelte 5; $effect.pre est le pattern idiomatique
+- [01-04] Permission verifiee dans load ET action — evite bypass par POST direct sans visiter la page
 
 ### Pending Todos
 
@@ -83,5 +85,5 @@ None yet.
 ## Session Continuity
 
 Last session: 2026-02-28
-Stopped at: Completed 01-03-PLAN.md — Auth pages: login, register, password reset
+Stopped at: Completed 01-04-PLAN.md — Entity administration UI (admin list + creation form). Phase 1 complete.
 Resume file: None
