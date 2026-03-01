@@ -113,7 +113,7 @@ Phases execute in numeric order: 1 → 2 → 3 → 4 → 5 → 6
 | Phase | Plans Complete | Status | Completed |
 |-------|----------------|--------|-----------|
 | 1. Foundation | 5/6 | In Progress|  |
-| 2. Wizard Persistence | 4/7 | Gap Closure | - |
+| 2. Wizard Persistence | 5/7 | In Progress|  |
 | 3. Player Registration | 0/? | Not started | - |
 | 4. Launch and Match Generation | 0/? | Not started | - |
 | 5. Results and Advancement | 0/? | Not started | - |

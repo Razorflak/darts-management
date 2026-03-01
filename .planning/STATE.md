@@ -3,12 +3,12 @@ gsd_state_version: 1.0
 milestone: v1.0
 milestone_name: milestone
 status: unknown
-last_updated: "2026-03-01T14:32:23.108Z"
+last_updated: "2026-03-01T17:08:50.547Z"
 progress:
   total_phases: 2
-  completed_phases: 2
-  total_plans: 10
-  completed_plans: 10
+  completed_phases: 1
+  total_plans: 13
+  completed_plans: 11
 ---
 
 # Project State
@@ -46,6 +46,7 @@ Progress: [████░░░░░░] 40% (10/24 plans estimated)
 *Updated after each plan completion*
 | Phase 02-wizard-persistence P02 | 6 | 3 tasks | 5 files |
 | Phase 02-wizard-persistence P04 | 3 | 3 tasks | 6 files |
+| Phase 02-wizard-persistence P06 | 3 | 1 tasks | 1 files |
 
 ## Accumulated Context
 
@@ -86,6 +87,7 @@ Progress: [████░░░░░░] 40% (10/24 plans estimated)
 - [Phase 02-02]: Status 'ready' transition inside sql.begin() transaction — atomicity ensures draft stays if tournament inserts fail
 - [02-04]: publishError typed as string|undefined (not null) in PublishStep prop; page uses null ?? undefined coercion
 - [02-04]: Old /tournaments/new deleted immediately when EventStep entities prop was added (breaking typecheck)
+- [Phase 02-06]: [02-06]: Bidirectional $effect with string-comparison guard (propIso !== localIso) breaks inbound/outbound loop — stable state reached when both ISO strings match
 
 ### Pending Todos
 
