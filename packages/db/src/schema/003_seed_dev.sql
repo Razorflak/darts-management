@@ -3,7 +3,7 @@
 -- Populates: 1 federation, 2 ligues, 4 comites, 3 clubs, 4 test users with distinct roles
 
 -- Truncate in reverse dependency order
-TRUNCATE account, session, verification, entity, "user" CASCADE;
+TRUNCATE user_entity_role, account, session, verification, entity, "user" CASCADE;
 
 -- Federation
 INSERT INTO entity (id, name, type) VALUES
@@ -27,20 +27,23 @@ INSERT INTO entity (id, name, type, parent_id) VALUES
   ('00000000-0000-0000-0000-000000000031', 'Club Darts Montmartre', 'club', '00000000-0000-0000-0000-000000000020'),
   ('00000000-0000-0000-0000-000000000032', 'Club Darts Montpellier', 'club', '00000000-0000-0000-0000-000000000022');
 
--- Test users (password = "password123" for all)
--- bcrypt hash: $2b$10$N9qo8uLOickgx2ZMRZoMyeIjZAgcfl7p92ldGxad68LJZdL17lHuu
-INSERT INTO "user" (id, name, email, "emailVerified", role) VALUES
-  ('user-joueur-001',  'Jean Joueur',       'joueur@test.ffd.fr',  TRUE, 'joueur'),
-  ('user-org-001',     'Marie Organisatrice','orga@test.ffd.fr',    TRUE, 'organisateur'),
-  ('user-admin-001',   'Pierre Admin',      'admin@test.ffd.fr',   TRUE, 'admin_tournoi'),
-  ('user-federal-001', 'Sophie Fédérale',   'federal@test.ffd.fr', TRUE, 'admin_federal');
+-- Test users
+-- password "password123" → $2b$10$N9qo8uLOickgx2ZMRZoMyeIjZAgcfl7p92ldGxad68LJZdL17lHuu
+-- password "darts123"    → $2y$10$gb0NC80U3RYthFnma07e5.PpdZAwplCjiokgkEYjNcuw2niWKB1Nm
+INSERT INTO "user" (id, name, email, "emailVerified") VALUES
+  ('user-joueur-001',  'Jean Joueur',        'joueur@test.ffd.fr',    TRUE),
+  ('user-org-001',     'Marie Organisatrice', 'orga@test.ffd.fr',      TRUE),
+  ('user-admin-001',   'Pierre Admin',        'admin@test.ffd.fr',     TRUE),
+  ('user-federal-001', 'Sophie Fédérale',     'federal@test.ffd.fr',   TRUE),
+  ('user-tanguy-001',  'Tanguy',              'tanguyj35@gmail.com',   TRUE);
 
 -- Accounts (email/password provider)
 INSERT INTO account (id, "accountId", "providerId", "userId", password) VALUES
   ('acc-joueur-001',  'joueur@test.ffd.fr',  'credential', 'user-joueur-001',  '$2b$10$N9qo8uLOickgx2ZMRZoMyeIjZAgcfl7p92ldGxad68LJZdL17lHuu'),
   ('acc-org-001',     'orga@test.ffd.fr',    'credential', 'user-org-001',     '$2b$10$N9qo8uLOickgx2ZMRZoMyeIjZAgcfl7p92ldGxad68LJZdL17lHuu'),
   ('acc-admin-001',   'admin@test.ffd.fr',   'credential', 'user-admin-001',   '$2b$10$N9qo8uLOickgx2ZMRZoMyeIjZAgcfl7p92ldGxad68LJZdL17lHuu'),
-  ('acc-federal-001', 'federal@test.ffd.fr', 'credential', 'user-federal-001', '$2b$10$N9qo8uLOickgx2ZMRZoMyeIjZAgcfl7p92ldGxad68LJZdL17lHuu');
+  ('acc-federal-001', 'federal@test.ffd.fr', 'credential', 'user-federal-001', '$2b$10$N9qo8uLOickgx2ZMRZoMyeIjZAgcfl7p92ldGxad68LJZdL17lHuu'),
+  ('acc-tanguy-001',  'tanguyj35@gmail.com', 'credential', 'user-tanguy-001',  '$2y$10$gb0NC80U3RYthFnma07e5.PpdZAwplCjiokgkEYjNcuw2niWKB1Nm');
 
 -- Rôles des utilisateurs de test dans user_entity_role
 -- federal@test.ffd.fr → adminFederal sur la fédération
@@ -54,5 +57,9 @@ INSERT INTO user_entity_role (user_id, entity_id, role) VALUES
 -- admin@test.ffd.fr → adminTournoi sur Comité Paris
 INSERT INTO user_entity_role (user_id, entity_id, role) VALUES
   ('user-admin-001', '00000000-0000-0000-0000-000000000020', 'adminTournoi');
+
+-- tanguyj35@gmail.com → adminFederal sur la fédération
+INSERT INTO user_entity_role (user_id, entity_id, role) VALUES
+  ('user-tanguy-001', '00000000-0000-0000-0000-000000000001', 'adminFederal');
 
 -- joueur@test.ffd.fr → aucun rôle dans user_entity_role (joueur est implicite pour tout user authentifié)
