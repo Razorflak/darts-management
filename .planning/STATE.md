@@ -3,12 +3,12 @@ gsd_state_version: 1.0
 milestone: v1.0
 milestone_name: milestone
 status: unknown
-last_updated: "2026-03-01T14:22:51.356Z"
+last_updated: "2026-03-01T14:27:02Z"
 progress:
   total_phases: 2
-  completed_phases: 1
+  completed_phases: 2
   total_plans: 10
-  completed_plans: 9
+  completed_plans: 10
 ---
 
 # Project State
@@ -22,12 +22,12 @@ See: .planning/PROJECT.md (updated 2026-02-28)
 
 ## Current Position
 
-Phase: 2 of 6 (Wizard Persistence) — IN PROGRESS (3 of 4 plans done)
-Plan: 3 of 4 in current phase
-Status: 02-03 complete — /events list page (server load + card grid UI)
-Last activity: 2026-03-01 — Completed plan 02-03: Events list page with draft-scoped SQL query and Flowbite-Svelte card grid
+Phase: 2 of 6 (Wizard Persistence) — COMPLETE (4 of 4 plans done)
+Plan: 4 of 4 in current phase
+Status: 02-04 complete — Wizard migrated to /events/new with real persistence, navbar updated, old route removed
+Last activity: 2026-03-01 — Completed plan 02-04: Wizard migration and persistence wiring
 
-Progress: [███░░░░░░░] 33% (8/24 plans estimated)
+Progress: [████░░░░░░] 40% (10/24 plans estimated)
 
 ## Performance Metrics
 
@@ -41,10 +41,11 @@ Progress: [███░░░░░░░] 33% (8/24 plans estimated)
 | Phase | Plans | Total | Avg/Plan |
 |-------|-------|-------|----------|
 | 01-foundation | 6 | 19 min | 3 min |
-| 02-wizard-persistence | 3 | 7 min | 2 min |
+| 02-wizard-persistence | 4 | 10 min | 2.5 min |
 
 *Updated after each plan completion*
 | Phase 02-wizard-persistence P02 | 6 | 3 tasks | 5 files |
+| Phase 02-wizard-persistence P04 | 3 | 3 tasks | 6 files |
 
 ## Accumulated Context
 
@@ -83,6 +84,8 @@ Progress: [███░░░░░░░] 33% (8/24 plans estimated)
 - [02-03]: Draft visibility rule: organizer_id = userId OR (entity_id = ANY(entityIds) AND status != 'draft') — branche two-query pour eviter ANY() avec tableau vide
 - [Phase 02-02]: postgres added as direct front dep for TransactionSql types — Omit<Sql> strips call signatures; rawTx as unknown as postgres.Sql cast restores callable type
 - [Phase 02-02]: Status 'ready' transition inside sql.begin() transaction — atomicity ensures draft stays if tournament inserts fail
+- [02-04]: publishError typed as string|undefined (not null) in PublishStep prop; page uses null ?? undefined coercion
+- [02-04]: Old /tournaments/new deleted immediately when EventStep entities prop was added (breaking typecheck)
 
 ### Pending Todos
 
@@ -101,5 +104,5 @@ None yet.
 ## Session Continuity
 
 Last session: 2026-03-01
-Stopped at: Completed 02-02-PLAN.md — Server endpoints for event wizard (page load, save, publish).
+Stopped at: Completed 02-04-PLAN.md — Wizard migration to /events/new with persistence wiring. Phase 2 complete.
 Resume file: None
