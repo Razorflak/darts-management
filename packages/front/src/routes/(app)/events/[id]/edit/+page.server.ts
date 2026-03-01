@@ -19,12 +19,11 @@ export const load: PageServerLoad = async ({ locals, params }) => {
 			ends_at: string | null
 			location: string
 			registration_opens_at: string | null
-			start_time: string
 		}[]
 	>`
 		SELECT id, name, entity_id,
 		       starts_at::text, ends_at::text, location,
-		       registration_opens_at::text, start_time
+		       registration_opens_at::text
 		FROM event
 		WHERE id = ${eventId}
 		  AND organizer_id = ${locals.user.id}
@@ -76,7 +75,7 @@ export const load: PageServerLoad = async ({ locals, params }) => {
 		name: row.name,
 		entity: row.entity_id,
 		startDate: row.starts_at ?? '',
-		startTime: row.start_time ?? '',
+		startTime: '',
 		endDate: row.ends_at ?? '',
 		location: row.location ?? '',
 		registrationOpensAt: row.registration_opens_at ?? undefined,

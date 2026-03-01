@@ -4,7 +4,7 @@
 	import { BRACKET_ROUND_LABELS } from '../../labels.js'
 	import { sortable } from '../../sortable.js'
 	import { createBracketTier } from '../../utils.js'
-	import { Button, Dropdown, DropdownItem, Input, Label } from 'flowbite-svelte'
+	import { Input } from 'flowbite-svelte'
 
 	interface Props {
 		tiers: BracketTier[]
@@ -16,8 +16,11 @@
 		BRACKET_ROUNDS.filter((r) => !tiers.some((t) => t.round === r)),
 	)
 
+	let addOpen = $state(false)
+
 	function addTier(round: BracketRound) {
 		tiers = [...tiers, createBracketTier(round)]
+		// stay open so multiple tiers can be added in one session
 	}
 
 	function removeTier(id: string) {
@@ -48,7 +51,7 @@
 				<!-- Drag handle -->
 				<span
 					data-drag
-					class="cursor-grab text-gray-300 hover:text-gray-500 active:cursor-grabbing select-none"
+					class="cursor-grab select-none text-gray-300 hover:text-gray-500 active:cursor-grabbing"
 					aria-hidden="true"
 				>
 					⠿
@@ -77,11 +80,11 @@
 				<button
 					type="button"
 					onclick={() => removeTier(tier.id)}
-					class="text-gray-300 hover:text-red-400 transition-colors"
+					class="text-gray-300 transition-colors hover:text-red-400"
 					aria-label="Supprimer ce palier"
 				>
 					<svg class="h-5 w-5" viewBox="0 0 20 20" fill="currentColor" aria-hidden="true">
-						<path d="M6.28 5.22a.75.75 0 0 0-1.06 1.06L8.94 10l-3.72 3.72a.75.75 0 1 0 1.06 1.06L10 11.06l3.72 3.72a.75.75 0 1 0 1.06-1.06L11.06 10l3.72-3.72a.75.75 0 0 0-1.06-1.06L10 8.94 6.28 5.22Z" />
+						<path d="M6.28 5.22a.75.75 0 0 0-1.06 1.06L8.94 10l-3.72 3.72a.75.75 1 0 1.06 1.06L10 11.06l3.72 3.72a.75.75 1 1 1.06-1.06L11.06 10l3.72-3.72a.75.75 0 0 0-1.06-1.06L10 8.94 6.28 5.22Z" />
 					</svg>
 				</button>
 			</li>
@@ -90,23 +93,45 @@
 
 	<!-- Add tier dropdown -->
 	{#if availableRounds.length > 0}
-		<div>
-			<Button color="blue" outline size="xs" pill>
-				<svg class="me-1 h-3 w-3" viewBox="0 0 20 20" fill="currentColor" aria-hidden="true">
+		<div class="relative inline-block">
+			<!-- Backdrop -->
+			{#if addOpen}
+				<div
+					class="fixed inset-0 z-10"
+					aria-hidden="true"
+					onclick={() => (addOpen = false)}
+				></div>
+			{/if}
+
+			<!-- Trigger button -->
+			<button
+				type="button"
+				onclick={() => (addOpen = !addOpen)}
+				class="inline-flex items-center gap-1 rounded-full border border-gray-300 px-2.5 py-1 text-xs font-medium text-gray-600 transition-colors hover:border-blue-400 hover:text-blue-600"
+			>
+				<svg class="h-3 w-3" viewBox="0 0 20 20" fill="currentColor" aria-hidden="true">
 					<path d="M10.75 4.75a.75.75 0 0 0-1.5 0v4.5h-4.5a.75.75 0 0 0 0 1.5h4.5v4.5a.75.75 0 0 0 1.5 0v-4.5h4.5a.75.75 0 0 0 0-1.5h-4.5v-4.5Z" />
 				</svg>
 				Ajouter un palier
-				<svg class="ms-1 h-3 w-3" viewBox="0 0 20 20" fill="currentColor" aria-hidden="true">
-					<path fill-rule="evenodd" d="M5.22 8.22a.75.75 0 0 1 1.06 0L10 11.94l3.72-3.72a.75.75 0 1 1 1.06 1.06l-4.25 4.25a.75.75 0 0 1-1.06 0L5.22 9.28a.75.75 0 0 1 0-1.06Z" clip-rule="evenodd" />
+				<svg class="h-2.5 w-2.5" viewBox="0 0 20 20" fill="currentColor" aria-hidden="true">
+					<path fill-rule="evenodd" d="M5.22 8.22a.75.75 0 0 1 1.06 0L10 11.94l3.72-3.72a.75.75 1 1 1.06 1.06l-4.25 4.25a.75.75 0 0 1-1.06 0L5.22 9.28a.75.75 0 0 1 0-1.06Z" clip-rule="evenodd" />
 				</svg>
-			</Button>
-			<Dropdown simple>
-				{#each availableRounds as round}
-					<DropdownItem onclick={() => addTier(round)}>
-						{BRACKET_ROUND_LABELS[round]}
-					</DropdownItem>
-				{/each}
-			</Dropdown>
+			</button>
+
+			<!-- Dropdown menu — stays open so multiple tiers can be added -->
+			{#if addOpen}
+				<div class="absolute left-0 top-full z-20 mt-1 min-w-44 overflow-hidden rounded-lg border border-gray-200 bg-white shadow-lg">
+					{#each availableRounds as round}
+						<button
+							type="button"
+							onclick={() => addTier(round)}
+							class="block w-full px-3 py-2 text-left text-sm text-gray-700 transition-colors hover:bg-gray-50"
+						>
+							{BRACKET_ROUND_LABELS[round]}
+						</button>
+					{/each}
+				</div>
+			{/if}
 		</div>
 	{/if}
 </div>

@@ -7,6 +7,9 @@ export const CATEGORY_LABELS: Record<Category, string> = {
 	veteran: 'Vétéran',
 	open: 'Ouvert',
 	mix: 'Mixte',
+	double: 'Double',
+	double_female: 'Double Féminin',
+	double_mix: 'Double Mixte',
 }
 
 export const PHASE_TYPE_LABELS: Record<PhaseType, string> = {
