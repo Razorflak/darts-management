@@ -3,9 +3,9 @@ gsd_state_version: 1.0
 milestone: v1.0
 milestone_name: milestone
 status: unknown
-last_updated: "2026-02-28T19:39:01Z"
+last_updated: "2026-03-01T07:54:55.494Z"
 progress:
-  total_phases: 6
+  total_phases: 1
   completed_phases: 1
   total_plans: 4
   completed_plans: 4
@@ -67,6 +67,8 @@ Progress: [█░░░░░░░░░] 17% (4/24 plans estimated)
 - [Phase 01-03]: Anti-enumeration pattern: void requestPasswordReset (do not await), always return sent=true
 - [01-04] $effect.pre() pour form repopulation — $state(form?.type) declenche state_referenced_locally warning Svelte 5; $effect.pre est le pattern idiomatique
 - [01-04] Permission verifiee dans load ET action — evite bypass par POST direct sans visiter la page
+- [Phase quick-1]: createAuth accepts {secret, baseURL, smtp} config — BETTER_AUTH_SECRET via $env/static/private, not process.env
+- [Phase quick-1]: adminRoles uses camelCase 'adminFederal' (not snake_case 'admin_federal') matching roles object key
 
 ### Pending Todos
 
