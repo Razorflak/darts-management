@@ -3,7 +3,7 @@ import type postgres from 'postgres'
 import { sql } from '$lib/server/db'
 import { getUserRoles } from '$lib/server/authz'
 import type { RequestHandler } from './$types'
-import type { EventData, Tournament } from '$lib/tournament/types'
+import type { EventData, Tournament, Phase, GroupPhase } from '$lib/tournament/types'
 
 type RequestBody = {
 	eventId?: string
@@ -14,6 +14,32 @@ type RequestBody = {
 // postgres.js TransactionSql uses Omit<Sql, ...> which strips call signatures in TypeScript.
 // At runtime it IS callable — this cast restores the type for template literal queries.
 type TxSql = postgres.Sql
+
+function isGroupPhase(p: Phase): p is GroupPhase {
+	return p.type === 'round_robin' || p.type === 'double_loss_groups'
+}
+
+async function insertPhases(tx: TxSql, tournamentId: string, phases: Phase[]): Promise<void> {
+	await tx`DELETE FROM phase WHERE tournament_id = ${tournamentId}`
+	for (let i = 0; i < phases.length; i++) {
+		const p = phases[i]
+		const group = isGroupPhase(p)
+		await tx`
+			INSERT INTO phase (tournament_id, position, type, entrants,
+			                   players_per_group, qualifiers_per_group, qualifiers, tiers)
+			VALUES (
+				${tournamentId},
+				${i},
+				${p.type},
+				${p.entrants},
+				${group ? (p as GroupPhase).playersPerGroup : null},
+				${group ? (p as GroupPhase).qualifiers : null},
+				${!group ? ((p as { qualifiers?: number }).qualifiers ?? null) : null},
+				${!group ? JSON.stringify((p as { tiers: unknown }).tiers) : null}
+			)
+		`
+	}
+}
 
 function validateForPublish(body: { event: EventData; tournaments: Tournament[] }): string | null {
 	if (!body.event.name?.trim()) return "Le nom de l'événement est requis."
@@ -60,9 +86,9 @@ export const POST: RequestHandler = async ({ request, locals }) => {
 			// UPDATE path
 			await sql.begin(async (rawTx) => {
 				const tx = rawTx as unknown as TxSql
-				// Verify ownership — user must be organizer of this draft event
+				// Verify ownership — organizer of draft, ready, or started event
 				const [existing] = await tx`
-					SELECT organizer_id FROM event WHERE id = ${eventId} AND status = 'draft'
+					SELECT organizer_id, status FROM event WHERE id = ${eventId} AND status IN ('draft', 'ready', 'started')
 				`
 				if (!existing || existing.organizer_id !== locals.user!.id) {
 					throw new Error('Forbidden')
@@ -78,24 +104,28 @@ export const POST: RequestHandler = async ({ request, locals }) => {
 						updated_at = now()
 					WHERE id = ${eventId}
 				`
-				// Replace tournaments
+				// Replace tournaments (ON DELETE CASCADE removes phase rows automatically)
 				await tx`DELETE FROM tournament WHERE event_id = ${eventId}`
 				for (const t of body.tournaments) {
-					await tx`
-						INSERT INTO tournament (event_id, name, club, category, quota, start_time, start_date, auto_referee, phases)
+					const [{ id: newTournamentId }] = await tx`
+						INSERT INTO tournament (event_id, name, club, category, quota, start_time, start_date, auto_referee)
 						VALUES (
 							${eventId}, ${t.name}, ${t.club || null}, ${t.category || null},
 							${t.quota}, ${t.startTime || ''}, ${t.startDate || null},
-							${t.autoReferee ?? false}, ${JSON.stringify(t.phases)}
+							${t.autoReferee ?? false}
 						)
+						RETURNING id
 					`
+					await insertPhases(tx, newTournamentId, t.phases)
 				}
-				// Transition status to ready atomically within the transaction
-				await tx`UPDATE event SET status = 'ready', updated_at = now() WHERE id = ${eventId}`
+				// Transition to 'ready' only when currently 'draft'
+				if (existing.status === 'draft') {
+					await tx`UPDATE event SET status = 'ready', updated_at = now() WHERE id = ${eventId}`
+				}
 				savedEventId = eventId
 			})
 		} else {
-			// INSERT path
+			// INSERT path — new event goes straight to 'ready'
 			await sql.begin(async (rawTx) => {
 				const tx = rawTx as unknown as TxSql
 				const [{ id: newEventId }] = await tx`
@@ -108,22 +138,22 @@ export const POST: RequestHandler = async ({ request, locals }) => {
 						${body.event.endDate || null},
 						${body.event.location || ''},
 						${body.event.registrationOpensAt || null},
-						'draft'
+						'ready'
 					)
 					RETURNING id
 				`
 				for (const t of body.tournaments) {
-					await tx`
-						INSERT INTO tournament (event_id, name, club, category, quota, start_time, start_date, auto_referee, phases)
+					const [{ id: newTournamentId }] = await tx`
+						INSERT INTO tournament (event_id, name, club, category, quota, start_time, start_date, auto_referee)
 						VALUES (
 							${newEventId}, ${t.name}, ${t.club || null}, ${t.category || null},
 							${t.quota}, ${t.startTime || ''}, ${t.startDate || null},
-							${t.autoReferee ?? false}, ${JSON.stringify(t.phases)}
+							${t.autoReferee ?? false}
 						)
+						RETURNING id
 					`
+					await insertPhases(tx, newTournamentId, t.phases)
 				}
-				// Transition status to ready atomically within the transaction
-				await tx`UPDATE event SET status = 'ready', updated_at = now() WHERE id = ${newEventId}`
 				savedEventId = newEventId
 			})
 		}
