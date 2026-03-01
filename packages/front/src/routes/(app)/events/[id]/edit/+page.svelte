@@ -1,5 +1,5 @@
 <script lang="ts">
-	import type { WizardStep, EventData, Tournament, PublishOptions } from '$lib/tournament/types.js'
+	import type { WizardStep, EventData, Tournament } from '$lib/tournament/types.js'
 	import Breadcrumb from '$lib/tournament/components/Breadcrumb.svelte'
 	import EventStep from '$lib/tournament/components/EventStep.svelte'
 	import TournamentStep from '$lib/tournament/components/TournamentStep.svelte'
@@ -18,11 +18,6 @@
 
 	let event = $state<EventData>(data.event) // Pre-populated from DB
 	let tournaments = $state<Tournament[]>(data.tournaments) // Pre-populated from DB
-
-	let publishOptions = $state<PublishOptions>({
-		notifications: false,
-		openRegistrations: false,
-	})
 
 	let templateModalOpen = $state(false)
 
@@ -112,7 +107,7 @@
 				<p class="mb-3 text-sm text-red-600">{saveError}</p>
 			{/if}
 
-			<Breadcrumb {step} />
+			<Breadcrumb {step} onStepClick={(s) => (step = s)} />
 		</div>
 
 		<div class="rounded-card border border-border bg-white p-6 shadow-card">
@@ -128,6 +123,7 @@
 					entities={data.entities}
 					onNext={() => (step = 2)}
 					onCancel={() => goto('/events')}
+					readonly={data.eventStatus === 'started'}
 				/>
 			{:else if step === 2}
 				<TournamentStep
@@ -139,7 +135,7 @@
 				<PublishStep
 					{event}
 					{tournaments}
-					bind:options={publishOptions}
+					eventStatus={data.eventStatus}
 					onPrev={() => (step = 2)}
 					onPublish={publish}
 					publishError={publishError ?? undefined}

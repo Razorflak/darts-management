@@ -1,5 +1,5 @@
 <script lang="ts">
-	import type { WizardStep, EventData, Tournament, PublishOptions } from '$lib/tournament/types.js'
+	import type { WizardStep, EventData, Tournament } from '$lib/tournament/types.js'
 	import { createTournament } from '$lib/tournament/utils.js'
 	import Breadcrumb from '$lib/tournament/components/Breadcrumb.svelte'
 	import EventStep from '$lib/tournament/components/EventStep.svelte'
@@ -27,11 +27,6 @@
 	})
 
 	let tournaments = $state<Tournament[]>([createTournament()])
-
-	let publishOptions = $state<PublishOptions>({
-		notifications: false,
-		openRegistrations: false,
-	})
 
 	let templateModalOpen = $state(false)
 
@@ -128,7 +123,7 @@
 				<p class="mb-3 text-sm text-red-600">{saveError}</p>
 			{/if}
 
-			<Breadcrumb {step} />
+			<Breadcrumb {step} onStepClick={(s) => (step = s)} />
 		</div>
 
 		<!-- Step content -->
@@ -156,7 +151,6 @@
 				<PublishStep
 					{event}
 					{tournaments}
-					bind:options={publishOptions}
 					onPrev={() => (step = 2)}
 					onPublish={publish}
 					publishError={publishError ?? undefined}

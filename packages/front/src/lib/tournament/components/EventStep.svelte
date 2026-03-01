@@ -8,9 +8,10 @@
 		entities: { id: string; name: string; type: string }[]
 		onNext: () => void
 		onCancel: () => void
+		readonly?: boolean
 	}
 
-	let { event = $bindable(), entities, onNext, onCancel }: Props = $props()
+	let { event = $bindable(), entities, onNext, onCancel, readonly = false }: Props = $props()
 
 	// Datepicker works with Date objects; convert from/to ISO strings
 	let startDateObj = $state<Date | undefined>(
@@ -63,6 +64,12 @@
 	}
 </script>
 
+{#if readonly}
+	<div class="mb-4 rounded-lg bg-yellow-50 border border-yellow-200 px-4 py-2 text-sm text-yellow-800">
+		Événement démarré — les informations de l'événement sont en lecture seule.
+	</div>
+{/if}
+
 <form onsubmit={handleSubmit} class="space-y-6" novalidate>
 	<!-- Nom -->
 	<div>
@@ -74,8 +81,9 @@
 			type="text"
 			bind:value={event.name}
 			required
+			disabled={readonly}
 			placeholder="ex : Comité Berry Mai 2026"
-			class="block w-full rounded-lg border border-gray-300 bg-gray-50 p-2.5 text-gray-900 focus:border-blue-500 focus:ring-blue-500"
+			class="block w-full rounded-lg border border-gray-300 bg-gray-50 p-2.5 text-gray-900 focus:border-blue-500 focus:ring-blue-500 disabled:cursor-not-allowed disabled:opacity-60"
 		/>
 	</div>
 
@@ -84,7 +92,7 @@
 		<Label for="event-entity" class="mb-2">
 			Entité organisatrice <span class="text-red-500">*</span>
 		</Label>
-		<Select id="event-entity" bind:value={event.entity} placeholder="Choisissez une option..." required>
+		<Select id="event-entity" bind:value={event.entity} placeholder="Choisissez une option..." required disabled={readonly}>
 			<option value="" disabled>Sélectionner une entité</option>
 			{#each entities as entity}
 				<option value={entity.id}>{entity.name}</option>
@@ -106,12 +114,14 @@
 						firstDayOfWeek={1}
 						placeholder="jj/mm/aaaa"
 						required
+						disabled={readonly}
 					/>
 				</div>
 				<TimeInput
 					bind:value={event.startTime}
 					id="event-start-time"
 					aria-label="Heure de début"
+					disabled={readonly}
 				/>
 			</div>
 		</div>
@@ -125,6 +135,7 @@
 				firstDayOfWeek={1}
 				placeholder="jj/mm/aaaa"
 				required
+				disabled={readonly}
 			/>
 		</div>
 	</div>
@@ -138,6 +149,7 @@
 			locale="fr-FR"
 			firstDayOfWeek={1}
 			placeholder="jj/mm/aaaa"
+			disabled={readonly}
 		/>
 	</div>
 
@@ -151,8 +163,9 @@
 			type="text"
 			bind:value={event.location}
 			required
+			disabled={readonly}
 			placeholder="ex : Bourges"
-			class="block w-full rounded-lg border border-gray-300 bg-gray-50 p-2.5 text-gray-900 focus:border-blue-500 focus:ring-blue-500"
+			class="block w-full rounded-lg border border-gray-300 bg-gray-50 p-2.5 text-gray-900 focus:border-blue-500 focus:ring-blue-500 disabled:cursor-not-allowed disabled:opacity-60"
 		/>
 	</div>
 
