@@ -3,12 +3,12 @@ gsd_state_version: 1.0
 milestone: v1.0
 milestone_name: milestone
 status: in_progress
-last_updated: "2026-03-01T14:17:00Z"
+last_updated: "2026-03-01T14:18:30Z"
 progress:
   total_phases: 6
   completed_phases: 1
   total_plans: 24
-  completed_plans: 7
+  completed_plans: 8
 ---
 
 # Project State
@@ -22,12 +22,12 @@ See: .planning/PROJECT.md (updated 2026-02-28)
 
 ## Current Position
 
-Phase: 2 of 6 (Wizard Persistence) — IN PROGRESS (1 of 4 plans done)
-Plan: 1 of 4 in current phase
-Status: 02-01 complete — schema foundation (event + tournament tables)
-Last activity: 2026-03-01 — Completed plan 02-01: SQL schema migrations and TypeScript type extensions
+Phase: 2 of 6 (Wizard Persistence) — IN PROGRESS (3 of 4 plans done)
+Plan: 3 of 4 in current phase
+Status: 02-03 complete — /events list page (server load + card grid UI)
+Last activity: 2026-03-01 — Completed plan 02-03: Events list page with draft-scoped SQL query and Flowbite-Svelte card grid
 
-Progress: [██░░░░░░░░] 29% (7/24 plans estimated)
+Progress: [███░░░░░░░] 33% (8/24 plans estimated)
 
 ## Performance Metrics
 
@@ -41,7 +41,7 @@ Progress: [██░░░░░░░░] 29% (7/24 plans estimated)
 | Phase | Plans | Total | Avg/Plan |
 |-------|-------|-------|----------|
 | 01-foundation | 6 | 19 min | 3 min |
-| 02-wizard-persistence | 1 | 5 min | 5 min |
+| 02-wizard-persistence | 3 | 7 min | 2 min |
 
 *Updated after each plan completion*
 
@@ -78,6 +78,8 @@ Progress: [██░░░░░░░░] 29% (7/24 plans estimated)
 - [02-01]: phases stocke en JSONB (pas de table separee) — Phase[] toujours lu/ecrit atomiquement, pas de requetes par phase
 - [02-01]: club TEXT nullable sans FK — champ texte libre confirme, pas de relation entity
 - [02-01]: registration_opens_at DATE nullable — NULL = ouverture immediate a la publication
+- [02-03]: Badge draft color 'gray' pas 'dark' — Flowbite-Svelte Badge color prop n'accepte pas 'dark', 'gray' est l'equivalent visuel correct
+- [02-03]: Draft visibility rule: organizer_id = userId OR (entity_id = ANY(entityIds) AND status != 'draft') — branche two-query pour eviter ANY() avec tableau vide
 
 ### Pending Todos
 
@@ -96,5 +98,5 @@ None yet.
 ## Session Continuity
 
 Last session: 2026-03-01
-Stopped at: Completed 02-01-PLAN.md — Schema foundation (event + tournament tables, TypeScript types).
+Stopped at: Completed 02-03-PLAN.md — Events list page (/events route with server load and card grid UI).
 Resume file: None
