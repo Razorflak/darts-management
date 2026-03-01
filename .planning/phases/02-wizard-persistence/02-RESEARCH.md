@@ -509,15 +509,11 @@ function validateForPublish(body: { event: EventData; tournaments: Tournament[] 
 
 ## Open Questions
 
-1. **Save → Update vs. always Insert**
-   - What we know: CONTEXT defers "edit existing event" to a later phase; "Enregistrer" creates a new draft
-   - What's unclear: If user saves, edits, saves again — should this create a second draft or update the first?
-   - Recommendation: For v1, return the `event.id` from the save endpoint and store it in wizard state (`$state<string | null>(null)`). If `eventId` is already set, the second save sends a PATCH or PUT to update the existing record. Simpler than dealing with duplicate drafts.
+~~1. **Save → Update vs. always Insert**~~
+**RESOLVED (2026-03-01):** Si l'événement existe déjà (eventId connu du wizard), la sauvegarde doit UPDATE — pas créer un second brouillon. Le save endpoint renvoie l'`event.id` lors de la création ; le wizard stocke cet ID en state local. Les sauvegardes suivantes envoient l'ID et le serveur fait un UPDATE conditionnel.
 
-2. **`Tournament.club` field**
-   - What we know: `Tournament` type has a `club: string` field (see types.ts line 65) which is currently empty string in all templates. TournamentForm.svelte does not render a "club" input.
-   - What's unclear: Is `club` a FK to the `entity` table (club level), a free-text field, or legacy?
-   - Recommendation: Store it as a TEXT column on `tournament` for v1, no FK constraint. If it's never used, it's a no-op.
+~~2. **`Tournament.club` field**~~
+**RESOLVED (2026-03-01):** `club` n'est PAS une FK vers la table `entity`. C'est un champ texte optionnel libre, associé à l'événement (pas au niveau entité fédérale). Colonne `club TEXT` sur `tournament`, nullable, aucune contrainte FK.
 
 3. **`auto_referee` default in wizard UI**
    - What we know: EVENT-06 requires toggling auto-referee assignment per tournament; the field is `auto_referee` boolean
