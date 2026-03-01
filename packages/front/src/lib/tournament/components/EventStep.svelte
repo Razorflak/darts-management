@@ -5,18 +5,22 @@
 
 	interface Props {
 		event: EventData
+		entities: { id: string; name: string; type: string }[]
 		onNext: () => void
 		onCancel: () => void
 	}
 
-	let { event = $bindable(), onNext, onCancel }: Props = $props()
+	let { event = $bindable(), entities, onNext, onCancel }: Props = $props()
 
-	// Datepicker travaille avec des objets Date ; on convertit depuis/vers string ISO
+	// Datepicker works with Date objects; convert from/to ISO strings
 	let startDateObj = $state<Date | undefined>(
 		event.startDate ? new Date(event.startDate + 'T00:00') : undefined,
 	)
 	let endDateObj = $state<Date | undefined>(
 		event.endDate ? new Date(event.endDate + 'T00:00') : undefined,
+	)
+	let registrationDateObj = $state<Date | undefined>(
+		event.registrationOpensAt ? new Date(event.registrationOpensAt + 'T00:00') : undefined,
 	)
 
 	$effect(() => {
@@ -25,9 +29,11 @@
 	$effect(() => {
 		event.endDate = endDateObj ? endDateObj.toISOString().slice(0, 10) : ''
 	})
-
-	// Mock entities — will come from auth/API later
-	const entities = ['Mon Comité', 'Ma Ligue', 'FFD']
+	$effect(() => {
+		event.registrationOpensAt = registrationDateObj
+			? registrationDateObj.toISOString().slice(0, 10)
+			: undefined
+	})
 
 	function handleSubmit(e: SubmitEvent) {
 		e.preventDefault()
@@ -59,7 +65,7 @@
 		<Select id="event-entity" bind:value={event.entity} placeholder="Choisissez une option..." required>
 			<option value="" disabled>Sélectionner une entité</option>
 			{#each entities as entity}
-				<option value={entity}>{entity}</option>
+				<option value={entity.id}>{entity.name}</option>
 			{/each}
 		</Select>
 	</div>
@@ -91,23 +97,26 @@
 			<Label class="mb-2">
 				Date de fin <span class="text-red-500">*</span>
 			</Label>
-			<div class="flex gap-2">
-				<div class="min-w-0 flex-1">
-					<Datepicker
-						bind:value={endDateObj}
-						locale="fr-FR"
-						firstDayOfWeek={1}
-						placeholder="jj/mm/aaaa"
-						required
-					/>
-				</div>
-				<TimeInput
-					bind:value={event.endTime}
-					id="event-end-time"
-					aria-label="Heure de fin"
-				/>
-			</div>
+			<Datepicker
+				bind:value={endDateObj}
+				locale="fr-FR"
+				firstDayOfWeek={1}
+				placeholder="jj/mm/aaaa"
+				required
+			/>
 		</div>
+	</div>
+
+	<!-- Ouverture des inscriptions -->
+	<div>
+		<Label class="mb-2">Ouverture des inscriptions</Label>
+		<p class="mb-2 text-xs text-gray-400">Optionnel — si vide, ouvertes dès la publication</p>
+		<Datepicker
+			bind:value={registrationDateObj}
+			locale="fr-FR"
+			firstDayOfWeek={1}
+			placeholder="jj/mm/aaaa"
+		/>
 	</div>
 
 	<!-- Lieu -->

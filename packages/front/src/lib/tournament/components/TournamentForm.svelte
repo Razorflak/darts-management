@@ -1,7 +1,7 @@
 <script lang="ts">
 	import type { Tournament, Category } from '../types.js'
 	import { CATEGORY_LABELS } from '../labels.js'
-	import { Input, Label, Radio } from 'flowbite-svelte'
+	import { Input, Label, Select, Toggle } from 'flowbite-svelte'
 	import PhasesBuilder from './phases/PhasesBuilder.svelte'
 	import TimeInput from './TimeInput.svelte'
 
@@ -11,7 +11,17 @@
 
 	let { tournament = $bindable() }: Props = $props()
 
-	const categories: Category[] = ['male', 'female', 'junior', 'veteran', 'open', 'mix']
+	const categories: Category[] = [
+		'male',
+		'female',
+		'junior',
+		'veteran',
+		'open',
+		'mix',
+		'double',
+		'double_female',
+		'double_mix',
+	]
 </script>
 
 <div class="space-y-6">
@@ -46,39 +56,40 @@
 
 	<!-- Category -->
 	<div>
-		<p class="mb-3 font-medium text-gray-700">
+		<Label for="tournament-category-{tournament.id}" class="mb-2">
 			Catégorie <span class="text-red-500">*</span>
-		</p>
-		<div class="flex flex-wrap gap-3">
+		</Label>
+		<Select
+			id="tournament-category-{tournament.id}"
+			required
+			value={tournament.category ?? ''}
+			onchange={(e) => {
+				const v = (e.currentTarget as HTMLSelectElement).value
+				tournament.category = (v || null) as Category | null
+			}}
+		>
+			<option value="" disabled>Choisissez une catégorie</option>
 			{#each categories as cat}
-				<Radio
-					name="category-{tournament.id}"
-					value={cat}
-					bind:group={tournament.category}
-					color="blue"
-				>
-					{CATEGORY_LABELS[cat]}
-				</Radio>
+				<option value={cat}>{CATEGORY_LABELS[cat]}</option>
 			{/each}
-		</div>
+		</Select>
 	</div>
 
-	<!-- Time range -->
-	<div class="grid grid-cols-2 gap-4">
-		<div>
-			<Label for="tournament-start-{tournament.id}" class="mb-2">Heure de début</Label>
-			<TimeInput
-				id="tournament-start-{tournament.id}"
-				bind:value={tournament.startTime}
-			/>
-		</div>
-		<div>
-			<Label for="tournament-end-{tournament.id}" class="mb-2">Heure de fin</Label>
-			<TimeInput
-				id="tournament-end-{tournament.id}"
-				bind:value={tournament.endTime}
-			/>
-		</div>
+	<!-- Start time -->
+	<div class="max-w-xs">
+		<Label for="tournament-start-{tournament.id}" class="mb-2">Heure de début</Label>
+		<TimeInput id="tournament-start-{tournament.id}" bind:value={tournament.startTime} />
+	</div>
+
+	<!-- Arbitrage automatique -->
+	<div class="flex items-center gap-3">
+		<Toggle
+			id="auto-referee-{tournament.id}"
+			bind:checked={tournament.autoReferee}
+		/>
+		<Label for="auto-referee-{tournament.id}">
+			Assignation automatique des arbitres
+		</Label>
 	</div>
 
 	<!-- Phases -->
