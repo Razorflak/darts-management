@@ -42,6 +42,7 @@
 		</div>
 		<NavUl activeUrl={$page.url.pathname}>
 			<NavLi href="/">Tableau de bord</NavLi>
+			<NavLi href="/events">Événements</NavLi>
 			{#if data.hasAdminAccess}
 				<NavLi href="/admin">Administration</NavLi>
 			{/if}
