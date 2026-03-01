@@ -49,7 +49,7 @@ Plans:
   3. An organisateur can configure phases of all 4 types (round-robin, poule double KO, elimination directe, double elimination) with group naming (Poule A, B...)
   4. An organisateur can load a template to pre-fill the wizard with a typical phase structure
   5. An organisateur can preview the event and publish it (status transitions to "open for registration")
-**Plans**: 7 plans (4 original + 3 gap closure)
+**Plans**: 8 plans (4 original + 4 gap closure)
 
 Plans:
 - [ ] 02-01-PLAN.md — DB schema: event + tournament tables, migrations, types
@@ -59,6 +59,7 @@ Plans:
 - [ ] 02-05-PLAN.md — Gap closure: Invalid date fix (::text casts) + descriptive publish error
 - [ ] 02-06-PLAN.md — Gap closure: EventStep reactive date sync after template apply
 - [ ] 02-07-PLAN.md — Gap closure: /events/[id]/edit route + Reprendre link on draft cards
+- [ ] 02-08-PLAN.md — Gap closure: commit post-UAT fixes (templates.ts, labels, native dropdowns, seed)
 
 ### Phase 3: Player Registration
 **Goal**: Players can register for a tournament and the admin can manage the roster and check-in before launch
@@ -113,7 +114,7 @@ Phases execute in numeric order: 1 → 2 → 3 → 4 → 5 → 6
 | Phase | Plans Complete | Status | Completed |
 |-------|----------------|--------|-----------|
 | 1. Foundation | 5/6 | In Progress|  |
-| 2. Wizard Persistence | 7/7 | Complete    | 2026-03-01 |
+| 2. Wizard Persistence | 7/8 | In Progress | - |
 | 3. Player Registration | 0/? | Not started | - |
 | 4. Launch and Match Generation | 0/? | Not started | - |
 | 5. Results and Advancement | 0/? | Not started | - |
