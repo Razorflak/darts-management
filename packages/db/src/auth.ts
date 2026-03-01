@@ -1,11 +1,9 @@
 import { betterAuth } from "better-auth"
-import { admin as adminPlugin } from "better-auth/plugins"
 import { sveltekitCookies } from "better-auth/svelte-kit"
 import { getRequestEvent } from "$app/server"
 import { PostgresJSDialect } from "kysely-postgres-js"
 import { createTransport } from "nodemailer"
 import type postgres from "postgres"
-import { ac, joueur, organisateur, adminTournoi, adminFederal } from "./permissions.js"
 
 type SmtpConfig = {
   host: string
@@ -55,12 +53,6 @@ export function createAuth(sql: postgres.Sql, config: AuthConfig) {
       },
     },
     plugins: [
-      adminPlugin({
-        ac,
-        roles: { joueur, organisateur, adminTournoi, adminFederal },
-        defaultRole: "joueur",
-        adminRoles: ["adminFederal"],
-      }),
       sveltekitCookies(getRequestEvent), // MUST be last -- required for SvelteKit form actions (Pitfall #2)
     ],
   })

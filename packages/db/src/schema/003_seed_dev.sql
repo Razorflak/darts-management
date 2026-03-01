@@ -41,3 +41,18 @@ INSERT INTO account (id, "accountId", "providerId", "userId", password) VALUES
   ('acc-org-001',     'orga@test.ffd.fr',    'credential', 'user-org-001',     '$2b$10$N9qo8uLOickgx2ZMRZoMyeIjZAgcfl7p92ldGxad68LJZdL17lHuu'),
   ('acc-admin-001',   'admin@test.ffd.fr',   'credential', 'user-admin-001',   '$2b$10$N9qo8uLOickgx2ZMRZoMyeIjZAgcfl7p92ldGxad68LJZdL17lHuu'),
   ('acc-federal-001', 'federal@test.ffd.fr', 'credential', 'user-federal-001', '$2b$10$N9qo8uLOickgx2ZMRZoMyeIjZAgcfl7p92ldGxad68LJZdL17lHuu');
+
+-- Rôles des utilisateurs de test dans user_entity_role
+-- federal@test.ffd.fr → adminFederal sur la fédération
+INSERT INTO user_entity_role (user_id, entity_id, role) VALUES
+  ('user-federal-001', '00000000-0000-0000-0000-000000000001', 'adminFederal');
+
+-- orga@test.ffd.fr → organisateur sur Ligue Île-de-France
+INSERT INTO user_entity_role (user_id, entity_id, role) VALUES
+  ('user-org-001', '00000000-0000-0000-0000-000000000010', 'organisateur');
+
+-- admin@test.ffd.fr → adminTournoi sur Comité Paris
+INSERT INTO user_entity_role (user_id, entity_id, role) VALUES
+  ('user-admin-001', '00000000-0000-0000-0000-000000000020', 'adminTournoi');
+
+-- joueur@test.ffd.fr → aucun rôle dans user_entity_role (joueur est implicite pour tout user authentifié)
