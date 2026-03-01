@@ -3,12 +3,12 @@ gsd_state_version: 1.0
 milestone: v1.0
 milestone_name: milestone
 status: unknown
-last_updated: "2026-03-01T07:54:55.494Z"
+last_updated: "2026-03-01T09:11:08.485Z"
 progress:
   total_phases: 1
-  completed_phases: 1
-  total_plans: 4
-  completed_plans: 4
+  completed_phases: 0
+  total_plans: 6
+  completed_plans: 5
 ---
 
 # Project State
@@ -23,24 +23,24 @@ See: .planning/PROJECT.md (updated 2026-02-28)
 ## Current Position
 
 Phase: 1 of 6 (Foundation) — COMPLETE
-Plan: 4 of 4 in current phase
+Plan: 5 of 5 in current phase (gap closure plan added)
 Status: Phase 1 complete
-Last activity: 2026-02-28 — Completed plan 01-04: Entity administration UI (admin list + creation form)
+Last activity: 2026-03-01 — Completed plan 01-05: Custom authorization layer (user_entity_role + authz module)
 
-Progress: [█░░░░░░░░░] 17% (4/24 plans estimated)
+Progress: [█░░░░░░░░░] 21% (5/24 plans estimated)
 
 ## Performance Metrics
 
 **Velocity:**
-- Total plans completed: 4
+- Total plans completed: 5
 - Average duration: 3 min
-- Total execution time: 12 min
+- Total execution time: 17 min
 
 **By Phase:**
 
 | Phase | Plans | Total | Avg/Plan |
 |-------|-------|-------|----------|
-| 01-foundation | 4 | 12 min | 3 min |
+| 01-foundation | 5 | 17 min | 3 min |
 
 *Updated after each plan completion*
 
@@ -69,6 +69,7 @@ Progress: [█░░░░░░░░░] 17% (4/24 plans estimated)
 - [01-04] Permission verifiee dans load ET action — evite bypass par POST direct sans visiter la page
 - [Phase quick-1]: createAuth accepts {secret, baseURL, smtp} config — BETTER_AUTH_SECRET via $env/static/private, not process.env
 - [Phase quick-1]: adminRoles uses camelCase 'adminFederal' (not snake_case 'admin_federal') matching roles object key
+- [Phase 01-05]: createAuthz(sql) factory pattern — matches codebase createAuth/createSql convention; sql injected not module singleton
 
 ### Pending Todos
 
@@ -86,6 +87,6 @@ None yet.
 
 ## Session Continuity
 
-Last session: 2026-02-28
-Stopped at: Completed 01-04-PLAN.md — Entity administration UI (admin list + creation form). Phase 1 complete.
+Last session: 2026-03-01
+Stopped at: Completed 01-05-PLAN.md — Custom authorization layer (user_entity_role + authz module). Phase 1 complete.
 Resume file: None
