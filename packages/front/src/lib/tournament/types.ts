@@ -1,6 +1,15 @@
 export type WizardStep = 1 | 2 | 3
 
-export type Category = 'male' | 'female' | 'junior' | 'veteran' | 'open' | 'mix'
+export type Category =
+	| 'male'
+	| 'female'
+	| 'junior'
+	| 'veteran'
+	| 'open'
+	| 'mix'
+	| 'double'
+	| 'double_female'
+	| 'double_mix'
 
 export type PhaseType =
 	| 'round_robin' //         Poules Classique
@@ -21,8 +30,8 @@ export interface EventData {
 	startDate: string
 	startTime: string
 	endDate: string
-	endTime: string
 	location: string
+	registrationOpensAt?: string // ISO date string 'YYYY-MM-DD', maps to registration_opens_at SQL column
 }
 
 export interface BracketTier {
@@ -59,8 +68,10 @@ export interface Tournament {
 	quota: number
 	category: Category | null
 	startTime: string
-	endTime: string
+	/** Optional: set when the tournament takes place on a different day than the event start. */
+	startDate?: string
 	phases: Phase[]
+	autoReferee: boolean // maps to auto_referee SQL column; EVENT-06
 }
 
 export interface PublishOptions {

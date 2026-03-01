@@ -12,8 +12,8 @@ export function createTournament(): Tournament {
 		quota: 32,
 		category: null,
 		startTime: '',
-		endTime: '',
 		phases: [],
+		autoReferee: false,
 	}
 }
 
