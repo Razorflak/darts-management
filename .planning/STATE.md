@@ -2,13 +2,13 @@
 gsd_state_version: 1.0
 milestone: v1.0
 milestone_name: milestone
-status: in_progress
-last_updated: "2026-03-01T14:18:30Z"
+status: unknown
+last_updated: "2026-03-01T14:22:51.356Z"
 progress:
-  total_phases: 6
+  total_phases: 2
   completed_phases: 1
-  total_plans: 24
-  completed_plans: 8
+  total_plans: 10
+  completed_plans: 9
 ---
 
 # Project State
@@ -44,6 +44,7 @@ Progress: [███░░░░░░░] 33% (8/24 plans estimated)
 | 02-wizard-persistence | 3 | 7 min | 2 min |
 
 *Updated after each plan completion*
+| Phase 02-wizard-persistence P02 | 6 | 3 tasks | 5 files |
 
 ## Accumulated Context
 
@@ -80,6 +81,8 @@ Progress: [███░░░░░░░] 33% (8/24 plans estimated)
 - [02-01]: registration_opens_at DATE nullable — NULL = ouverture immediate a la publication
 - [02-03]: Badge draft color 'gray' pas 'dark' — Flowbite-Svelte Badge color prop n'accepte pas 'dark', 'gray' est l'equivalent visuel correct
 - [02-03]: Draft visibility rule: organizer_id = userId OR (entity_id = ANY(entityIds) AND status != 'draft') — branche two-query pour eviter ANY() avec tableau vide
+- [Phase 02-02]: postgres added as direct front dep for TransactionSql types — Omit<Sql> strips call signatures; rawTx as unknown as postgres.Sql cast restores callable type
+- [Phase 02-02]: Status 'ready' transition inside sql.begin() transaction — atomicity ensures draft stays if tournament inserts fail
 
 ### Pending Todos
 
@@ -98,5 +101,5 @@ None yet.
 ## Session Continuity
 
 Last session: 2026-03-01
-Stopped at: Completed 02-03-PLAN.md — Events list page (/events route with server load and card grid UI).
+Stopped at: Completed 02-02-PLAN.md — Server endpoints for event wizard (page load, save, publish).
 Resume file: None
