@@ -46,7 +46,10 @@ export const POST: RequestHandler = async ({ request, locals }) => {
 		(r) => r.entityId === body.event.entity && organisableRoles.includes(r.role),
 	)
 	if (!hasRole) {
-		return json({ error: 'Accès refusé.' }, { status: 403 })
+		return json(
+			{ error: "Vous n'avez pas les droits organisateur sur l'entité sélectionnée." },
+			{ status: 403 },
+		)
 	}
 
 	let savedEventId: string | undefined
