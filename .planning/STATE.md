@@ -3,12 +3,12 @@ gsd_state_version: 1.0
 milestone: v1.0
 milestone_name: milestone
 status: unknown
-last_updated: "2026-03-01T17:08:50.547Z"
+last_updated: "2026-03-01T18:06:00Z"
 progress:
   total_phases: 2
   completed_phases: 1
-  total_plans: 13
-  completed_plans: 11
+  total_plans: 14
+  completed_plans: 12
 ---
 
 # Project State
@@ -22,12 +22,12 @@ See: .planning/PROJECT.md (updated 2026-02-28)
 
 ## Current Position
 
-Phase: 2 of 6 (Wizard Persistence) — COMPLETE (4 of 4 plans done)
-Plan: 4 of 4 in current phase
-Status: 02-04 complete — Wizard migrated to /events/new with real persistence, navbar updated, old route removed
-Last activity: 2026-03-01 — Completed plan 02-04: Wizard migration and persistence wiring
+Phase: 2 of 6 (Wizard Persistence) — gap-closure plans in progress
+Plan: 02-07 complete (gap-closure — UAT fixes)
+Status: 02-07 complete — /events/[id]/edit route created, Reprendre links on draft cards
+Last activity: 2026-03-01 — Completed plan 02-07: Edit draft event route + Reprendre links
 
-Progress: [████░░░░░░] 40% (10/24 plans estimated)
+Progress: [████░░░░░░] 43% (12/28 plans estimated)
 
 ## Performance Metrics
 
@@ -47,6 +47,7 @@ Progress: [████░░░░░░] 40% (10/24 plans estimated)
 | Phase 02-wizard-persistence P02 | 6 | 3 tasks | 5 files |
 | Phase 02-wizard-persistence P04 | 3 | 3 tasks | 6 files |
 | Phase 02-wizard-persistence P06 | 3 | 1 tasks | 1 files |
+| Phase 02-wizard-persistence P07 | 4 | 2 tasks | 3 files |
 
 ## Accumulated Context
 
@@ -88,6 +89,9 @@ Progress: [████░░░░░░] 40% (10/24 plans estimated)
 - [02-04]: publishError typed as string|undefined (not null) in PublishStep prop; page uses null ?? undefined coercion
 - [02-04]: Old /tournaments/new deleted immediately when EventStep entities prop was added (breaking typecheck)
 - [Phase 02-06]: [02-06]: Bidirectional $effect with string-comparison guard (propIso !== localIso) breaks inbound/outbound loop — stable state reached when both ISO strings match
+- [02-07]: Redirect to /events (not 404) when draft not found — avoids leaking event existence to non-owners
+- [02-07]: Edit wizard reuses /events/new/save and /events/new/publish — eventId in POST body triggers UPDATE path, no new endpoints needed
+- [02-07]: Reprendre link shown only for status === 'draft' — published events are read-only in Phase 2
 
 ### Pending Todos
 
@@ -106,5 +110,5 @@ None yet.
 ## Session Continuity
 
 Last session: 2026-03-01
-Stopped at: Completed 02-04-PLAN.md — Wizard migration to /events/new with persistence wiring. Phase 2 complete.
+Stopped at: Completed 02-07-PLAN.md — /events/[id]/edit route created, Reprendre links on draft event cards.
 Resume file: None
