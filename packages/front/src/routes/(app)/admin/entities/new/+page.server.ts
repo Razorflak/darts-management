@@ -1,4 +1,4 @@
-import { auth } from "$lib/server/auth"
+import { getUserRoles } from "$lib/server/authz"
 import { sql } from "$lib/server/db"
 import { error, fail, redirect } from "@sveltejs/kit"
 import type { Actions, PageServerLoad } from "./$types"
@@ -19,13 +19,9 @@ const PARENT_TYPE: Record<string, string | null> = {
 export const load: PageServerLoad = async ({ locals }) => {
   if (!locals.user) error(401, "Non authentifié")
 
-  const canManage = await auth.api.userHasPermission({
-    body: {
-      userId: locals.user.id,
-      permissions: { entity: ["create"] },
-    },
-  })
-  if (!canManage.success) error(403, "Accès réservé aux administrateurs fédéraux.")
+  const userRoles = await getUserRoles(locals.user.id)
+  const isAdminFederal = userRoles.some((r) => r.role === "adminFederal")
+  if (!isAdminFederal) error(403, "Accès réservé aux administrateurs fédéraux.")
 
   // Load all entities — client filters by type for the parent selector
   const allEntities = await sql<EntityRow[]>`
@@ -39,13 +35,9 @@ export const actions: Actions = {
   default: async ({ request, locals }) => {
     if (!locals.user) error(401, "Non authentifié")
 
-    const canManage = await auth.api.userHasPermission({
-      body: {
-        userId: locals.user.id,
-        permissions: { entity: ["create"] },
-      },
-    })
-    if (!canManage.success) error(403, "Accès refusé")
+    const userRoles = await getUserRoles(locals.user.id)
+    const isAdminFederal = userRoles.some((r) => r.role === "adminFederal")
+    if (!isAdminFederal) error(403, "Accès refusé")
 
     const data = await request.formData()
     const name = String(data.get("name") ?? "").trim()

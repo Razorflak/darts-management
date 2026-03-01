@@ -1,4 +1,4 @@
-import { auth } from "$lib/server/auth"
+import { getUserRoles } from "$lib/server/authz"
 import { sql } from "$lib/server/db"
 import { error } from "@sveltejs/kit"
 import type { PageServerLoad } from "./$types"
@@ -17,13 +17,9 @@ export const load: PageServerLoad = async ({ locals }) => {
     error(401, "Non authentifié")
   }
 
-  const canManage = await auth.api.userHasPermission({
-    body: {
-      userId: locals.user.id,
-      permissions: { entity: ["create"] },
-    },
-  })
-  if (!canManage.success) {
+  const userRoles = await getUserRoles(locals.user.id)
+  const isAdminFederal = userRoles.some((r) => r.role === "adminFederal")
+  if (!isAdminFederal) {
     error(403, "Accès réservé aux administrateurs fédéraux.")
   }
 
