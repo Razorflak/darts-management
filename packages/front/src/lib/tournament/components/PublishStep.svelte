@@ -16,11 +16,12 @@
 		options: PublishOptions
 		onPrev: () => void
 		onPublish: () => void
+		publishError?: string
 	}
 
-	let { event, tournaments, options = $bindable(), onPrev, onPublish }: Props = $props()
+	let { event, tournaments, options = $bindable(), onPrev, onPublish, publishError }: Props = $props()
 
-	function formatDate(date: string, time: string): string {
+	function formatDate(date: string, time?: string): string {
 		if (!date) return '—'
 		const d = new Date(`${date}T${time || '00:00'}`)
 		return (
@@ -39,7 +40,7 @@
 		<div class="mb-5">
 			<p class="font-semibold text-gray-800">{event.name || '—'}</p>
 			<p class="mt-1 text-sm text-gray-500">
-				{formatDate(event.startDate, event.startTime)} → {formatDate(event.endDate, event.endTime)}
+				{formatDate(event.startDate, event.startTime)} → {formatDate(event.endDate)}
 				· {event.location || '—'}
 			</p>
 			{#if event.entity}
@@ -61,8 +62,8 @@
 							{/if}
 							<span class="text-sm text-gray-400">{t.quota} places</span>
 						</div>
-						{#if t.startTime || t.endTime}
-							<p class="mt-0.5 text-sm text-gray-400">{t.startTime} – {t.endTime}</p>
+						{#if t.startTime}
+							<p class="mt-0.5 text-sm text-gray-400">{t.startTime}</p>
 						{/if}
 
 						<!-- Phases -->
@@ -97,13 +98,13 @@
 								{/each}
 							</ul>
 						{:else}
-							<p class="mt-1 pl-4 text-sm text-gray-400 italic">Aucune phase configurée</p>
+							<p class="mt-1 pl-4 text-sm italic text-gray-400">Aucune phase configurée</p>
 						{/if}
 					</li>
 				{/each}
 			</ul>
 		{:else}
-			<p class="text-gray-400 italic">Aucun tournoi configuré</p>
+			<p class="italic text-gray-400">Aucun tournoi configuré</p>
 		{/if}
 	</Card>
 
@@ -119,6 +120,12 @@
 			</Checkbox>
 		</div>
 	</Card>
+
+	{#if publishError}
+		<div class="rounded-lg border border-red-200 bg-red-50 p-4 text-sm text-red-700">
+			{publishError}
+		</div>
+	{/if}
 
 	<!-- Actions -->
 	<div class="flex justify-between pt-2">
