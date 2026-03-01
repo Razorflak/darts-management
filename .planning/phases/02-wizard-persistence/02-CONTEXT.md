@@ -1,7 +1,8 @@
 # Phase 2: Wizard Persistence - Context
 
 **Gathered:** 2026-03-01
-**Status:** Ready for planning
+**Mis à jour:** 2026-03-02
+**Status:** Ready for planning — ⚠️ décision schema révisée, replanification nécessaire
 
 <domain>
 ## Phase Boundary
@@ -41,24 +42,43 @@ Cycle : `draft` → `ready` → `started` → `finished`
 - Si `registration_opens_at IS NULL` : inscriptions ouvertes dès la publication
 - Pas de job automatique côté serveur — la visibilité est calculée à la lecture (check côté serveur dans le load)
 
-### Bouton "Enregistrer" (brouillon)
+### Édition selon le statut
+
+- Les événements en statut `draft`, `ready` ET `started` sont éditables depuis la liste des événements
+- Seul `finished` est verrouillé (lecture seule / non accessible en édition)
+- Si statut `started` : les champs de l'étape 1 (EventStep — nom, dates, lieu, entité, registration_opens_at) sont en **lecture seule** — les tournois (step 2) restent modifiables
+- La route `/events/[id]/edit` lève le filtre `AND status = 'draft'` → accepte `draft`, `ready`, `started`
+
+### Navigation dans le wizard (fil d'Ariane)
+
+- Les étapes du Breadcrumb sont **cliquables** : l'utilisateur peut naviguer directement vers n'importe quelle étape
+- Pas de validation bloquante à la navigation — l'utilisateur navigue librement
+- Le step courant reste mis en évidence visuellement
+
+### Bouton "Enregistrer"
 
 - Présent à chaque step du wizard (pas seulement au PublishStep)
-- Sauvegarde l'état courant en `draft` — validation minimale (nom de l'événement suffisant)
-- Validation complète uniquement au clic "Publier"
-- Un draft peut être repris et édité depuis la liste des événements
+- Sauvegarde l'état courant — validation minimale (nom de l'événement suffisant)
+- Pour `ready` et `started` : "Enregistrer" met à jour sans changer le statut
 
 ### Bouton "Publier"
 
 - Uniquement sur le PublishStep (step 3)
+- Visible uniquement si statut `draft` (pour passer à `ready`)
+- Si déjà `ready` ou `started` : le PublishStep affiche uniquement un résumé et le bouton "Enregistrer"
 - Validation complète côté serveur avant de passer à `ready`
 - En cas d'erreur serveur : message inline dans le PublishStep
+
+### PublishStep — suppression des checkboxes
+
+- Les 2 checkboxes **"Notifier les membres"** et **"Ouvrir les inscriptions"** sont **supprimées**
+- Le PublishStep affiche uniquement un résumé de l'événement + bouton Publier (ou Enregistrer si déjà publié)
 
 ### Validation
 
 - Validation uniquement à la soumission finale ("Publier")
 - L'utilisateur peut naviguer librement entre les steps sans blocage
-- "Enregistrer" (brouillon) : validation minimale — nom requis pour identifier l'événement
+- "Enregistrer" : validation minimale — nom requis pour identifier l'événement
 
 ### Liste des événements (`/events`)
 
@@ -73,10 +93,37 @@ Cycle : `draft` → `ready` → `started` → `finished`
 - Le sélecteur dans EventStep est populé depuis `getUserRoles` : entités où l'utilisateur a un rôle `organisateur`, `adminClub`, `adminComite`, `adminLigue`, ou `adminFederal`
 - La valeur stockée est l'UUID de l'entité (pas son label)
 
+### Stockage des phases de tournoi ⚠️ RÉVISÉ
+
+Les phases sont stockées dans une **table dédiée `phase`** (et non plus en colonne JSONB dans `tournament`).
+
+Schéma de la table :
+```sql
+CREATE TABLE phase (
+  id                   UUID PRIMARY KEY DEFAULT gen_random_uuid(),
+  tournament_id        UUID NOT NULL REFERENCES tournament(id) ON DELETE CASCADE,
+  position             INTEGER NOT NULL,      -- ordre dans le tournoi
+  type                 TEXT NOT NULL,         -- round_robin | double_loss_groups | single_elim | double_elim
+  entrants             INTEGER NOT NULL,      -- tous types
+  -- Poules (round_robin + double_loss_groups)
+  players_per_group    INTEGER,               -- joueurs par poule
+  qualifiers_per_group INTEGER,               -- qualifiés par poule
+  -- Brackets (single_elim + double_elim)
+  qualifiers           INTEGER,               -- qualifiés vers phase suivante (NULL = phase finale)
+  tiers                JSONB,                 -- [{id, round, legs}]
+  created_at           TIMESTAMPTZ NOT NULL DEFAULT now()
+);
+```
+
+Conséquences :
+- La colonne `phases JSONB` de la table `tournament` est supprimée
+- Les routes save/publish insèrent dans `phase` (DELETE + re-INSERT à chaque save)
+- Le load de l'edit page fait un JOIN ou une requête séparée sur `phase ORDER BY position`
+- Le mapping DB → TypeScript `Phase[]` se fait depuis les lignes de `phase`
+
 ### Claude's Discretion
 
 - Structure exacte des tables SQL `event` et `tournament` (à dériver des types TypeScript existants)
-- Sérialisation des phases de tournoi (colonne JSON ou table relationnelle — privilégier la simplicité pour v1)
 - UX exacte du bouton "Enregistrer" dans le wizard (position, libellé, comportement si aucun nom saisi)
 - Gestion des erreurs réseau
 
@@ -113,7 +160,7 @@ Cycle : `draft` → `ready` → `started` → `finished`
 
 - `packages/front/src/routes/(app)/` — le wizard et la liste atterrissent ici
 - `packages/front/src/routes/(app)/+layout.svelte` — lien "Événements" à ajouter dans la navbar
-- `packages/db/src/schema/` — nouvelles migrations SQL (`event`, `tournament`, phases)
+- `packages/db/src/schema/` — nouvelles migrations SQL (`event`, `tournament`, table `phase` dédiée)
 - `packages/front/src/routes/tournaments/new/` — à supprimer
 
 </code_context>
