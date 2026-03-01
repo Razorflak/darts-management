@@ -23,16 +23,38 @@
 		event.registrationOpensAt ? new Date(event.registrationOpensAt + 'T00:00') : undefined,
 	)
 
+	// Inbound sync: event prop → local Date (handles external reassignment e.g. applyTemplate)
 	$effect(() => {
-		event.startDate = startDateObj ? startDateObj.toISOString().slice(0, 10) : ''
+		const propIso = event.startDate || ''
+		const localIso = startDateObj?.toISOString().slice(0, 10) ?? ''
+		if (propIso !== localIso) {
+			startDateObj = propIso ? new Date(propIso + 'T00:00') : undefined
+		}
 	})
 	$effect(() => {
-		event.endDate = endDateObj ? endDateObj.toISOString().slice(0, 10) : ''
+		const propIso = event.endDate || ''
+		const localIso = endDateObj?.toISOString().slice(0, 10) ?? ''
+		if (propIso !== localIso) {
+			endDateObj = propIso ? new Date(propIso + 'T00:00') : undefined
+		}
 	})
 	$effect(() => {
-		event.registrationOpensAt = registrationDateObj
-			? registrationDateObj.toISOString().slice(0, 10)
-			: undefined
+		const propIso = event.registrationOpensAt || ''
+		const localIso = registrationDateObj?.toISOString().slice(0, 10) ?? ''
+		if (propIso !== localIso) {
+			registrationDateObj = propIso ? new Date(propIso + 'T00:00') : undefined
+		}
+	})
+
+	// Outbound sync: local Date → event prop (handles user picking a date in the Datepicker)
+	$effect(() => {
+		event.startDate = startDateObj?.toISOString().slice(0, 10) ?? ''
+	})
+	$effect(() => {
+		event.endDate = endDateObj?.toISOString().slice(0, 10) ?? ''
+	})
+	$effect(() => {
+		event.registrationOpensAt = registrationDateObj?.toISOString().slice(0, 10) ?? undefined
 	})
 
 	function handleSubmit(e: SubmitEvent) {
