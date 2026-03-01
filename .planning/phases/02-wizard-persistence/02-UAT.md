@@ -1,9 +1,9 @@
 ---
-status: diagnosed
+status: resolved
 phase: 02-wizard-persistence
 source: [02-01-SUMMARY.md, 02-02-SUMMARY.md, 02-03-SUMMARY.md, 02-04-SUMMARY.md]
 started: 2026-03-01T15:00:00Z
-updated: 2026-03-01T15:30:00Z
+updated: 2026-03-01T18:00:00Z
 ---
 
 ## Current Test
@@ -84,7 +84,7 @@ skipped: 0
 ## Gaps
 
 - truth: "La date saisie dans le modal template est reportée sur la date de début du tournoi, et la date de fin est calculée en ajoutant la durée définie dans le template"
-  status: failed
+  status: resolved
   reason: "User reported: La date saisie dans la modal n'est pas reporté dans la date de début de tounois, ainsi que la date de fin qui est calculer avec la durée de l'évènement défini dans le template"
   severity: major
   test: 7
@@ -97,7 +97,7 @@ skipped: 0
   debug_session: ""
 
 - truth: "Le message d'erreur de publication indique précisément le champ manquant (ex: 'L'entité organisatrice est requise.' plutôt que 'Accès refusé')"
-  status: failed
+  status: resolved
   reason: "User reported: pass mais le message d'erreur n'est pas clair. 'Accès refusé' n'est pas clean. 'Entité manquante' serrait plus clair"
   severity: minor
   test: 11
@@ -110,7 +110,7 @@ skipped: 0
   debug_session: ""
 
 - truth: "Les dates dans la liste /events s'affichent en DD/MM/YYYY si renseignées, ou vide si non renseignées — jamais 'Invalid date'. Cohérence entre dates d'inscription, début, fin dans l'événement et les tournois."
-  status: failed
+  status: resolved
   reason: "User reported: les dates de début et fin s'affiche mal 'Invalid date' quelles soient rempli ou non. Laisser vide si pas de date saisie ou DD/MM/YYYY si rempli. De si ce n'est pas le cas, vérifier la cohérence en les dates d'incription, début et fin, idem dans les tournois"
   severity: major
   test: 12
@@ -126,7 +126,7 @@ skipped: 0
   debug_session: ""
 
 - truth: "La card d'un événement brouillon dans la liste /events est cliquable et permet de reprendre l'édition dans le wizard"
-  status: failed
+  status: resolved
   reason: "User reported: Une fois sauvegardé, je retour sur l'écran de la liste des évent, j'ai bien la card de l'évènement, mais je n'ai rien pour cliquer dessus et reprendre l'édition"
   severity: major
   test: 9
