@@ -13,7 +13,7 @@ Six phases carry the project from zero backend to a fully operational tournament
 Decimal phases appear between their surrounding integers in numeric order.
 
 - [x] **Phase 1: Foundation** - Auth (Better Auth v1.4.x), full DB schema, and federal entity hierarchy (completed 2026-02-28)
-- [x] **Phase 2: Wizard Persistence** - Event and tournament configuration saved to PostgreSQL (gap closure in progress) (completed 2026-03-01)
+- [ ] **Phase 2: Wizard Persistence** - Event and tournament configuration saved to PostgreSQL — replanning in progress (phase table migration + UX decisions)
 - [ ] **Phase 3: Player Registration** - Player self-registration, manual add, check-in jour J
 - [ ] **Phase 4: Launch and Match Generation** - Atomic match generation for all phase types with referee assignment
 - [ ] **Phase 5: Results and Advancement** - Result entry, automatic phase advancement, standings calculation
@@ -40,7 +40,7 @@ Plans:
 - [ ] 01-04-PLAN.md — Entity admin UI: flat list with grouping, creation form with parent selector
 
 ### Phase 2: Wizard Persistence
-**Goal**: The existing wizard prototype is wired to real server routes — an organisateur can create and publish an event that persists in PostgreSQL
+**Goal**: The existing wizard prototype is wired to real server routes — an organisateur can create, publish, and edit an event (draft/ready/started) that persists in PostgreSQL with phases in a normalized table
 **Depends on**: Phase 1
 **Requirements**: EVENT-01, EVENT-02, EVENT-03, EVENT-04, EVENT-05, EVENT-06
 **Success Criteria** (what must be TRUE):
@@ -49,17 +49,16 @@ Plans:
   3. An organisateur can configure phases of all 4 types (round-robin, poule double KO, elimination directe, double elimination) with group naming (Poule A, B...)
   4. An organisateur can load a template to pre-fill the wizard with a typical phase structure
   5. An organisateur can preview the event and publish it (status transitions to "open for registration")
-**Plans**: 8 plans (4 original + 4 gap closure)
+  6. An organisateur can edit a draft, ready, or started event — EventStep is readonly for started events
+  7. The wizard Breadcrumb is clickable for free step navigation
+**Plans**: 5 plans
 
 Plans:
-- [ ] 02-01-PLAN.md — DB schema: event + tournament tables, migrations, types
-- [ ] 02-02-PLAN.md — Save endpoint: draft create/update with transaction
-- [ ] 02-03-PLAN.md — Events list: scoped query, card layout, status badges
-- [ ] 02-04-PLAN.md — Wizard migration: /events/new wiring, publish endpoint, navbar
-- [ ] 02-05-PLAN.md — Gap closure: Invalid date fix (::text casts) + descriptive publish error
-- [ ] 02-06-PLAN.md — Gap closure: EventStep reactive date sync after template apply
-- [ ] 02-07-PLAN.md — Gap closure: /events/[id]/edit route + Reprendre link on draft cards
-- [ ] 02-08-PLAN.md — Gap closure: commit post-UAT fixes (templates.ts, labels, native dropdowns, seed)
+- [ ] 02-01-PLAN.md — Migration 008: table phase dédiée + suppression phases JSONB + PublishOptions
+- [ ] 02-02-PLAN.md — Commit working-tree: templates.ts, labels, native dropdowns, seed, edit server fix
+- [ ] 02-03-PLAN.md — Save/publish endpoints: écriture dans table phase (wave 2)
+- [ ] 02-04-PLAN.md — Edit route: accept ready/started + charger phases + EventStep readonly + Breadcrumb cliquable (wave 2)
+- [ ] 02-05-PLAN.md — PublishStep: supprimer checkboxes + conditionner Publier + liens edit ready/started (wave 2)
 
 ### Phase 3: Player Registration
 **Goal**: Players can register for a tournament and the admin can manage the roster and check-in before launch
@@ -114,7 +113,7 @@ Phases execute in numeric order: 1 → 2 → 3 → 4 → 5 → 6
 | Phase | Plans Complete | Status | Completed |
 |-------|----------------|--------|-----------|
 | 1. Foundation | 5/6 | In Progress|  |
-| 2. Wizard Persistence | 7/8 | In Progress | - |
+| 2. Wizard Persistence | 0/5 | Replanning | - |
 | 3. Player Registration | 0/? | Not started | - |
 | 4. Launch and Match Generation | 0/? | Not started | - |
 | 5. Results and Advancement | 0/? | Not started | - |
