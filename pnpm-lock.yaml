@@ -83,6 +83,9 @@ importers:
       flowbite-svelte-icons:
         specifier: ^3.1.0
         version: 3.1.0(svelte@5.53.3)
+      postgres:
+        specifier: ^3.4.8
+        version: 3.4.8
       sortablejs:
         specifier: ^1.15.6
         version: 1.15.7
