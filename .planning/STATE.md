@@ -3,12 +3,12 @@ gsd_state_version: 1.0
 milestone: v1.0
 milestone_name: milestone
 status: unknown
-last_updated: "2026-03-01T09:11:08.485Z"
+last_updated: "2026-03-01T09:19:00Z"
 progress:
   total_phases: 1
-  completed_phases: 0
+  completed_phases: 1
   total_plans: 6
-  completed_plans: 5
+  completed_plans: 6
 ---
 
 # Project State
@@ -22,25 +22,25 @@ See: .planning/PROJECT.md (updated 2026-02-28)
 
 ## Current Position
 
-Phase: 1 of 6 (Foundation) — COMPLETE
-Plan: 5 of 5 in current phase (gap closure plan added)
-Status: Phase 1 complete
-Last activity: 2026-03-01 — Completed plan 01-05: Custom authorization layer (user_entity_role + authz module)
+Phase: 1 of 6 (Foundation) — COMPLETE (all 6 plans done)
+Plan: 6 of 6 in current phase
+Status: Phase 1 fully complete — ready for Phase 2
+Last activity: 2026-03-01 — Completed plan 01-06: Frontend admin guard migration (authz module integration)
 
-Progress: [█░░░░░░░░░] 21% (5/24 plans estimated)
+Progress: [█░░░░░░░░░] 25% (6/24 plans estimated)
 
 ## Performance Metrics
 
 **Velocity:**
-- Total plans completed: 5
+- Total plans completed: 6
 - Average duration: 3 min
-- Total execution time: 17 min
+- Total execution time: 19 min
 
 **By Phase:**
 
 | Phase | Plans | Total | Avg/Plan |
 |-------|-------|-------|----------|
-| 01-foundation | 5 | 17 min | 3 min |
+| 01-foundation | 6 | 19 min | 3 min |
 
 *Updated after each plan completion*
 
@@ -70,6 +70,8 @@ Progress: [█░░░░░░░░░] 21% (5/24 plans estimated)
 - [Phase quick-1]: createAuth accepts {secret, baseURL, smtp} config — BETTER_AUTH_SECRET via $env/static/private, not process.env
 - [Phase quick-1]: adminRoles uses camelCase 'adminFederal' (not snake_case 'admin_federal') matching roles object key
 - [Phase 01-05]: createAuthz(sql) factory pattern — matches codebase createAuth/createSql convention; sql injected not module singleton
+- [01-06]: $lib/server/authz.ts wrapper pre-binds createAuthz(sql) — import getUserRoles/checkRole/canPromote directly like importing sql from $lib/server/db
+- [01-06]: hasAdminAccess computed server-side in +layout.server.ts — includes adminFederal, adminLigue, adminComite, adminClub; navbar uses data.hasAdminAccess not client-derived role
 
 ### Pending Todos
 
@@ -88,5 +90,5 @@ None yet.
 ## Session Continuity
 
 Last session: 2026-03-01
-Stopped at: Completed 01-05-PLAN.md — Custom authorization layer (user_entity_role + authz module). Phase 1 complete.
+Stopped at: Completed 01-06-PLAN.md — Frontend admin guard migration (authz module). Phase 1 fully complete (all 6 plans).
 Resume file: None
