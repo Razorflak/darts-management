@@ -20,12 +20,12 @@
 
 ### EVENT — Création & Configuration
 
-- [ ] **EVENT-01**: L'organisateur peut créer un événement (nom, dates, lieu, entité organisatrice) et le persister
-- [ ] **EVENT-02**: L'organisateur peut configurer plusieurs tournois dans un même événement (un par catégorie)
-- [ ] **EVENT-03**: L'organisateur peut configurer les phases d'un tournoi — 4 types : poules round-robin, poules double KO (arbre double élimination par groupe, N qualifiés configurables), élimination directe, double élimination — avec groupes nommés (Poule A, B...) pour les phases de poules
+- [x] **EVENT-01**: L'organisateur peut créer un événement (nom, dates, lieu, entité organisatrice) et le persister
+- [x] **EVENT-02**: L'organisateur peut configurer plusieurs tournois dans un même événement (un par catégorie)
+- [x] **EVENT-03**: L'organisateur peut configurer les phases d'un tournoi — 4 types : poules round-robin, poules double KO (arbre double élimination par groupe, N qualifiés configurables), élimination directe, double élimination — avec groupes nommés (Poule A, B...) pour les phases de poules
 - [ ] **EVENT-04**: L'organisateur peut utiliser un template de création rapide
 - [ ] **EVENT-05**: L'organisateur peut prévisualiser et publier l'événement (statut "ouvert aux inscriptions")
-- [ ] **EVENT-06**: L'organisateur peut activer ou désactiver l'assignation automatique des arbitres pour un tournoi (utile pour les tournois juniors où les arbitres viennent d'un autre tournoi)
+- [x] **EVENT-06**: L'organisateur peut activer ou désactiver l'assignation automatique des arbitres pour un tournoi (utile pour les tournois juniors où les arbitres viennent d'un autre tournoi)
 
 ### PLAYER — Inscription & Check-in
 
@@ -91,12 +91,12 @@
 | ORG-01 | Phase 1 — Foundation | Complete |
 | ORG-02 | Phase 1 — Foundation | Complete |
 | ORG-03 | Phase 1 — Foundation | Complete |
-| EVENT-01 | Phase 2 — Wizard Persistence | Pending |
-| EVENT-02 | Phase 2 — Wizard Persistence | Pending |
-| EVENT-03 | Phase 2 — Wizard Persistence | Pending |
+| EVENT-01 | Phase 2 — Wizard Persistence | Complete |
+| EVENT-02 | Phase 2 — Wizard Persistence | Complete |
+| EVENT-03 | Phase 2 — Wizard Persistence | Complete |
 | EVENT-04 | Phase 2 — Wizard Persistence | Pending |
 | EVENT-05 | Phase 2 — Wizard Persistence | Pending |
-| EVENT-06 | Phase 2 — Wizard Persistence | Pending |
+| EVENT-06 | Phase 2 — Wizard Persistence | Complete |
 | PLAYER-01 | Phase 3 — Player Registration | Pending |
 | PLAYER-02 | Phase 3 — Player Registration | Pending |
 | PLAYER-03 | Phase 3 — Player Registration | Pending |

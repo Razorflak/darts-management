@@ -2,13 +2,13 @@
 gsd_state_version: 1.0
 milestone: v1.0
 milestone_name: milestone
-status: unknown
-last_updated: "2026-03-01T11:24:58.843Z"
+status: in_progress
+last_updated: "2026-03-01T14:17:00Z"
 progress:
-  total_phases: 1
+  total_phases: 6
   completed_phases: 1
-  total_plans: 6
-  completed_plans: 6
+  total_plans: 24
+  completed_plans: 7
 ---
 
 # Project State
@@ -18,29 +18,30 @@ progress:
 See: .planning/PROJECT.md (updated 2026-02-28)
 
 **Core value:** Permettre a un organisateur de creer un tournoi complexe, de le lancer, et que le systeme gere automatiquement la generation des matchs et le suivi des resultats jusqu'aux classements finaux.
-**Current focus:** Phase 1 — Foundation
+**Current focus:** Phase 2 — Wizard Persistence
 
 ## Current Position
 
-Phase: 1 of 6 (Foundation) — COMPLETE (all 6 plans done)
-Plan: 6 of 6 in current phase
-Status: Phase 1 fully complete — ready for Phase 2
-Last activity: 2026-03-01 — Completed plan 01-06: Frontend admin guard migration (authz module integration)
+Phase: 2 of 6 (Wizard Persistence) — IN PROGRESS (1 of 4 plans done)
+Plan: 1 of 4 in current phase
+Status: 02-01 complete — schema foundation (event + tournament tables)
+Last activity: 2026-03-01 — Completed plan 02-01: SQL schema migrations and TypeScript type extensions
 
-Progress: [█░░░░░░░░░] 25% (6/24 plans estimated)
+Progress: [██░░░░░░░░] 29% (7/24 plans estimated)
 
 ## Performance Metrics
 
 **Velocity:**
-- Total plans completed: 6
+- Total plans completed: 7
 - Average duration: 3 min
-- Total execution time: 19 min
+- Total execution time: 24 min
 
 **By Phase:**
 
 | Phase | Plans | Total | Avg/Plan |
 |-------|-------|-------|----------|
 | 01-foundation | 6 | 19 min | 3 min |
+| 02-wizard-persistence | 1 | 5 min | 5 min |
 
 *Updated after each plan completion*
 
@@ -72,6 +73,11 @@ Progress: [█░░░░░░░░░] 25% (6/24 plans estimated)
 - [Phase 01-05]: createAuthz(sql) factory pattern — matches codebase createAuth/createSql convention; sql injected not module singleton
 - [01-06]: $lib/server/authz.ts wrapper pre-binds createAuthz(sql) — import getUserRoles/checkRole/canPromote directly like importing sql from $lib/server/db
 - [01-06]: hasAdminAccess computed server-side in +layout.server.ts — includes adminFederal, adminLigue, adminComite, adminClub; navbar uses data.hasAdminAccess not client-derived role
+- [02-01]: organizer_id TEXT sans FK — Better Auth gere ses propres tables, FK cross-schema causerait des conflits
+- [02-01]: category stocke en TEXT (pas ENUM SQL) — evite la derive de sync avec le type union TypeScript Category
+- [02-01]: phases stocke en JSONB (pas de table separee) — Phase[] toujours lu/ecrit atomiquement, pas de requetes par phase
+- [02-01]: club TEXT nullable sans FK — champ texte libre confirme, pas de relation entity
+- [02-01]: registration_opens_at DATE nullable — NULL = ouverture immediate a la publication
 
 ### Pending Todos
 
@@ -90,5 +96,5 @@ None yet.
 ## Session Continuity
 
 Last session: 2026-03-01
-Stopped at: Completed 01-06-PLAN.md — Frontend admin guard migration (authz module). Phase 1 fully complete (all 6 plans).
+Stopped at: Completed 02-01-PLAN.md — Schema foundation (event + tournament tables, TypeScript types).
 Resume file: None
