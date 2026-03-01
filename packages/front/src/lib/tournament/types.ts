@@ -74,7 +74,3 @@ export interface Tournament {
 	autoReferee: boolean // maps to auto_referee SQL column; EVENT-06
 }
 
-export interface PublishOptions {
-	notifications: boolean
-	openRegistrations: boolean
-}
