@@ -16,7 +16,15 @@ type SmtpConfig = {
   from: string
 }
 
-export function createAuth(sql: postgres.Sql, smtp: SmtpConfig): ReturnType<typeof betterAuth> {
+type AuthConfig = {
+  smtp: SmtpConfig
+  secret: string
+  baseURL?: string
+}
+
+// eslint-disable-next-line @typescript-eslint/explicit-module-boundary-types
+export function createAuth(sql: postgres.Sql, config: AuthConfig) {
+  const { smtp } = config
   const mailer = createTransport({
     host: smtp.host,
     port: smtp.port,
@@ -25,6 +33,8 @@ export function createAuth(sql: postgres.Sql, smtp: SmtpConfig): ReturnType<type
   })
 
   return betterAuth({
+    secret: config.secret,
+    ...(config.baseURL ? { baseURL: config.baseURL } : {}),
     database: {
       dialect: new PostgresJSDialect({ postgres: sql }),
       type: "postgresql",
@@ -49,7 +59,7 @@ export function createAuth(sql: postgres.Sql, smtp: SmtpConfig): ReturnType<type
         ac,
         roles: { joueur, organisateur, adminTournoi, adminFederal },
         defaultRole: "joueur",
-        adminRoles: ["admin_federal"],
+        adminRoles: ["adminFederal"],
       }),
       sveltekitCookies(getRequestEvent), // MUST be last -- required for SvelteKit form actions (Pitfall #2)
     ],

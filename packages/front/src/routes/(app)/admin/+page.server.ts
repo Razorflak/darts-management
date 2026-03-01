@@ -1,5 +1,5 @@
 import { auth } from "$lib/server/auth"
-import { sql } from "@darts-management/db"
+import { sql } from "$lib/server/db"
 import { error } from "@sveltejs/kit"
 import type { PageServerLoad } from "./$types"
 
