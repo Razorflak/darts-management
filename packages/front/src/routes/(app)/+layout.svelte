@@ -15,9 +15,6 @@
 
 	let { children, data } = $props()
 
-	const adminRoles = ["admin_federal", "admin_tournoi", "organisateur"]
-	const isAdmin = $derived(adminRoles.some((r) => data.user?.role?.split(",").includes(r)))
-
 	async function handleSignOut() {
 		await authClient.signOut()
 		window.location.href = "/login"
@@ -45,7 +42,7 @@
 		</div>
 		<NavUl activeUrl={$page.url.pathname}>
 			<NavLi href="/">Tableau de bord</NavLi>
-			{#if isAdmin}
+			{#if data.hasAdminAccess}
 				<NavLi href="/admin">Administration</NavLi>
 			{/if}
 		</NavUl>
