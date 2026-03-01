@@ -56,9 +56,30 @@ Auth (register/login/password reset), DB schema, role system, and entity hierarc
 <deferred>
 ## Deferred Ideas
 
-Aucune — la discussion est restée dans le périmètre de Phase 1.
+- Liaison joueur ↔ club (licenciés) : via une table séparée, hors scope Phase 1 et authz
 
 </deferred>
+
+<gap_decisions>
+## Décisions gap : refonte système d'autorisation (2026-03-01)
+
+Suite aux tests de Phase 1, le système de rôles Better Auth (plugin admin + colonne `role` sur `user`) est insuffisant pour la hiérarchie fédérale. Décisions arrêtées :
+
+### Ce qui change
+- **Supprimer le plugin admin de Better Auth** — Better Auth ne gère que l'authn (sessions, login, register, reset)
+- **Supprimer la colonne `role` sur la table `user`**
+- **Nouvelle table `user_entity_role(user_id, entity_id, role)`** — source de vérité unique pour les droits
+
+### Modèle d'autorisation
+- `joueur` = implicite pour tout utilisateur inscrit, pas stocké dans `user_entity_role`
+- Rôles dans `user_entity_role` : `organisateur`, `adminTournoi`, `adminClub`, `adminComite`, `adminLigue`, `adminFederal`
+- **Pas d'héritage implicite** — chaque droit est explicite sur son entité (les clubs ne veulent pas que les admins de niveau supérieur aient accès automatique à leurs données)
+- **Règle de promotion** : un admin ne peut promouvoir un user qu'au maximum à son propre niveau de rôle, uniquement sur les entités où il a ce rôle
+
+### Rationale
+Better Auth admin plugin est conçu pour des rôles globaux simples. La hiérarchie fédérale (Fédération → Ligues → Comités → Clubs) avec des droits scopés par entité et des règles de promotion hiérarchiques nécessite une implémentation custom.
+
+</gap_decisions>
 
 ---
 
