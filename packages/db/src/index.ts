@@ -1,2 +1,2 @@
-export { sql } from "./client.js"
-export { auth } from "./auth.js"
+export { createSql } from "./client.js"
+export { createAuth } from "./auth.js"
