@@ -26,8 +26,11 @@ export const load: PageServerLoad = async ({ locals }) => {
 		entityIds.length > 0
 			? await sql<EventRow[]>`
 				SELECT
-					e.id, e.name, e.status, e.starts_at, e.ends_at, e.location,
-					e.registration_opens_at,
+					e.id, e.name, e.status,
+					e.starts_at::text AS starts_at,
+					e.ends_at::text AS ends_at,
+					e.location,
+					e.registration_opens_at::text AS registration_opens_at,
 					en.name AS entity_name,
 					COUNT(t.id)::int AS tournament_count
 				FROM event e
@@ -41,8 +44,11 @@ export const load: PageServerLoad = async ({ locals }) => {
 			`
 			: await sql<EventRow[]>`
 				SELECT
-					e.id, e.name, e.status, e.starts_at, e.ends_at, e.location,
-					e.registration_opens_at,
+					e.id, e.name, e.status,
+					e.starts_at::text AS starts_at,
+					e.ends_at::text AS ends_at,
+					e.location,
+					e.registration_opens_at::text AS registration_opens_at,
 					en.name AS entity_name,
 					COUNT(t.id)::int AS tournament_count
 				FROM event e

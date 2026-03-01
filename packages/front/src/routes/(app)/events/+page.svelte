@@ -15,9 +15,10 @@
 		finished: 'indigo',
 	} as const
 
-	function formatDate(dateStr: string): string {
-		if (!dateStr) return '—'
+	function formatDate(dateStr: string | null | undefined): string {
+		if (!dateStr) return ''
 		const d = new Date(dateStr + 'T00:00')
+		if (isNaN(d.getTime())) return ''
 		return d.toLocaleDateString('fr-FR', { day: '2-digit', month: '2-digit', year: 'numeric' })
 	}
 
@@ -43,9 +44,11 @@
 					<h2 class="font-semibold text-gray-900">{event.name}</h2>
 					<Badge color={STATUS_COLORS[event.status]}>{STATUS_LABELS[event.status]}</Badge>
 				</div>
-				<p class="text-sm text-gray-500">
-					{formatDate(event.starts_at)} → {formatDate(event.ends_at)}
-				</p>
+				{#if event.starts_at || event.ends_at}
+					<p class="text-sm text-gray-500">
+						{formatDate(event.starts_at)}{#if event.starts_at && event.ends_at} → {/if}{formatDate(event.ends_at)}
+					</p>
+				{/if}
 				{#if event.location}
 					<p class="text-sm text-gray-500">{event.location}</p>
 				{/if}
