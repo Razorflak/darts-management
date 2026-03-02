@@ -3,12 +3,12 @@ gsd_state_version: 1.0
 milestone: v1.0
 milestone_name: milestone
 status: unknown
-last_updated: "2026-03-02T19:01:27Z"
+last_updated: "2026-03-02T19:06:29.451Z"
 progress:
   total_phases: 2
-  completed_phases: 1
+  completed_phases: 2
   total_plans: 14
-  completed_plans: 13
+  completed_plans: 14
 ---
 
 # Project State
@@ -53,6 +53,7 @@ Progress: [████░░░░░░] 46% (13/28 plans estimated)
 | Phase 02-wizard-persistence PP05 | 2 | 2 tasks | 2 files |
 | Phase 02-wizard-persistence P06 | 5 | 2 tasks | 3 files |
 | Phase 02-wizard-persistence P07 | 7 | 2 tasks | 2 files |
+| Phase 02-wizard-persistence P08 | 11 | 2 tasks | 11 files |
 
 ## Accumulated Context
 
@@ -107,6 +108,8 @@ Progress: [████░░░░░░] 46% (13/28 plans estimated)
 - [02-07]: TournamentForm Datepicker uses toLocalDateISO + bind:value pattern — same as EventStep
 - [02-07]: tournament.startDate = undefined (not '') when cleared — matches optional string type
 - [02-07]: TimeInput disabled prop added — EventStep uses disabled={readonly} on TimeInput, required the prop declaration
+- [Phase 02-08]: sql<Record<string,unknown>[]> not sql<unknown[]> — postgres.Sql<T> requires T extends readonly (object|undefined)[]
+- [Phase 02-08]: [02-08]: Zod schemas centralized in packages/front/src/lib/server/schemas/ per domain; authz schemas in packages/db/src/schemas.ts
 
 ### Pending Todos
 
@@ -125,5 +128,5 @@ None yet.
 ## Session Continuity
 
 Last session: 2026-03-02
-Stopped at: Completed 02-07-PLAN.md — tournament startDate Datepicker in TournamentForm.
+Stopped at: Completed 02-08-PLAN.md — Zod SQL validation schemas, centralized schema files, authz wired.
 Resume file: None
