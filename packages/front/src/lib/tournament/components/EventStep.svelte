@@ -1,5 +1,6 @@
 <script lang="ts">
 	import type { EventData } from '../types.js'
+	import { toLocalDateISO } from '../utils.js'
 	import { Button, Datepicker, Label, Select } from 'flowbite-svelte'
 	import TimeInput from './TimeInput.svelte'
 
@@ -27,21 +28,21 @@
 	// Inbound sync: event prop → local Date (handles external reassignment e.g. applyTemplate)
 	$effect(() => {
 		const propIso = event.startDate || ''
-		const localIso = startDateObj?.toISOString().slice(0, 10) ?? ''
+		const localIso = startDateObj ? toLocalDateISO(startDateObj) : ''
 		if (propIso !== localIso) {
 			startDateObj = propIso ? new Date(propIso + 'T00:00') : undefined
 		}
 	})
 	$effect(() => {
 		const propIso = event.endDate || ''
-		const localIso = endDateObj?.toISOString().slice(0, 10) ?? ''
+		const localIso = endDateObj ? toLocalDateISO(endDateObj) : ''
 		if (propIso !== localIso) {
 			endDateObj = propIso ? new Date(propIso + 'T00:00') : undefined
 		}
 	})
 	$effect(() => {
 		const propIso = event.registrationOpensAt || ''
-		const localIso = registrationDateObj?.toISOString().slice(0, 10) ?? ''
+		const localIso = registrationDateObj ? toLocalDateISO(registrationDateObj) : ''
 		if (propIso !== localIso) {
 			registrationDateObj = propIso ? new Date(propIso + 'T00:00') : undefined
 		}
@@ -49,13 +50,13 @@
 
 	// Outbound sync: local Date → event prop (handles user picking a date in the Datepicker)
 	$effect(() => {
-		event.startDate = startDateObj?.toISOString().slice(0, 10) ?? ''
+		event.startDate = startDateObj ? toLocalDateISO(startDateObj) : ''
 	})
 	$effect(() => {
-		event.endDate = endDateObj?.toISOString().slice(0, 10) ?? ''
+		event.endDate = endDateObj ? toLocalDateISO(endDateObj) : ''
 	})
 	$effect(() => {
-		event.registrationOpensAt = registrationDateObj?.toISOString().slice(0, 10) ?? undefined
+		event.registrationOpensAt = registrationDateObj ? toLocalDateISO(registrationDateObj) : undefined
 	})
 
 	function handleSubmit(e: SubmitEvent) {
@@ -145,7 +146,8 @@
 		<Label class="mb-2">Ouverture des inscriptions</Label>
 		<p class="mb-2 text-xs text-gray-400">Optionnel — si vide, ouvertes dès la publication</p>
 		<Datepicker
-			bind:value={registrationDateObj}
+			value={registrationDateObj}
+			onselect={(d) => { registrationDateObj = d instanceof Date ? d : undefined }}
 			locale="fr-FR"
 			firstDayOfWeek={1}
 			placeholder="jj/mm/aaaa"

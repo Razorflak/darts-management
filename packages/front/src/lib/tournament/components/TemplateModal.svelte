@@ -2,7 +2,7 @@
 	import type { EventData, Tournament, Phase, GroupPhase, EliminationPhase } from '../types.js'
 	import type { EventTemplate, PhaseTemplate } from '../templates.js'
 	import { EVENT_TEMPLATES } from '../templates.js'
-	import { genId } from '../utils.js'
+	import { genId, toLocalDateISO } from '../utils.js'
 	import { Button, Datepicker, Modal } from 'flowbite-svelte'
 
 	interface Props {
@@ -21,10 +21,6 @@
 		const d = new Date(date)
 		d.setDate(d.getDate() + days)
 		return d
-	}
-
-	function toISO(date: Date): string {
-		return date.toISOString().slice(0, 10)
 	}
 
 	function buildPhase(p: PhaseTemplate): Phase {
@@ -53,8 +49,8 @@
 	function apply() {
 		if (!selectedTemplate || !startDateObj) return
 
-		const startDate = toISO(startDateObj)
-		const endDate = toISO(addDays(startDateObj, selectedTemplate.durationDays - 1))
+		const startDate = toLocalDateISO(startDateObj)
+		const endDate = toLocalDateISO(addDays(startDateObj, selectedTemplate.durationDays - 1))
 
 		const newEvent: EventData = {
 			name: selectedTemplate.title,
@@ -72,7 +68,7 @@
 			quota: t.quota,
 			category: t.category,
 			startTime: t.startTime,
-			startDate: toISO(addDays(startDateObj!, t.dayOffset ?? 0)),
+			startDate: toLocalDateISO(addDays(startDateObj!, t.dayOffset ?? 0)),
 			phases: t.phases.map(buildPhase),
 			autoReferee: false,
 		}))
@@ -120,9 +116,8 @@
 					Date de début de la compétition <span class="text-red-500">*</span>
 				</p>
 				<Datepicker
-                style="toto"
 					bind:value={startDateObj}
-                    inline={true}
+					inline={true}
 					locale="fr-FR"
 					firstDayOfWeek={1}
 					placeholder="jj/mm/aaaa"
