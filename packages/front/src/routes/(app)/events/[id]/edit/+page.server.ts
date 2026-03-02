@@ -2,7 +2,14 @@ import { redirect } from '@sveltejs/kit'
 import { sql } from '$lib/server/db'
 import { getUserRoles } from '$lib/server/authz'
 import type { PageServerLoad } from './$types'
-import type { EventData, Tournament, GroupPhase, EliminationPhase, BracketTier } from '$lib/tournament/types'
+import type { EventData, Tournament, GroupPhase, EliminationPhase } from '$lib/tournament/types'
+import { z } from 'zod'
+import {
+	EventDetailRowSchema,
+	TournamentRowSchema,
+	PhaseRowSchema,
+	EventEntityRowSchema,
+} from '$lib/server/schemas/event-schemas.js'
 
 export const load: PageServerLoad = async ({ locals, params }) => {
 	if (!locals.user) redirect(302, '/login')
@@ -10,18 +17,7 @@ export const load: PageServerLoad = async ({ locals, params }) => {
 	const eventId = params.id
 
 	// Load the event — draft, ready or started, owned by this user
-	const [row] = await sql<
-		{
-			id: string
-			name: string
-			entity_id: string
-			starts_at: string | null
-			ends_at: string | null
-			location: string
-			registration_opens_at: string | null
-			status: string
-		}[]
-	>`
+	const rawEventRows = await sql<unknown[]>`
 		SELECT id, name, entity_id,
 		       starts_at::text, ends_at::text, location,
 		       registration_opens_at::text, status
@@ -30,48 +26,28 @@ export const load: PageServerLoad = async ({ locals, params }) => {
 		  AND organizer_id = ${locals.user.id}
 		  AND status IN ('draft', 'ready', 'started')
 	`
+	const eventRows = z.array(EventDetailRowSchema).parse(rawEventRows)
+	const [row] = eventRows
 
 	// If not found (wrong owner, wrong status, wrong id) → back to list
 	if (!row) redirect(302, '/events')
 
 	// Load associated tournaments
-	const tournamentRows = await sql<
-		{
-			id: string
-			name: string
-			club: string | null
-			category: string | null
-			quota: number
-			start_time: string
-			start_date: string | null
-			auto_referee: boolean
-		}[]
-	>`
+	const rawTournamentRows = await sql<unknown[]>`
 		SELECT id, name, club, category, quota, start_time,
 		       start_date::text, auto_referee
 		FROM tournament
 		WHERE event_id = ${eventId}
 		ORDER BY created_at
 	`
+	const tournamentRows = z.array(TournamentRowSchema).parse(rawTournamentRows)
 
 	const tournamentIds = tournamentRows.map((t) => t.id)
 
 	// Load all phases for all tournaments in one query
-	type PhaseRow = {
-		id: string
-		tournament_id: string
-		position: number
-		type: string
-		entrants: number
-		players_per_group: number | null
-		qualifiers_per_group: number | null
-		qualifiers: number | null
-		tiers: unknown
-	}
-
-	const phaseRows: PhaseRow[] =
+	const rawPhaseRows =
 		tournamentIds.length > 0
-			? await sql<PhaseRow[]>`
+			? await sql<unknown[]>`
 				SELECT id, tournament_id, position, type, entrants,
 				       players_per_group, qualifiers_per_group, qualifiers, tiers
 				FROM phase
@@ -79,6 +55,8 @@ export const load: PageServerLoad = async ({ locals, params }) => {
 				ORDER BY tournament_id, position
 			`
 			: []
+
+	const phaseRows = z.array(PhaseRowSchema).parse(rawPhaseRows)
 
 	// Group phases by tournament_id and map to Phase[]
 	const phasesByTournamentId: Record<string, Tournament['phases']> = {}
@@ -101,7 +79,7 @@ export const load: PageServerLoad = async ({ locals, params }) => {
 				type: p.type as EliminationPhase['type'],
 				entrants: p.entrants,
 				qualifiers: p.qualifiers ?? undefined,
-				tiers: p.tiers as BracketTier[],
+				tiers: p.tiers ?? [],
 			}
 			phasesByTournamentId[p.tournament_id].push(phase)
 		}
@@ -114,14 +92,16 @@ export const load: PageServerLoad = async ({ locals, params }) => {
 		.filter((r) => organisableRoles.includes(r.role))
 		.map((r) => r.entityId)
 
-	const entities =
+	const rawEntities =
 		entityIds.length > 0
-			? await sql<{ id: string; name: string; type: string }[]>`
+			? await sql<unknown[]>`
 				SELECT id, name, type FROM entity
 				WHERE id = ANY(${entityIds})
 				ORDER BY name
 			`
 			: []
+
+	const entities = z.array(EventEntityRowSchema).parse(rawEntities)
 
 	// Map DB row → EventData
 	const event: EventData = {

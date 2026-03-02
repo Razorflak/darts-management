@@ -2,12 +2,8 @@ import { getUserRoles } from "$lib/server/authz"
 import { sql } from "$lib/server/db"
 import { error, fail, redirect } from "@sveltejs/kit"
 import type { Actions, PageServerLoad } from "./$types"
-
-type EntityRow = {
-  id: string
-  name: string
-  type: string
-}
+import { z } from "zod"
+import { EntityRowSchema, type EntityRow } from "$lib/server/schemas/entity-schemas.js"
 
 const PARENT_TYPE: Record<string, string | null> = {
   federation: null,
@@ -24,9 +20,11 @@ export const load: PageServerLoad = async ({ locals }) => {
   if (!isAdminFederal) error(403, "Accès réservé aux administrateurs fédéraux.")
 
   // Load all entities — client filters by type for the parent selector
-  const allEntities = await sql<EntityRow[]>`
+  const rawEntities = await sql<unknown[]>`
     SELECT id, name, type FROM entity ORDER BY type, name
   `
+
+  const allEntities: EntityRow[] = z.array(EntityRowSchema).parse(rawEntities)
 
   return { allEntities }
 }

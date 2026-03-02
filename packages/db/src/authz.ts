@@ -1,4 +1,6 @@
 import type postgres from "postgres"
+import { z } from "zod"
+import { CheckRoleRowSchema, UserRoleRowSchema } from "./schemas.js"
 
 export type EntityRole =
   | "organisateur"
@@ -32,13 +34,14 @@ export function createAuthz(sql: postgres.Sql) {
     entityId: string,
     role: EntityRole,
   ): Promise<boolean> {
-    const rows = await sql<Array<{ count: string }>>`
+    const result = await sql<Record<string, unknown>[]>`
       SELECT COUNT(*) as count
       FROM user_entity_role
       WHERE user_id = ${userId}
         AND entity_id = ${entityId}
         AND role = ${role}
     `
+    const rows = z.array(CheckRoleRowSchema).parse(result)
     return Number(rows[0]?.count ?? 0) > 0
   }
 
@@ -48,12 +51,13 @@ export function createAuthz(sql: postgres.Sql) {
   async function getUserRoles(
     userId: string,
   ): Promise<Array<{ entityId: string; role: EntityRole }>> {
-    const rows = await sql<Array<{ entity_id: string; role: EntityRole }>>`
+    const result = await sql<Record<string, unknown>[]>`
       SELECT entity_id, role
       FROM user_entity_role
       WHERE user_id = ${userId}
     `
-    return rows.map((r) => ({ entityId: r.entity_id, role: r.role }))
+    const rows = z.array(UserRoleRowSchema).parse(result)
+    return rows.map((r) => ({ entityId: r.entity_id, role: r.role as EntityRole }))
   }
 
   /**

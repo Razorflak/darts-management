@@ -2,18 +2,8 @@ import { redirect } from '@sveltejs/kit'
 import { sql } from '$lib/server/db'
 import { getUserRoles } from '$lib/server/authz'
 import type { PageServerLoad } from './$types'
-
-type EventRow = {
-	id: string
-	name: string
-	status: 'draft' | 'ready' | 'started' | 'finished'
-	starts_at: string
-	ends_at: string
-	location: string
-	registration_opens_at: string | null
-	entity_name: string
-	tournament_count: number
-}
+import { z } from 'zod'
+import { EventRowSchema, type EventRow } from '$lib/server/schemas/event-schemas.js'
 
 export const load: PageServerLoad = async ({ locals }) => {
 	if (!locals.user) redirect(302, '/login')
@@ -22,9 +12,9 @@ export const load: PageServerLoad = async ({ locals }) => {
 	const entityIds = roles.map((r) => r.entityId)
 
 	// If user has no entity roles, they can only see their own events
-	const events =
+	const rawEvents =
 		entityIds.length > 0
-			? await sql<EventRow[]>`
+			? await sql<unknown[]>`
 				SELECT
 					e.id, e.name, e.status,
 					e.starts_at::text AS starts_at,
@@ -42,7 +32,7 @@ export const load: PageServerLoad = async ({ locals }) => {
 				GROUP BY e.id, en.name
 				ORDER BY e.starts_at DESC
 			`
-			: await sql<EventRow[]>`
+			: await sql<unknown[]>`
 				SELECT
 					e.id, e.name, e.status,
 					e.starts_at::text AS starts_at,
@@ -58,6 +48,8 @@ export const load: PageServerLoad = async ({ locals }) => {
 				GROUP BY e.id, en.name
 				ORDER BY e.starts_at DESC
 			`
+
+	const events: EventRow[] = z.array(EventRowSchema).parse(rawEvents)
 
 	return { events }
 }
