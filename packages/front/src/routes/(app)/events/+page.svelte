@@ -56,13 +56,13 @@
 				<p class="text-xs text-gray-400 mt-2">
 					{event.tournament_count} tournoi{event.tournament_count !== 1 ? 's' : ''}
 				</p>
-				{#if event.status === 'draft'}
+				{#if event.status !== 'finished'}
 					<div class="mt-3 border-t border-gray-100 pt-3">
 						<a
 							href="/events/{event.id}/edit"
 							class="text-sm font-medium text-blue-600 hover:text-blue-800"
 						>
-							Reprendre l'édition →
+							{event.status === 'draft' ? 'Reprendre l\'édition →' : 'Modifier →'}
 						</a>
 					</div>
 				{/if}
