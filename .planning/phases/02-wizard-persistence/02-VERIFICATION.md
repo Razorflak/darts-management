@@ -1,8 +1,8 @@
 ---
 phase: 02-wizard-persistence
-verified: 2026-03-02T00:30:00Z
+verified: 2026-03-02T14:00:00Z
 status: passed
-score: 20/20 must-haves verified
+score: 20/20 must-haves verified (wave 2+3) + 11/11 gap-closure must-haves verified (plans 02-06/07/08)
 re_verification:
   previous_status: passed
   previous_score: 18/18
@@ -35,17 +35,23 @@ human_verification:
   - test: "Transition a ready or started event to /events/[id]/edit — verify EventStep readonly when started, editable when ready"
     expected: "When started: yellow banner visible, all EventStep inputs disabled, Suivant button still active. When ready: form fully editable, Publier button absent (only Enregistrer shown)"
     why_human: "Visual and interaction check requiring real event rows in DB with status='started' and status='ready'"
-  - test: "Open TemplateModal, pick a template, select a start date, click Appliquer — verify date propagation to EventStep"
-    expected: "After applying, startDate and endDate Datepicker fields in EventStep reflect the template-computed ISO dates (not blank)"
-    why_human: "Reactive $effect propagation requires browser render cycle; Datepicker component visual update cannot be verified statically"
+  - test: "Open TemplateModal, pick a template, select a start date of 01/01/2026, click Appliquer — verify date propagation to EventStep"
+    expected: "After applying, startDate in EventStep shows 01/01/2026 — not 31/12/2025 (no 1-day UTC offset)"
+    why_human: "Timezone-dependent behaviour requires browser render cycle in UTC+1 locale to confirm no offset"
+  - test: "Click the 'Ouverture des inscriptions' datepicker in EventStep, select a date, click away"
+    expected: "The selected date is retained in the field — field does not return to blank"
+    why_human: "Flowbite-Svelte Datepicker onselect handler reactivity requires browser interaction to confirm"
+  - test: "Add a tournament in the wizard — verify date field appears before the time field"
+    expected: "A Datepicker for tournament start date is visible (optional, labeled 'Date optionnelle'); TimeInput is to its right in a flex layout"
+    why_human: "Layout and component rendering require browser view"
 ---
 
 # Phase 2: Wizard Persistence — Verification Report
 
 **Phase Goal:** Persistance du wizard — sauvegarder l'état du wizard en base, publier depuis le wizard, éditer un événement existant
-**Verified:** 2026-03-02T00:30:00Z
+**Verified:** 2026-03-02T14:00:00Z
 **Status:** PASSED
-**Re-verification:** Yes — after full replan (wave 2+3, plans 02-01 to 02-05)
+**Re-verification:** Yes — after gap closure plans 02-06, 02-07, 02-08
 
 ## Replan Context
 
@@ -59,7 +65,7 @@ The phase was fully replanned after the original implementation. Five new plans 
 | 02-04 | Edit route accepts draft/ready/started; phases loaded from table; EventStep readonly; Breadcrumb clickable |
 | 02-05 | PublishStep cleaned (no checkboxes, eventStatus prop); /events list edit links for all non-finished statuses |
 
-## Goal Achievement
+## Goal Achievement (Wave 2+3 — Plans 02-01 to 02-05)
 
 ### Observable Truths
 
@@ -88,7 +94,7 @@ The phase was fully replanned after the original implementation. Five new plans 
 
 **Score:** 20/20 truths verified
 
-### Required Artifacts
+### Required Artifacts (Wave 2+3)
 
 | Artifact | Expected | Status | Details |
 |----------|----------|--------|---------|
@@ -113,7 +119,7 @@ The phase was fully replanned after the original implementation. Five new plans 
 | `packages/front/src/lib/tournament/components/phases/BracketTiers.svelte` | Native dropdown (no Flowbite Dropdown) | VERIFIED | 137 lines; fixed backdrop + absolute menu, no Flowbite Dropdown import |
 | `packages/db/src/schema/003_seed_dev.sql` | TRUNCATE includes user_entity_role; tanguy user present | VERIFIED | 65 lines; user_entity_role first in TRUNCATE; tanguy user row and role row present |
 
-### Key Link Verification
+### Key Link Verification (Wave 2+3)
 
 | From | To | Via | Status | Details |
 |------|----|-----|--------|---------|
@@ -129,75 +135,132 @@ The phase was fully replanned after the original implementation. Five new plans 
 | events/+page.server.ts | event table | organizer_id scoping + ::text on 3 date columns | WIRED | Lines 40-41, 30-32 confirmed in both SQL branches |
 | TemplateModal.svelte | templates.ts | import { EVENT_TEMPLATES } from '../templates.js' | WIRED | Line 4 confirmed |
 
-### Requirements Coverage
+---
+
+## Gap Closure Verification (Plans 02-06, 02-07, 02-08)
+
+**Re-verified:** 2026-03-02T14:00:00Z
+**4 UAT gaps addressed:** timezone bug, registrationOpensAt datepicker, tournament startDate UI, Zod schemas
+
+### Gap-Closure Observable Truths
+
+| # | Truth | Status | Evidence |
+|---|-------|--------|---------|
+| 1 | `toLocalDateISO(d: Date): string` exported from utils.ts using getFullYear/getMonth/getDate | VERIFIED | utils.ts lines 12-17: `export function toLocalDateISO(d: Date)` using `d.getFullYear()`, `d.getMonth() + 1`, `d.getDate()` |
+| 2 | Zero `.toISOString()` calls in TemplateModal.svelte and EventStep.svelte | VERIFIED | grep for toISOString in both files returns 0 matches |
+| 3 | TemplateModal.svelte imports toLocalDateISO and uses it in apply() for all date conversions | VERIFIED | Line 5: `import { genId, toLocalDateISO } from '../utils.js'`; lines 52, 53, 71: toLocalDateISO() used for startDate, endDate, tournament.startDate |
+| 4 | EventStep.svelte uses toLocalDateISO in all 6 $effect blocks (3 inbound + 3 outbound) | VERIFIED | Line 3 import; lines 31, 38, 45 (inbound); lines 53, 56, 59 (outbound) — all use toLocalDateISO |
+| 5 | registrationDateObj Datepicker in EventStep uses explicit event handler (not bind:value) | VERIFIED | EventStep.svelte line 150: `onselect={(d) => { registrationDateObj = d instanceof Date ? d : undefined }}` |
+| 6 | TournamentForm.svelte shows a Datepicker for startDate before the TimeInput | VERIFIED | TournamentForm.svelte: Datepicker (lines 104-110) + TimeInput (line 111) in flex layout; startDateObj state + inbound/outbound $effect; toLocalDateISO used |
+| 7 | save/+server.ts writes start_date in both INSERT and UPDATE tournament paths | VERIFIED | Lines 94+97 (UPDATE path INSERT), 126+129 (INSERT path) — `start_date` in column list, `${t.startDate \|\| null}` as value |
+| 8 | publish/+server.ts writes start_date in both INSERT and UPDATE tournament paths | VERIFIED | Lines 111+114, 147+150 — same pattern as save |
+| 9 | edit/+page.server.ts reads start_date::text and maps to tournament.startDate | VERIFIED | Line 38: `start_date::text`; line 125: `startDate: t.start_date ?? undefined` |
+| 10 | All SQL SELECT results in server files validated with Zod schemas (no inline type aliases) | VERIFIED | events/+page.server.ts: z.array(EventRowSchema).parse(); edit/+page.server.ts: EventDetailRowSchema, TournamentRowSchema, PhaseRowSchema, EventEntityRowSchema; admin/+page.server.ts: EntityWithParentSchema; admin/entities/new: EntityRowSchema. No `type EventRow = {...}` inline aliases remain. |
+| 11 | CLAUDE.md documents the Zod SQL validation convention | VERIFIED | CLAUDE.md line 35-50: `### Validation des résultats SQL` section with pattern, centralized schema paths, z.infer<> rule, JSONB guidance |
+
+**Score:** 11/11 gap-closure truths verified
+
+### Gap-Closure Required Artifacts
+
+| Artifact | Expected | Status | Details |
+|----------|----------|--------|---------|
+| `packages/front/src/lib/tournament/utils.ts` | toLocalDateISO(d: Date): string | VERIFIED | Lines 12-17; uses getFullYear/getMonth/getDate; exported |
+| `packages/front/src/lib/tournament/components/TemplateModal.svelte` | toLocalDateISO used in apply(); style="toto" removed | VERIFIED | Lines 5, 52, 53, 71 use toLocalDateISO; no toISOString(); no style="toto" |
+| `packages/front/src/lib/tournament/components/EventStep.svelte` | 6 toLocalDateISO calls; registrationDateObj uses onselect | VERIFIED | Import line 3; 6 usages across 6 $effect blocks; onselect handler line 150 |
+| `packages/front/src/lib/tournament/components/TournamentForm.svelte` | Datepicker for startDate + inbound/outbound $effect + toLocalDateISO | VERIFIED | Lines 4-31: Datepicker import, toLocalDateISO import, startDateObj state, 2 $effect blocks; Datepicker rendered line 104-110 |
+| `packages/front/src/lib/server/schemas/event-schemas.ts` | EventRowSchema, EventDetailRowSchema, TournamentRowSchema, PhaseRowSchema (with z.preprocess for tiers), EventEntityRowSchema | VERIFIED | 88 lines; all 5 schemas exported; PhaseRowSchema.tiers uses z.preprocess with JSON.parse fallback; z.infer<> types exported |
+| `packages/front/src/lib/server/schemas/entity-schemas.ts` | EntityRowSchema, EntityWithParentSchema | VERIFIED | 26 lines; both schemas with z.infer<> types; EntityTypeSchema enum |
+| `packages/db/src/schemas.ts` | CheckRoleRowSchema, UserRoleRowSchema | VERIFIED | 27 lines; both schemas exported; UserRoleRowSchema uses EntityRoleSchema enum |
+| `packages/db/src/authz.ts` | checkRole() and getUserRoles() use Zod validation from schemas.ts | VERIFIED | Line 3: import from ./schemas.js; line 44: z.array(CheckRoleRowSchema).parse(); line 59: z.array(UserRoleRowSchema).parse() |
+| `CLAUDE.md` | Zod convention documented under Conventions | VERIFIED | Lines 35-50: full section with pattern, paths, z.infer<> rule, JSONB example |
+
+### Gap-Closure Key Link Verification
+
+| From | To | Via | Status | Details |
+|------|----|-----|--------|---------|
+| TemplateModal.svelte toLocalDateISO | utils.ts | `import { genId, toLocalDateISO } from '../utils.js'` | WIRED | Line 5 confirmed; 3 call sites in apply() |
+| EventStep.svelte outbound $effect | event.startDate / event.endDate / event.registrationOpensAt | `toLocalDateISO(dateObj)` | WIRED | Lines 53, 56, 59 — all use toLocalDateISO |
+| EventStep.svelte inbound $effect | startDateObj comparison | `toLocalDateISO` for propIso === localIso guard | WIRED | Lines 31, 38, 45 — all use toLocalDateISO |
+| TournamentForm.svelte Datepicker | tournament.startDate | outbound $effect toLocalDateISO | WIRED | Line 31: `tournament.startDate = startDateObj ? toLocalDateISO(startDateObj) : undefined` |
+| tournament.startDate | save/+server.ts | JSON body tournaments[].startDate → `${t.startDate \|\| null}` | WIRED | Lines 97, 129 in save/+server.ts |
+| edit/+page.server.ts start_date::text | Tournament.startDate | `startDate: t.start_date ?? undefined` | WIRED | Line 38 (cast), line 125 (mapping) |
+| events/+page.server.ts | EventRowSchema | `z.array(EventRowSchema).parse(rawEvents)` | WIRED | Line 52; import line 6 |
+| edit/+page.server.ts | PhaseRowSchema | `z.array(PhaseRowSchema).parse(rawPhaseRows)` | WIRED | Line 59; tiers JSONB handled by z.preprocess in schema |
+| authz.ts checkRole() | CheckRoleRowSchema | `z.array(CheckRoleRowSchema).parse(result)` | WIRED | Line 44 |
+| authz.ts getUserRoles() | UserRoleRowSchema | `z.array(UserRoleRowSchema).parse(result)` | WIRED | Line 59 |
+
+### Requirements Coverage (Gap Closure)
 
 | Requirement | Source Plans | Description | Status | Evidence |
 |-------------|-------------|-------------|--------|---------|
-| EVENT-01 | 02-01, 02-02, 02-03, 02-04, 02-05 | Organisateur peut créer un événement (nom, dates, lieu, entité) et le persister | SATISFIED | SQL schema (006 event + 007 tournament + 008 phase), save endpoint INSERT/UPDATE with transactions, entity selector from DB, edit route for draft/ready/started, date ::text casts |
-| EVENT-02 | 02-01, 02-02, 02-03, 02-04, 02-05 | Plusieurs tournois dans un même événement | SATISFIED | tournament table with event_id FK; save/publish loop over body.tournaments; TournamentStep allows adding multiple; edit load returns Tournament[] |
-| EVENT-03 | 02-01, 02-02, 02-03, 02-04 | Phases de tournoi (4 types) | SATISFIED | PhaseType union in types.ts; insertPhases() maps GroupPhase/EliminationPhase → phase table columns with correct column mapping; phases loaded from phase table in edit; AddPhaseMenu with all 4 types |
-| EVENT-04 | 02-02 | Template de création rapide | SATISFIED | TemplateModal with EVENT_TEMPLATES (comite, coupe_nationale), apply() pre-fills event+tournaments; 6 $effect blocks in EventStep propagate template dates to Datepicker |
-| EVENT-05 | 02-03, 02-04, 02-05 | Prévisualiser et publier (statut "ouvert aux inscriptions") | SATISFIED | validateForPublish with full validation, status='ready' transition (conditional on current status='draft'), PublishStep recap, descriptive 403 message, events list shows status badges |
-| EVENT-06 | 02-01, 02-03, 02-04 | Activer/désactiver assignation automatique des arbitres | SATISFIED | autoReferee: boolean in Tournament type; auto_referee BOOLEAN in 007_tournament.sql; Toggle bind:checked in TournamentForm; persisted in INSERT/UPDATE in both save and publish endpoints |
+| EVENT-01 | 02-06, 02-07, 02-08 | Organisateur peut créer un événement (nom, dates, lieu, entité) et le persister | SATISFIED | Timezone bug fixed (toLocalDateISO); registrationOpensAt datepicker now retains value; Zod validates all SQL results at the boundary |
+| EVENT-02 | 02-07, 02-08 | Plusieurs tournois dans un même événement | SATISFIED | TournamentForm now shows startDate Datepicker; start_date round-trips through save/publish/edit; Zod validates tournament rows |
+| EVENT-03 | 02-08 | Phases de tournoi (4 types) | SATISFIED | PhaseRowSchema.tiers uses z.preprocess — tiers JSONB parsed correctly by schema, JSON.parse removed from edit/+page.server.ts |
+| EVENT-04 | 02-06 | Template de création rapide | SATISFIED | TemplateModal no longer uses toISOString(); all template date conversions use toLocalDateISO() |
 
-All 6 requirements satisfied. No orphaned requirements. All 6 marked Complete in REQUIREMENTS.md.
-
-### Anti-Patterns Found
+### Anti-Patterns Found (Gap Closure)
 
 | File | Line | Pattern | Severity | Impact |
 |------|------|---------|----------|--------|
-| publish/+server.ts | 54 | `return null` | Info | Validation sentinel in validateForPublish() — returns null when validation passes (correct use, not a stub) |
-| EventStep.svelte | 85, 115, 116, 150, 165, 168 | `placeholder=` | Info | HTML input placeholder attributes — not code stubs |
-| TournamentForm.svelte | 39 | `placeholder=` | Info | HTML input placeholder attribute — not a code stub |
-| TemplateModal.svelte | 123 | `style="toto"` | Warning | Unused/test style attribute on Datepicker — cosmetic, no functional impact. Not a blocker. |
+| EventStep.svelte | 150 | `onselect` (not `bind:value`) on registrationDateObj Datepicker | Info | Intentional — `bind:value` did not retain selection for this Datepicker instance; `onselect` with instanceof Date guard is the correct fix |
 
-No blockers found. The `style="toto"` in TemplateModal.svelte is a cosmetic leftover; it does not affect functionality.
+No blockers found. The `style="toto"` cosmetic leftover noted in the previous verification has been removed from TemplateModal.svelte. TypeScript passes (`pnpm typecheck` clean, `tsc --noEmit` in front package returns 0 errors).
 
-### Human Verification Required
+### Human Verification Required (Gap Closure)
 
-#### 1. End-to-end event creation and publish flow
+#### 1. Timezone date selection — TemplateModal
 
-**Test:** Log in as a user with 'organisateur' role on at least one entity. Navigate to /events/new. Fill all required fields (name, entity, start date, end date). Add one tournament with a category and at least one phase. Click "Publier".
-**Expected:** Redirect to /events. The new event card appears with status badge "Ouvert" (green). Dates display as DD/MM/YYYY. Running `SELECT COUNT(*) FROM phase` confirms phase rows were inserted.
-**Why human:** Requires running dev server, PostgreSQL with migrations 001-008 applied, and authenticated session with entity role.
+**Test:** In a browser with timezone set to UTC+1 (France), open TemplateModal in /events/new. Select "Tournoi de Comité". Pick 01/01/2026 as start date. Click "Appliquer le template".
+**Expected:** EventStep shows startDate 01/01/2026, endDate 01/01/2026 — not 31/12/2025.
+**Why human:** Off-by-one timezone bug only manifests in UTC+ locales at browser render time; cannot verify the Date object's local value statically.
 
-#### 2. Idempotent save — no duplicate rows
+#### 2. registrationOpensAt datepicker retains selection
 
-**Test:** Fill the wizard with a name, click "Enregistrer" twice on /events/new. Then click "Enregistrer" once on the resulting /events/[id]/edit.
-**Expected:** DB shows exactly one event row after all three saves. Phase rows are replaced, not appended.
-**Why human:** Requires DB inspection (`SELECT COUNT(*) FROM event WHERE name=...` and `SELECT COUNT(*) FROM phase WHERE tournament_id=...`) across sequential saves.
+**Test:** On EventStep in /events/new, click the "Ouverture des inscriptions" datepicker. Select any date. Click elsewhere to dismiss the datepicker.
+**Expected:** The selected date appears in the field and is retained — the field does not go blank.
+**Why human:** The `onselect` handler reactivity requires a browser interaction cycle; static analysis confirms the handler is wired but cannot confirm the Datepicker fires onselect on date click.
 
-#### 3. EventStep readonly when started
+#### 3. Tournament startDate Datepicker renders and persists
 
-**Test:** Open /events/[id]/edit for an event with status='started' in DB.
-**Expected:** Yellow banner "Événement démarré — les informations de l'événement sont en lecture seule." visible. All EventStep inputs (name, entity, dates, location) are disabled. "Suivant →" button still active. No "Publier" button on PublishStep — only the "Enregistrer" header button.
-**Why human:** Requires a DB row with status='started'; visual inspection of disabled inputs in browser.
+**Test:** Add a tournament in the wizard. Observe the "Date et heure de début" row. Click the date Datepicker, pick a date, click the time input.
+**Expected:** Datepicker for date appears before the TimeInput in a flex layout. Selected date persists. When the form is saved (`/events/new/save`), the tournament's `start_date` column in DB is populated.
+**Why human:** Requires browser rendering of the flex layout and DB inspection after save.
 
-#### 4. Template date propagation to EventStep Datepicker
+#### 4. Zod parse errors are surfaced at runtime
 
-**Test:** On step 1 of /events/new, click "Créer depuis un template". Select "Tournoi de Comité", pick a start date in the modal (e.g. 15/06/2026), click "Appliquer le template".
-**Expected:** EventStep shows start date "15/06/2026" and end date "15/06/2026" (1-day event) pre-filled in the Datepicker fields.
-**Why human:** The 3 inbound $effect blocks in EventStep fire on reactive prop changes — requires browser render cycle to confirm Datepicker components visually reflect the applied dates.
+**Test:** With a running dev server and valid DB, load /events (events list) and /events/[id]/edit.
+**Expected:** Pages load without 500 errors, meaning EventRowSchema and PhaseRowSchema are compatible with the actual DB row shapes (no ZodError thrown). Tiers JSONB from phase table is correctly parsed into BracketTier[] by z.preprocess.
+**Why human:** Requires a live DB with phase rows that have tiers JSONB data to confirm z.preprocess handles both string and already-parsed object shapes.
 
-### Gaps Summary
+### Gaps Summary (Gap Closure)
 
-No gaps. All 20 must-haves verified. The phase goal is achieved:
+No gaps. All 11 gap-closure must-haves verified. The four UAT gaps from 02-UAT.md are resolved:
 
-- Phases persist in the normalized `phase` table (migration 008 + updated endpoints)
-- Draft save and re-edit work end-to-end (INSERT/UPDATE logic with ownership check)
-- Events with status ready and started are editable via /events/[id]/edit
-- EventStep is read-only for started events; PublishStep hides the Publier button for ready/started
-- Breadcrumb is clickable in both wizards
-- Events list shows edit links for all non-finished statuses
-- Templates pre-fill the wizard including date propagation
-- All 6 requirements (EVENT-01 to EVENT-06) are satisfied and marked Complete
+1. **UTC timezone bug** (UAT gap 2) — `toLocalDateISO()` utility created; all `.toISOString().slice(0,10)` calls replaced in TemplateModal.svelte and EventStep.svelte (6 occurrences). TemplateModal.svelte cosmetic `style="toto"` also cleaned up.
 
-The only remaining items are end-to-end browser flows requiring a running database and authenticated session — flagged above for human verification.
+2. **registrationOpensAt datepicker** (UAT gap 3) — `bind:value={registrationDateObj}` replaced with `onselect={(d) => { registrationDateObj = d instanceof Date ? d : undefined }}` in EventStep.svelte.
 
-The `style="toto"` in TemplateModal.svelte (line 123) is a cosmetic leftover that should be cleaned up but is not a blocker.
+3. **Tournament startDate UI** (UAT gap 4) — Datepicker added to TournamentForm.svelte before TimeInput in flex layout; inbound/outbound $effect blocks with toLocalDateISO; start_date confirmed in save/publish INSERT + edit SELECT.
+
+4. **Zod schemas for all SQL queries** (UAT gap 1) — `packages/front/src/lib/server/schemas/` created with event-schemas.ts and entity-schemas.ts; `packages/db/src/schemas.ts` created; authz.ts wired to CheckRoleRowSchema and UserRoleRowSchema; all 4 server route files use z.array(Schema).parse(); inline type aliases removed; CLAUDE.md documents the convention.
 
 ---
 
-_Verified: 2026-03-02T00:30:00Z_
+## Full Requirements Coverage
+
+| Requirement | Source Plans | Description | Status | Evidence |
+|-------------|-------------|-------------|--------|---------|
+| EVENT-01 | 02-01 to 02-08 | Organisateur peut créer un événement (nom, dates, lieu, entité) et le persister | SATISFIED | Complete stack: schema, save/publish endpoints, edit route, date bug fixed, Zod validation at boundary |
+| EVENT-02 | 02-01, 02-02, 02-03, 02-04, 02-07, 02-08 | Plusieurs tournois dans un même événement | SATISFIED | tournament table with event_id FK; save/publish loop; TournamentStep; edit load; startDate UI added; Zod validates tournament rows |
+| EVENT-03 | 02-01, 02-02, 02-03, 02-04, 02-08 | Phases de tournoi (4 types) | SATISFIED | PhaseType union; insertPhases(); phases loaded from phase table; AddPhaseMenu with 4 types; tiers JSONB parsed by Zod schema |
+| EVENT-04 | 02-02, 02-06 | Template de création rapide | SATISFIED | TemplateModal with EVENT_TEMPLATES; apply() pre-fills event+tournaments; timezone bug fixed; toLocalDateISO used throughout |
+| EVENT-05 | 02-03, 02-04, 02-05 | Prévisualiser et publier (statut "ouvert aux inscriptions") | SATISFIED | validateForPublish; status='ready' transition from draft; PublishStep recap; descriptive 403; events list shows status badges |
+| EVENT-06 | 02-01, 02-03, 02-04 | Activer/désactiver assignation automatique des arbitres | SATISFIED | autoReferee: boolean in types; auto_referee BOOLEAN in 007; Toggle in TournamentForm; persisted in save/publish/edit |
+
+All 6 requirements satisfied. No orphaned requirements.
+
+---
+
+_Verified: 2026-03-02T00:30:00Z (initial wave 2+3)_
+_Re-verified: 2026-03-02T14:00:00Z (gap closure — plans 02-06, 02-07, 02-08)_
 _Verifier: Claude (gsd-verifier)_
-_Re-verification: after full replan of phase 02 (wave 2+3, plans 02-01 to 02-05)_
