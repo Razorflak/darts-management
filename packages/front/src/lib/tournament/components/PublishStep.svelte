@@ -1,7 +1,7 @@
 <script lang="ts">
-	import type { EventData, Tournament, PublishOptions, GroupPhase, EliminationPhase, Phase } from '../types.js'
+	import type { EventData, Tournament, GroupPhase, EliminationPhase, Phase } from '../types.js'
 	import { CATEGORY_LABELS, PHASE_TYPE_LABELS, BRACKET_ROUND_LABELS } from '../labels.js'
-	import { Badge, Button, Card, Checkbox } from 'flowbite-svelte'
+	import { Badge, Button, Card } from 'flowbite-svelte'
 
 	function isGroupPhase(p: Phase): p is GroupPhase {
 		return p.type === 'round_robin' || p.type === 'double_loss_groups'
@@ -10,16 +10,16 @@
 		return p.type === 'single_elim' || p.type === 'double_elim'
 	}
 
-	interface Props {
+	type Props = {
 		event: EventData
 		tournaments: Tournament[]
-		options: PublishOptions
 		onPrev: () => void
 		onPublish: () => void
 		publishError?: string
+		eventStatus?: 'draft' | 'ready' | 'started'
 	}
 
-	let { event, tournaments, options = $bindable(), onPrev, onPublish, publishError }: Props = $props()
+	let { event, tournaments, onPrev, onPublish, publishError, eventStatus }: Props = $props()
 
 	function formatDate(date: string, time?: string): string {
 		if (!date) return '—'
@@ -108,19 +108,6 @@
 		{/if}
 	</Card>
 
-	<!-- Options -->
-	<Card>
-		<h3 class="mb-4 font-semibold text-gray-700">Options de publication</h3>
-		<div class="space-y-4">
-			<Checkbox bind:checked={options.notifications}>
-				Envoyer des notifications aux membres
-			</Checkbox>
-			<Checkbox bind:checked={options.openRegistrations}>
-				Ouvrir les inscriptions immédiatement
-			</Checkbox>
-		</div>
-	</Card>
-
 	{#if publishError}
 		<div class="rounded-lg border border-red-200 bg-red-50 p-4 text-sm text-red-700">
 			{publishError}
@@ -130,6 +117,12 @@
 	<!-- Actions -->
 	<div class="flex justify-between pt-2">
 		<Button color="alternative" pill onclick={onPrev}>← Modifier</Button>
-		<Button color="blue" pill onclick={onPublish}>Publier</Button>
+		{#if eventStatus === 'ready' || eventStatus === 'started'}
+			<p class="text-sm text-gray-500">
+				Cet événement est publié. Utilisez "Enregistrer" pour mettre à jour le contenu.
+			</p>
+		{:else}
+			<Button color="blue" pill onclick={onPublish}>Publier</Button>
+		{/if}
 	</div>
 </div>
