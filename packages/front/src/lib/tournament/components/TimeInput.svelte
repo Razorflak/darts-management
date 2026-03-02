@@ -4,9 +4,10 @@
 		id?: string
 		'aria-label'?: string
 		class?: string
+		disabled?: boolean
 	}
 
-	let { value = $bindable(''), id, 'aria-label': ariaLabel, class: klass = '' }: Props = $props()
+	let { value = $bindable(''), id, 'aria-label': ariaLabel, class: klass = '', disabled = false }: Props = $props()
 
 	function parse(v: string): [string, string] {
 		if (v && /^\d{1,2}:\d{1,2}$/.test(v)) {
@@ -93,7 +94,7 @@
 
 <div
 	aria-label={ariaLabel}
-	class="flex items-center gap-1 rounded-lg border border-gray-300 bg-gray-50 px-2.5 py-2 text-sm text-gray-900 focus-within:border-blue-500 focus-within:ring-1 focus-within:ring-blue-500 {klass}"
+	class="flex items-center gap-1 rounded-lg border border-gray-300 bg-gray-50 px-2.5 py-2 text-sm text-gray-900 focus-within:border-blue-500 focus-within:ring-1 focus-within:ring-blue-500 {disabled ? 'cursor-not-allowed opacity-60' : ''} {klass}"
 >
 	<!-- Icône horloge -->
 	<svg
@@ -114,6 +115,7 @@
 	<input
 		bind:this={hhRef}
 		{id}
+		{disabled}
 		type="text"
 		inputmode="numeric"
 		maxlength="2"
@@ -131,6 +133,7 @@
 	<!-- Minutes -->
 	<input
 		bind:this={mmRef}
+		{disabled}
 		type="text"
 		inputmode="numeric"
 		maxlength="2"

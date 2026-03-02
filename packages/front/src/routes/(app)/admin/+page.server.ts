@@ -2,14 +2,8 @@ import { getUserRoles } from "$lib/server/authz"
 import { sql } from "$lib/server/db"
 import { error } from "@sveltejs/kit"
 import type { PageServerLoad } from "./$types"
-
-type EntityRow = {
-  id: string
-  name: string
-  type: "federation" | "ligue" | "comite" | "club"
-  parent_id: string | null
-  parent_name: string | null
-}
+import { z } from "zod"
+import { EntityWithParentSchema, type EntityWithParent } from "$lib/server/schemas/entity-schemas.js"
 
 export const load: PageServerLoad = async ({ locals }) => {
   if (!locals.user) {
@@ -23,7 +17,7 @@ export const load: PageServerLoad = async ({ locals }) => {
     error(403, "Accès réservé aux administrateurs fédéraux.")
   }
 
-  const entities = await sql<EntityRow[]>`
+  const rawEntities = await sql<unknown[]>`
     SELECT
       e.id,
       e.name,
@@ -34,6 +28,8 @@ export const load: PageServerLoad = async ({ locals }) => {
     LEFT JOIN entity p ON p.id = e.parent_id
     ORDER BY e.type, p.name NULLS FIRST, e.name
   `
+
+  const entities: EntityWithParent[] = z.array(EntityWithParentSchema).parse(rawEntities)
 
   // Group by type for display
   const grouped = {
