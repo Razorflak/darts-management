@@ -4,6 +4,18 @@ export function genId(): string {
 	return Math.random().toString(36).slice(2, 10)
 }
 
+/**
+ * Convert a Date to a local-timezone YYYY-MM-DD string.
+ * Uses getFullYear/getMonth/getDate to avoid UTC conversion from toISOString().
+ * This prevents the 1-day offset bug in UTC+ timezones.
+ */
+export function toLocalDateISO(d: Date): string {
+	const y = d.getFullYear()
+	const m = String(d.getMonth() + 1).padStart(2, '0')
+	const day = String(d.getDate()).padStart(2, '0')
+	return `${y}-${m}-${day}`
+}
+
 export function createTournament(): Tournament {
 	return {
 		id: genId(),
