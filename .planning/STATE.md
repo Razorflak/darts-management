@@ -3,12 +3,12 @@ gsd_state_version: 1.0
 milestone: v1.0
 milestone_name: milestone
 status: unknown
-last_updated: "2026-03-01T23:55:04.800Z"
+last_updated: "2026-03-02T00:04:55.892Z"
 progress:
   total_phases: 2
-  completed_phases: 1
+  completed_phases: 2
   total_plans: 11
-  completed_plans: 8
+  completed_plans: 11
 ---
 
 # Project State
@@ -23,9 +23,9 @@ See: .planning/PROJECT.md (updated 2026-02-28)
 ## Current Position
 
 Phase: 2 of 6 (Wizard Persistence) — gap-closure plans in progress
-Plan: 02-02 complete (working tree cleanup — post-UAT committed files)
-Status: 02-02 complete — 7 post-UAT files committed (templates.ts, labels, dropdowns, seed)
-Last activity: 2026-03-02 — Completed plan 02-02: Working tree cleanup, 7 accumulated files committed
+Plan: 02-05 complete (PublishStep cleanup + /events edit links)
+Status: 02-05 complete — PublishStep épuré, liens d'édition pour ready/started dans la liste /events
+Last activity: 2026-03-02 — Completed plan 02-05: PublishStep sans checkboxes, bouton Publier conditionnel, /events liens pour tous statuts éditables
 
 Progress: [████░░░░░░] 46% (13/28 plans estimated)
 
@@ -50,6 +50,7 @@ Progress: [████░░░░░░] 46% (13/28 plans estimated)
 | Phase 02-wizard-persistence P07 | 4 | 2 tasks | 3 files |
 | Phase 02-wizard-persistence P01 | 3 | 2 tasks | 2 files |
 | Phase 02-wizard-persistence P02 | 1 | 2 tasks | 7 files |
+| Phase 02-wizard-persistence PP05 | 2 | 2 tasks | 2 files |
 
 ## Accumulated Context
 
@@ -96,6 +97,8 @@ Progress: [████░░░░░░] 46% (13/28 plans estimated)
 - [02-07]: Reprendre link shown only for status === 'draft' — published events are read-only in Phase 2
 - [Phase 02-01]: Migration 008 creates normalized phase table replacing phases JSONB column in tournament
 - [Phase 02-01]: PublishOptions removed from types.ts — downstream cleanup deferred to plan 02-05
+- [Phase 02-05]: PublishStep si ready/started = récapitulatif seul + message informatif, bouton Publier masqué — bouton Enregistrer header suffit
+- [Phase 02-05]: Liens d'édition /events pour tous statuts sauf finished — texte 'Reprendre l'édition' pour draft, 'Modifier' pour ready/started
 
 ### Pending Todos
 
@@ -114,5 +117,5 @@ None yet.
 ## Session Continuity
 
 Last session: 2026-03-02
-Stopped at: Completed 02-02-PLAN.md — working tree cleanup, 7 post-UAT files committed.
+Stopped at: Completed 02-05-PLAN.md — PublishStep cleanup + /events edit links for ready/started.
 Resume file: None

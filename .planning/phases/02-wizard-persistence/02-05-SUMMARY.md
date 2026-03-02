@@ -2,103 +2,99 @@
 phase: 02-wizard-persistence
 plan: 05
 subsystem: ui
-tags: [svelte, postgres, sql, date-formatting, error-messages]
+tags: [svelte, flowbite-svelte, wizard, publish, events-list]
 
 # Dependency graph
 requires:
-  - phase: 02-wizard-persistence
-    provides: events list page (+page.server.ts, +page.svelte) and publish endpoint created in 02-03/02-04
+  - phase: 02-wizard-persistence/02-01
+    provides: PublishOptions removed from types.ts
+  - phase: 02-wizard-persistence/02-04
+    provides: edit page passes eventStatus prop to PublishStep
 provides:
-  - Date columns in /events list displayed as DD/MM/YYYY strings (never 'Invalid date')
-  - Descriptive 403 permission error on publish: 'droits organisateur' message
-affects: [03-tournament-management, uat-verification]
+  - PublishStep sans checkboxes (Checkbox et PublishOptions supprimés)
+  - PublishStep conditionne le bouton Publier sur eventStatus draft/undefined
+  - Liste /events affiche liens d'édition pour tous statuts != finished
+affects: [wave-3, 02-06, 02-07]
 
 # Tech tracking
 tech-stack:
   added: []
   patterns:
-    - "Postgres.js DATE columns cast to ::text in SQL for safe string serialization"
-    - "formatDate() defensive: accepts string | null | undefined, guards isNaN, returns '' not placeholder"
+    - "Prop eventStatus conditionne l'affichage des actions dans PublishStep"
+    - "Liste events: condition sur status !== 'finished' plutôt que status === 'draft'"
 
 key-files:
   created: []
   modified:
-    - packages/front/src/routes/(app)/events/+page.server.ts
+    - packages/front/src/lib/tournament/components/PublishStep.svelte
     - packages/front/src/routes/(app)/events/+page.svelte
-    - packages/front/src/routes/(app)/events/new/publish/+server.ts
 
 key-decisions:
-  - "::text cast in SQL (not JS Date coercion) — postgres.js serializes DATE as full JS Date object; casting at source is the most robust fix"
-  - "formatDate returns '' (empty string) for missing dates per user expectation 'laisser vide si pas de date saisie'"
-  - "Date row hidden entirely (not shown as ' → ') when both starts_at and ends_at are absent"
+  - "PublishStep si ready/started = récapitulatif seul + message informatif (pas de bouton Publier)"
+  - "Liens d'édition /events pour tous statuts sauf finished — texte différencié draft vs autres"
 
 patterns-established:
-  - "Pattern: cast DATE/TIMESTAMP columns to ::text in SQL whenever consuming in a string context in Svelte"
+  - "type alias (pas interface) pour Props Svelte — conformément aux conventions TypeScript du projet"
 
-requirements-completed: [EVENT-01, EVENT-05]
+requirements-completed: [EVENT-05, EVENT-06]
 
 # Metrics
 duration: 2min
-completed: 2026-03-01
+completed: 2026-03-02
 ---
 
-# Phase 02 Plan 05: UAT Bug Fixes — Date Display and Publish Error Message Summary
+# Phase 2 Plan 05: PublishStep Cleanup + Events List Edit Links Summary
 
-**::text SQL casts fix 'Invalid date' in /events list; descriptive 403 message replaces opaque 'Accès refusé.' on publish**
+**PublishStep épuré (suppression checkboxes + PublishOptions) et liste /events avec liens d'édition conditionnels pour tous les statuts éditables (draft, ready, started)**
 
 ## Performance
 
 - **Duration:** 2 min
-- **Started:** 2026-03-01T17:07:27Z
-- **Completed:** 2026-03-01T17:09:30Z
+- **Started:** 2026-03-02T00:02:03Z
+- **Completed:** 2026-03-02T00:04:04Z
 - **Tasks:** 2
-- **Files modified:** 3
+- **Files modified:** 2
 
 ## Accomplishments
-
-- Fixed UAT Gap #12: postgres.js DATE objects no longer cause 'Invalid date' — `::text` casts in both SQL branches of +page.server.ts ensure columns arrive as 'YYYY-MM-DD' strings
-- Fixed UAT Gap #11: publish/+server.ts 403 response now says "Vous n'avez pas les droits organisateur sur l'entité sélectionnée." instead of the opaque "Accès refusé."
-- Hardened formatDate() to accept null/undefined, guard against NaN, and return '' (not '—') when no date is provided
+- Suppression des 2 checkboxes "Options de publication" (notifications, openRegistrations) et de leur import Checkbox flowbite-svelte
+- Suppression du prop `options: PublishOptions` et de l'import `PublishOptions` dans PublishStep
+- Ajout du prop `eventStatus?: 'draft' | 'ready' | 'started'` conditionnant le bouton Publier
+- Liste /events affiche maintenant un lien "Modifier →" pour les événements ready et started
 
 ## Task Commits
 
 Each task was committed atomically:
 
-1. **Task 1: Add ::text casts to date columns and harden formatDate()** - `c6a66ba` (fix)
-2. **Task 2: Replace opaque 'Accès refusé.' with descriptive permission message** - `88122ec` (fix)
+1. **Task 1: Refactorer PublishStep — supprimer checkboxes, conditionner le bouton Publier** - `53b1211` (feat)
+2. **Task 2: Mettre à jour /events list — liens d'édition pour ready et started** - `529a1ed` (feat)
 
-**Plan metadata:** (see final docs commit)
+**Plan metadata:** (docs commit — see below)
 
 ## Files Created/Modified
-
-- `packages/front/src/routes/(app)/events/+page.server.ts` — Added `::text` casts on `starts_at`, `ends_at`, `registration_opens_at` in both SQL branches (entityIds > 0 and fallback)
-- `packages/front/src/routes/(app)/events/+page.svelte` — formatDate() now accepts `string | null | undefined`, returns `''` for null/NaN; date row hidden when both dates absent
-- `packages/front/src/routes/(app)/events/new/publish/+server.ts` — 403 error message now actionable: "Vous n'avez pas les droits organisateur sur l'entité sélectionnée."
+- `packages/front/src/lib/tournament/components/PublishStep.svelte` — Suppression Checkbox/PublishOptions/options block; ajout eventStatus prop; bouton Publier conditionnel
+- `packages/front/src/routes/(app)/events/+page.svelte` — Condition status !== 'finished' avec texte différencié draft vs ready/started
 
 ## Decisions Made
-
-- **::text in SQL, not JS coercion:** postgres.js materializes DATE columns as full JS Date objects (ISO timestamp). Appending 'T00:00' to an ISO timestamp produces 'Invalid Date'. Casting at the SQL level (`e.starts_at::text`) is the canonical fix — the string arrives as 'YYYY-MM-DD' which formatDate() appends 'T00:00' to correctly for local-timezone parsing.
-- **Empty string not '—' for missing dates:** Per UAT user expectation "laisser vide si pas de date saisie" — returning '' and conditionally hiding the paragraph is cleaner than showing '—'.
+- PublishStep si ready/started: affiche récapitulatif seul + message informatif "Cet événement est publié. Utilisez Enregistrer pour mettre à jour." — le bouton Enregistrer dans le header du wizard suffit
+- Texte du lien d'édition différencié: "Reprendre l'édition →" pour draft, "Modifier →" pour ready et started
 
 ## Deviations from Plan
 
-None — plan executed exactly as written.
+None - plan executed exactly as written.
+
+Note: `edit/+page.svelte` passait déjà `eventStatus={data.eventStatus}` à PublishStep (fait par plan 02-04) et `new/+page.svelte` n'avait jamais de prop `bind:options` — aucune modification supplémentaire requise sur ces fichiers.
 
 ## Issues Encountered
-
-None.
+None
 
 ## User Setup Required
-
-None — no external service configuration required.
+None - no external service configuration required.
 
 ## Next Phase Readiness
-
-- Both UAT gaps (Gap #11 and Gap #12) from 02-UAT are now closed
-- /events list displays dates correctly as DD/MM/YYYY when present, empty when absent
-- Publish endpoint provides actionable error messages
-- Phase 02 UAT gaps are fully resolved — ready to proceed to Phase 03 or further UAT rounds
+- Plans 02-05 complete — PublishStep nettoyé, liste /events mise à jour
+- Wave 3 dependencies satisfaites pour les plans 02-06 et 02-07
+- pnpm typecheck à valider en fin de wave 3 (tous plans complétés)
 
 ---
 *Phase: 02-wizard-persistence*
-*Completed: 2026-03-01*
+*Completed: 2026-03-02*
