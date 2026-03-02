@@ -1,9 +1,9 @@
 ---
-status: resolved
+status: diagnosed
 phase: 02-wizard-persistence
 source: [02-01-SUMMARY.md, 02-02-SUMMARY.md, 02-03-SUMMARY.md, 02-04-SUMMARY.md]
 started: 2026-03-01T15:00:00Z
-updated: 2026-03-01T18:00:00Z
+updated: 2026-03-02T12:00:00Z
 ---
 
 ## Current Test
@@ -138,4 +138,75 @@ skipped: 0
     - "Créer la route (app)/events/[id]/edit/+page.server.ts — charge l'event + tournaments depuis la DB"
     - "Créer la route (app)/events/[id]/edit/+page.svelte — wizard pré-rempli avec eventId, event, tournaments"
     - "Ajouter un lien 'Reprendre' sur les cards de statut draft dans +page.svelte"
+  debug_session: ""
+
+# --- Nouveaux gaps signalés le 2026-03-02 (post-exécution phase 02) ---
+
+- truth: "Les requêtes SQL sont validées par des schemas Zod. Les types TypeScript sont dérivés de ces schemas (z.infer<>). Les schemas sont centralisés dans un dossier dédié. Cette pratique est documentée dans CLAUDE.md."
+  status: failed
+  reason: "User request: Ajouter Zod sur tous les query SQL pour éviter les bugs de parsing (ex: JSON tiers non parsé). Les types TypeScript doivent être dérivés des schemas Zod. Placer les schemas dans un dossier dédié et documenter dans CLAUDE.md."
+  severity: architecture
+  root_cause: "Aucun schema de validation SQL n'existe. Les types sont des interfaces/types TypeScript inline dans chaque fichier server. Un bug de 'JSON tiers non parsé' a été rencontré lors du debug — Zod aurait permis de le détecter plus tôt."
+  artifacts:
+    - path: "packages/front/src/routes/(app)/events/new/save/+server.ts"
+      issue: "SQL results typed inline without validation"
+    - path: "packages/front/src/routes/(app)/events/new/publish/+server.ts"
+      issue: "SQL results typed inline without validation"
+    - path: "packages/front/src/routes/(app)/events/[id]/edit/+page.server.ts"
+      issue: "SQL results typed inline without validation — includes tiers JSONB that caused a parse bug"
+    - path: "packages/front/src/routes/(app)/events/+page.server.ts"
+      issue: "SQL results typed inline without validation"
+    - path: "packages/front/src/routes/(app)/admin/entities/new/+page.server.ts"
+      issue: "SQL results typed inline without validation"
+    - path: "packages/front/src/routes/(app)/admin/+page.server.ts"
+      issue: "SQL results typed inline without validation"
+    - path: "packages/db/src/authz.ts"
+      issue: "SQL results typed inline without validation"
+  missing:
+    - "Créer packages/front/src/lib/server/schemas/ (dossier dédié) avec les schemas Zod pour chaque type de résultat SQL"
+    - "Remplacer les types inline dans tous les +server.ts par z.infer<> des schemas Zod correspondants"
+    - "Ajouter zod dans packages/front/package.json (actuellement seulement à la racine du workspace)"
+    - "Documenter la pratique dans CLAUDE.md : 'Toutes les requêtes SQL utilisent des schemas Zod pour la validation et le typage'"
+  debug_session: ""
+
+- truth: "Quand une date est sélectionnée dans TemplateModal (ex: 01/01/2026), la date de début dans le wizard affiche 01/01/2026 — sans décalage d'un jour."
+  status: failed
+  reason: "User reported: Bug de décalage d'un jour. Si je sélectionne le 01/01/2026 dans la modal template, la date début dans le wizard est le 31/12/2025."
+  severity: major
+  root_cause: "TemplateModal.svelte utilise date.toISOString().slice(0,10) pour convertir la Date en string. toISOString() convertit en UTC — pour un utilisateur en UTC+1, minuit local = 23h UTC la veille. Fix: utiliser les méthodes locales getFullYear()/getMonth()/getDate() pour construire la string YYYY-MM-DD. Même bug présent dans les $effect outbound de EventStep.svelte."
+  artifacts:
+    - path: "packages/front/src/lib/tournament/components/TemplateModal.svelte"
+      issue: "toISO() function uses date.toISOString().slice(0,10) — converts to UTC, off by 1 day in UTC+ timezones"
+    - path: "packages/front/src/lib/tournament/components/EventStep.svelte"
+      issue: "Outbound $effect blocks use toISOString().slice(0,10) for startDateObj, endDateObj, registrationDateObj"
+  missing:
+    - "Créer une fonction utilitaire toLocalDateISO(d: Date): string dans utils.ts (ou fichier dédié) : ${d.getFullYear()}-${String(d.getMonth()+1).padStart(2,'0')}-${String(d.getDate()).padStart(2,'0')}"
+    - "Remplacer tous les .toISOString().slice(0,10) par toLocalDateISO() dans TemplateModal.svelte et EventStep.svelte"
+  debug_session: ""
+
+- truth: "Le datepicker 'Ouverture des inscriptions' dans EventStep retient la date sélectionnée — le champ ne reste pas vide après sélection."
+  status: failed
+  reason: "User reported: Quand je sélectionne une date d'ouverture des inscriptions (clic sur le datepicker), la date n'est pas sélectionnée dans le champ (le champ reste vide)."
+  severity: major
+  root_cause: "Le Datepicker Flowbite-Svelte pour registrationOpensAt utilise bind:value={registrationDateObj}. Il est possible que le composant Datepicker ne supporte pas le bind:value bi-directionnel de la même manière que les autres datepickers, ou qu'il nécessite un gestionnaire onchange explicite. La même structure fonctionne pour startDateObj et endDateObj — la différence est à identifier (position DOM, wrapper, version du composant)."
+  artifacts:
+    - path: "packages/front/src/lib/tournament/components/EventStep.svelte"
+      issue: "Datepicker bind:value={registrationDateObj} does not persist selected date — field stays empty"
+  missing:
+    - "Investiguer pourquoi bind:value ne fonctionne pas pour registrationDateObj (inspecter avec MCP Flowbite-Svelte)"
+    - "Corriger le binding — utiliser onchange ou un pattern alternatif si bind:value est insuffisant"
+  debug_session: ""
+
+- truth: "Dans TournamentForm, chaque tournoi a un champ de date ET un champ d'heure de début. La date est optionnelle (NULL = même jour que l'événement)."
+  status: failed
+  reason: "User reported: Dans la section des tournois, un tournoi doit avoir une date et heure de début — actuellement il n'y a que l'heure."
+  severity: major
+  root_cause: "TournamentForm.svelte n'affiche qu'un champ TimeInput (startTime). Le champ startDate?: string existe déjà dans le type Tournament, et la colonne start_date DATE existe dans 007_tournament.sql. Il manque uniquement le Datepicker dans le formulaire UI, et le mapping start_date dans les endpoints save/publish/edit."
+  artifacts:
+    - path: "packages/front/src/lib/tournament/components/TournamentForm.svelte"
+      issue: "Only TimeInput for startTime — no Datepicker for startDate"
+  missing:
+    - "Ajouter un Datepicker pour startDate dans TournamentForm.svelte (avant le TimeInput, dans un flex layout)"
+    - "Vérifier que save/+server.ts et publish/+server.ts écrivent bien start_date dans la table tournament"
+    - "Vérifier que edit/+page.server.ts lit bien start_date et le mappe vers startDate"
   debug_session: ""
