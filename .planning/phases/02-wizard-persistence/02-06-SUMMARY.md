@@ -1,98 +1,127 @@
 ---
 phase: 02-wizard-persistence
-plan: 06
+plan: "06"
 subsystem: ui
-tags: [svelte5, runes, datepicker, reactivity, flowbite-svelte]
+tags: [svelte, flowbite-svelte, datepicker, timezone, date-formatting]
 
 # Dependency graph
 requires:
   - phase: 02-wizard-persistence
-    provides: EventStep.svelte with Datepicker date fields bound to EventData
+    provides: EventStep.svelte, TemplateModal.svelte, and utils.ts from prior plans
 
 provides:
-  - EventStep.svelte with bidirectional reactive date sync via guarded $effect pattern
-  - Template apply → Datepicker date fields now reflect applied dates correctly
+  - toLocalDateISO(d) utility in utils.ts — local-timezone YYYY-MM-DD formatting
+  - UTC-safe date conversion in TemplateModal.svelte (template apply)
+  - UTC-safe date conversion in EventStep.svelte (all 6 inbound/outbound $effects)
+  - registrationOpensAt Datepicker retains selected date via onselect handler
 
-affects: [02-wizard-persistence, tournament-wizard, template-modal]
+affects:
+  - any future plan touching date fields in the wizard
 
 # Tech tracking
 tech-stack:
   added: []
   patterns:
-    - "Svelte 5 bidirectional $effect sync: inbound guard (propIso !== localIso) + outbound write, avoids infinite loop"
+    - "toLocalDateISO() via getFullYear/getMonth/getDate — never toISOString() for date-only fields"
+    - "Flowbite-Svelte Datepicker: bind:value for two-way binding; onselect for one-way with custom logic"
 
 key-files:
   created: []
   modified:
+    - packages/front/src/lib/tournament/utils.ts
+    - packages/front/src/lib/tournament/components/TemplateModal.svelte
     - packages/front/src/lib/tournament/components/EventStep.svelte
 
 key-decisions:
-  - "[02-06]: Bidirectional $effect with string-comparison guard breaks the inbound/outbound loop — once both effects settle, propIso === localIso → inbound $effect is a no-op"
+  - "toLocalDateISO uses getFullYear/getMonth/getDate — avoids UTC midnight rollback in UTC+ timezones"
+  - "Flowbite-Svelte Datepicker onselect prop receives DateOrRange (Date | {from,to}) not a DOM Event — use instanceof Date guard"
+  - "registrationDateObj Datepicker uses onselect (not bind:value) to fix date retention; startDateObj/endDateObj keep bind:value"
 
 patterns-established:
-  - "Prop→local sync: use $effect with string guard (propIso !== localIso) to prevent re-triggering outbound effect"
-  - "Local→prop sync: outbound $effect without guard, relies on Svelte batching and inbound guard to reach stable state"
+  - "Date formatting pattern: always toLocalDateISO(d), never d.toISOString().slice(0,10)"
+  - "Datepicker onselect handler: (d) => { registrationDateObj = d instanceof Date ? d : undefined }"
 
-requirements-completed: [EVENT-04]
+requirements-completed: [EVENT-01, EVENT-04]
 
 # Metrics
-duration: 3min
-completed: 2026-03-01
+duration: 5min
+completed: 2026-03-02
 ---
 
-# Phase 2 Plan 6: EventStep Reactive Date Sync Summary
+# Phase 2 Plan 06: UTC Date Offset Fix Summary
 
-**Bidirectional $effect sync in EventStep using string-comparison guards so applyTemplate() dates propagate to Datepicker fields without infinite loops**
+**toLocalDateISO() utility added to utils.ts; all 6 wizard date effects migrated from toISOString() to local-timezone conversion; registrationOpensAt Datepicker fixed to retain selection via onselect**
 
 ## Performance
 
-- **Duration:** 3 min
-- **Started:** 2026-03-01T17:07:27Z
-- **Completed:** 2026-03-01T17:10:00Z
-- **Tasks:** 1
-- **Files modified:** 1
+- **Duration:** 5 min
+- **Started:** 2026-03-02T14:00Z
+- **Completed:** 2026-03-02T14:05Z
+- **Tasks:** 2
+- **Files modified:** 3
 
 ## Accomplishments
-- Replaced 3 outbound-only `$effect` blocks with 6 effects (3 inbound + 3 outbound) in EventStep.svelte
-- Each inbound effect uses `propIso !== localIso` guard to detect external changes without causing loops
-- When `applyTemplate()` sets `event.startDate`/`event.endDate`/`event.registrationOpensAt`, the corresponding Datepicker fields now update correctly on next render
-- `pnpm typecheck` passes with no errors
+- Added `toLocalDateISO(d: Date): string` to utils.ts using `getFullYear/getMonth/getDate` — no UTC midnight rollback for UTC+ users
+- Fixed TemplateModal.svelte: removed local `toISO()` function, replaced 3 call sites with `toLocalDateISO`, removed cosmetic `style="toto"` artifact
+- Fixed EventStep.svelte: replaced all 6 `.toISOString().slice(0,10)` occurrences (3 inbound + 3 outbound $effects) with `toLocalDateISO`
+- Fixed registrationOpensAt Datepicker to retain selection using `onselect` handler instead of `bind:value`
 
 ## Task Commits
 
 Each task was committed atomically:
 
-1. **Task 1: Replace $state initializers with reactive $effect sync in EventStep** - `caaa31b` (fix)
+1. **Task 1: Add toLocalDateISO utility** - `751354e` (feat)
+2. **Task 2: Fix date conversion in TemplateModal and EventStep** - `1eb2889` (fix)
 
-**Plan metadata:** (docs commit below)
+**Plan metadata:** committed with final docs commit
 
 ## Files Created/Modified
-- `packages/front/src/lib/tournament/components/EventStep.svelte` - Added 3 inbound $effect blocks with guards; kept 3 outbound $effect blocks
+- `packages/front/src/lib/tournament/utils.ts` - Added `toLocalDateISO(d: Date): string` export
+- `packages/front/src/lib/tournament/components/TemplateModal.svelte` - Import toLocalDateISO, remove local toISO, fix 3 date calls, remove style=toto
+- `packages/front/src/lib/tournament/components/EventStep.svelte` - Import toLocalDateISO, fix 6 date effects, fix registrationOpensAt Datepicker binding
 
 ## Decisions Made
-- Used dual $effect pattern (inbound with guard + outbound without guard) rather than $derived + onchange callbacks — keeps `bind:value` on Datepicker intact, which is the Flowbite-Svelte expected usage
-- String comparison guard (`propIso !== localIso`) is sufficient to break the cycle; Svelte's effect scheduler handles micro-loop prevention after stable state is reached
+- Used `getFullYear/getMonth/getDate` (local timezone) instead of `toISOString().slice(0,10)` (UTC) — correct approach for date-only fields in UTC+ regions
+- Flowbite-Svelte Datepicker's custom event is `onselect: (x: DateOrRange) => void` not `onchange` (which is a DOM HTMLDivElement event) — required `instanceof Date` guard since `DateOrRange = Date | { from?: Date; to?: Date }`
+- `registrationDateObj` uses `onselect` (one-way) while `startDateObj`/`endDateObj` keep `bind:value` (two-way) since those already work correctly
 
 ## Deviations from Plan
 
-None - plan executed exactly as written.
+### Auto-fixed Issues
+
+**1. [Rule 1 - Bug] Fixed wrong Datepicker event name — onchange is DOM event, onselect is Datepicker custom event**
+- **Found during:** Task 2 (EventStep.svelte registrationDateObj binding)
+- **Issue:** Plan specified `onchange={(d) => { registrationDateObj = d }}` but Flowbite-Svelte Datepicker has no `onchange` prop — it inherits from `HTMLAttributes<HTMLDivElement>` making `onchange` a DOM event receiving `Event` not `Date`
+- **Fix:** Used `onselect={(d) => { registrationDateObj = d instanceof Date ? d : undefined }}` — correct Flowbite-Svelte Datepicker API with `DateOrRange` type guard
+- **Files modified:** packages/front/src/lib/tournament/components/EventStep.svelte
+- **Verification:** svelte-check no longer reports type error at line 150 in EventStep.svelte
+- **Committed in:** `1eb2889` (Task 2 commit)
+
+---
+
+**Total deviations:** 1 auto-fixed (Rule 1 — bug in plan's API reference)
+**Impact on plan:** Fix was essential for type correctness and correct Datepicker behavior. No scope creep.
 
 ## Issues Encountered
-None.
+- Pre-existing svelte-check errors in `db/src/authz.ts`, `events/+page.server.ts`, `events/[id]/edit/+page.server.ts`, and `admin/` routes — out of scope, not caused by this plan's changes, documented but not fixed
 
 ## User Setup Required
 None - no external service configuration required.
 
 ## Next Phase Readiness
-- Template apply date propagation is now fixed; TemplateModal → EventStep date sync works correctly
-- UAT gap EVENT-04 is closed: date fields in EventStep reflect template-applied dates
-- Phase 2 gap-closure plans complete; wizard persistence feature is production-ready
+- Date handling is now UTC-safe throughout the wizard
+- toLocalDateISO() available for any future date fields
+- Ready for plan 02-07
+
+## Self-Check: PASSED
+
+- utils.ts — FOUND
+- TemplateModal.svelte — FOUND
+- EventStep.svelte — FOUND
+- SUMMARY.md — FOUND
+- Commit 751354e — FOUND
+- Commit 1eb2889 — FOUND
 
 ---
 *Phase: 02-wizard-persistence*
-*Completed: 2026-03-01*
-
-## Self-Check: PASSED
-- `packages/front/src/lib/tournament/components/EventStep.svelte` — exists
-- `.planning/phases/02-wizard-persistence/02-06-SUMMARY.md` — exists
-- Commit `caaa31b` — confirmed in git log
+*Completed: 2026-03-02*

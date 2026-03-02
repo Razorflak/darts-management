@@ -3,12 +3,12 @@ gsd_state_version: 1.0
 milestone: v1.0
 milestone_name: milestone
 status: unknown
-last_updated: "2026-03-02T00:09:51.656Z"
+last_updated: "2026-03-02T18:59:10.955Z"
 progress:
   total_phases: 2
-  completed_phases: 2
-  total_plans: 11
-  completed_plans: 11
+  completed_phases: 1
+  total_plans: 14
+  completed_plans: 12
 ---
 
 # Project State
@@ -23,9 +23,9 @@ See: .planning/PROJECT.md (updated 2026-02-28)
 ## Current Position
 
 Phase: 2 of 6 (Wizard Persistence) — gap-closure plans in progress
-Plan: 02-05 complete (PublishStep cleanup + /events edit links)
-Status: 02-05 complete — PublishStep épuré, liens d'édition pour ready/started dans la liste /events
-Last activity: 2026-03-02 — Completed plan 02-05: PublishStep sans checkboxes, bouton Publier conditionnel, /events liens pour tous statuts éditables
+Plan: 02-06 complete (UTC date offset fix + registrationOpensAt Datepicker retention)
+Status: 02-06 complete — toLocalDateISO utility, UTC-safe dates in TemplateModal + EventStep, registrationOpensAt Datepicker fixed
+Last activity: 2026-03-02 — Completed plan 02-06: date timezone bug fixed, registrationOpensAt datepicker retains selection
 
 Progress: [████░░░░░░] 46% (13/28 plans estimated)
 
@@ -51,6 +51,7 @@ Progress: [████░░░░░░] 46% (13/28 plans estimated)
 | Phase 02-wizard-persistence P01 | 3 | 2 tasks | 2 files |
 | Phase 02-wizard-persistence P02 | 1 | 2 tasks | 7 files |
 | Phase 02-wizard-persistence PP05 | 2 | 2 tasks | 2 files |
+| Phase 02-wizard-persistence P06 | 5 | 2 tasks | 3 files |
 
 ## Accumulated Context
 
@@ -99,6 +100,9 @@ Progress: [████░░░░░░] 46% (13/28 plans estimated)
 - [Phase 02-01]: PublishOptions removed from types.ts — downstream cleanup deferred to plan 02-05
 - [Phase 02-05]: PublishStep si ready/started = récapitulatif seul + message informatif, bouton Publier masqué — bouton Enregistrer header suffit
 - [Phase 02-05]: Liens d'édition /events pour tous statuts sauf finished — texte 'Reprendre l'édition' pour draft, 'Modifier' pour ready/started
+- [Phase 02-wizard-persistence]: [02-06]: toLocalDateISO uses getFullYear/getMonth/getDate — avoids UTC midnight rollback in UTC+ timezones
+- [Phase 02-wizard-persistence]: [02-06]: Flowbite-Svelte Datepicker onselect prop receives DateOrRange not DOM Event — use instanceof Date guard for onselect handler
+- [Phase 02-wizard-persistence]: [02-06]: registrationDateObj Datepicker uses onselect (one-way) while startDateObj/endDateObj keep bind:value
 
 ### Pending Todos
 
@@ -117,5 +121,5 @@ None yet.
 ## Session Continuity
 
 Last session: 2026-03-02
-Stopped at: Completed 02-05-PLAN.md — PublishStep cleanup + /events edit links for ready/started.
+Stopped at: Completed 02-06-PLAN.md — UTC date offset fix + registrationOpensAt Datepicker retention.
 Resume file: None
