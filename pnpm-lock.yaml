@@ -52,6 +52,9 @@ importers:
       postgres:
         specifier: ^3.4.5
         version: 3.4.8
+      zod:
+        specifier: ^4.3.6
+        version: 4.3.6
     devDependencies:
       '@darts-management/biome-config':
         specifier: workspace:*
@@ -89,6 +92,9 @@ importers:
       sortablejs:
         specifier: ^1.15.6
         version: 1.15.7
+      zod:
+        specifier: ^4.3.6
+        version: 4.3.6
     devDependencies:
       '@eslint/compat':
         specifier: ^2.0.2

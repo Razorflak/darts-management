@@ -21,7 +21,8 @@
 		"flowbite-svelte": "^1.31.0",
 		"flowbite-svelte-icons": "^3.1.0",
 		"postgres": "^3.4.8",
-		"sortablejs": "^1.15.6"
+		"sortablejs": "^1.15.6",
+		"zod": "^4.3.6"
 	},
 	"devDependencies": {
 		"@eslint/compat": "^2.0.2",
