@@ -17,7 +17,7 @@ export const load: PageServerLoad = async ({ locals }) => {
     error(403, "Accès réservé aux administrateurs fédéraux.")
   }
 
-  const rawEntities = await sql<unknown[]>`
+  const rawEntities = await sql<Record<string, unknown>[]>`
     SELECT
       e.id,
       e.name,

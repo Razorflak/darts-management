@@ -20,7 +20,7 @@ export const load: PageServerLoad = async ({ locals }) => {
   if (!isAdminFederal) error(403, "Accès réservé aux administrateurs fédéraux.")
 
   // Load all entities — client filters by type for the parent selector
-  const rawEntities = await sql<unknown[]>`
+  const rawEntities = await sql<Record<string, unknown>[]>`
     SELECT id, name, type FROM entity ORDER BY type, name
   `
 

@@ -14,7 +14,7 @@ export const load: PageServerLoad = async ({ locals }) => {
 	// If user has no entity roles, they can only see their own events
 	const rawEvents =
 		entityIds.length > 0
-			? await sql<unknown[]>`
+			? await sql<Record<string, unknown>[]>`
 				SELECT
 					e.id, e.name, e.status,
 					e.starts_at::text AS starts_at,
@@ -32,7 +32,7 @@ export const load: PageServerLoad = async ({ locals }) => {
 				GROUP BY e.id, en.name
 				ORDER BY e.starts_at DESC
 			`
-			: await sql<unknown[]>`
+			: await sql<Record<string, unknown>[]>`
 				SELECT
 					e.id, e.name, e.status,
 					e.starts_at::text AS starts_at,

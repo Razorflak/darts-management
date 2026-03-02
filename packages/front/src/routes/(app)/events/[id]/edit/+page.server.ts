@@ -2,7 +2,7 @@ import { redirect } from '@sveltejs/kit'
 import { sql } from '$lib/server/db'
 import { getUserRoles } from '$lib/server/authz'
 import type { PageServerLoad } from './$types'
-import type { EventData, Tournament, GroupPhase, EliminationPhase } from '$lib/tournament/types'
+import type { BracketTier, EventData, Tournament, GroupPhase, EliminationPhase } from '$lib/tournament/types'
 import { z } from 'zod'
 import {
 	EventDetailRowSchema,
@@ -17,7 +17,7 @@ export const load: PageServerLoad = async ({ locals, params }) => {
 	const eventId = params.id
 
 	// Load the event — draft, ready or started, owned by this user
-	const rawEventRows = await sql<unknown[]>`
+	const rawEventRows = await sql<Record<string, unknown>[]>`
 		SELECT id, name, entity_id,
 		       starts_at::text, ends_at::text, location,
 		       registration_opens_at::text, status
@@ -33,7 +33,7 @@ export const load: PageServerLoad = async ({ locals, params }) => {
 	if (!row) redirect(302, '/events')
 
 	// Load associated tournaments
-	const rawTournamentRows = await sql<unknown[]>`
+	const rawTournamentRows = await sql<Record<string, unknown>[]>`
 		SELECT id, name, club, category, quota, start_time,
 		       start_date::text, auto_referee
 		FROM tournament
@@ -47,7 +47,7 @@ export const load: PageServerLoad = async ({ locals, params }) => {
 	// Load all phases for all tournaments in one query
 	const rawPhaseRows =
 		tournamentIds.length > 0
-			? await sql<unknown[]>`
+			? await sql<Record<string, unknown>[]>`
 				SELECT id, tournament_id, position, type, entrants,
 				       players_per_group, qualifiers_per_group, qualifiers, tiers
 				FROM phase
@@ -79,7 +79,7 @@ export const load: PageServerLoad = async ({ locals, params }) => {
 				type: p.type as EliminationPhase['type'],
 				entrants: p.entrants,
 				qualifiers: p.qualifiers ?? undefined,
-				tiers: p.tiers ?? [],
+				tiers: (p.tiers ?? []) as BracketTier[],
 			}
 			phasesByTournamentId[p.tournament_id].push(phase)
 		}
@@ -94,7 +94,7 @@ export const load: PageServerLoad = async ({ locals, params }) => {
 
 	const rawEntities =
 		entityIds.length > 0
-			? await sql<unknown[]>`
+			? await sql<Record<string, unknown>[]>`
 				SELECT id, name, type FROM entity
 				WHERE id = ANY(${entityIds})
 				ORDER BY name
