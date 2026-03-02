@@ -3,12 +3,12 @@ gsd_state_version: 1.0
 milestone: v1.0
 milestone_name: milestone
 status: unknown
-last_updated: "2026-03-02T18:59:10.955Z"
+last_updated: "2026-03-02T19:01:27Z"
 progress:
   total_phases: 2
   completed_phases: 1
   total_plans: 14
-  completed_plans: 12
+  completed_plans: 13
 ---
 
 # Project State
@@ -23,9 +23,9 @@ See: .planning/PROJECT.md (updated 2026-02-28)
 ## Current Position
 
 Phase: 2 of 6 (Wizard Persistence) — gap-closure plans in progress
-Plan: 02-06 complete (UTC date offset fix + registrationOpensAt Datepicker retention)
-Status: 02-06 complete — toLocalDateISO utility, UTC-safe dates in TemplateModal + EventStep, registrationOpensAt Datepicker fixed
-Last activity: 2026-03-02 — Completed plan 02-06: date timezone bug fixed, registrationOpensAt datepicker retains selection
+Plan: 02-07 complete (tournament startDate Datepicker in TournamentForm)
+Status: 02-07 complete — TournamentForm Datepicker for startDate, toLocalDateISO sync, TimeInput disabled prop added
+Last activity: 2026-03-02 — Completed plan 02-07: tournament date picker with local-timezone-safe ISO conversion
 
 Progress: [████░░░░░░] 46% (13/28 plans estimated)
 
@@ -52,6 +52,7 @@ Progress: [████░░░░░░] 46% (13/28 plans estimated)
 | Phase 02-wizard-persistence P02 | 1 | 2 tasks | 7 files |
 | Phase 02-wizard-persistence PP05 | 2 | 2 tasks | 2 files |
 | Phase 02-wizard-persistence P06 | 5 | 2 tasks | 3 files |
+| Phase 02-wizard-persistence P07 | 7 | 2 tasks | 2 files |
 
 ## Accumulated Context
 
@@ -103,6 +104,9 @@ Progress: [████░░░░░░] 46% (13/28 plans estimated)
 - [Phase 02-wizard-persistence]: [02-06]: toLocalDateISO uses getFullYear/getMonth/getDate — avoids UTC midnight rollback in UTC+ timezones
 - [Phase 02-wizard-persistence]: [02-06]: Flowbite-Svelte Datepicker onselect prop receives DateOrRange not DOM Event — use instanceof Date guard for onselect handler
 - [Phase 02-wizard-persistence]: [02-06]: registrationDateObj Datepicker uses onselect (one-way) while startDateObj/endDateObj keep bind:value
+- [02-07]: TournamentForm Datepicker uses toLocalDateISO + bind:value pattern — same as EventStep
+- [02-07]: tournament.startDate = undefined (not '') when cleared — matches optional string type
+- [02-07]: TimeInput disabled prop added — EventStep uses disabled={readonly} on TimeInput, required the prop declaration
 
 ### Pending Todos
 
@@ -121,5 +125,5 @@ None yet.
 ## Session Continuity
 
 Last session: 2026-03-02
-Stopped at: Completed 02-06-PLAN.md — UTC date offset fix + registrationOpensAt Datepicker retention.
+Stopped at: Completed 02-07-PLAN.md — tournament startDate Datepicker in TournamentForm.
 Resume file: None
