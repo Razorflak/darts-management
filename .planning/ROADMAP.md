@@ -51,7 +51,7 @@ Plans:
   5. An organisateur can preview the event and publish it (status transitions to "open for registration")
   6. An organisateur can edit a draft, ready, or started event — EventStep is readonly for started events
   7. The wizard Breadcrumb is clickable for free step navigation
-**Plans**: 5 plans
+**Plans**: 8 plans (5 original + 3 gap closure)
 
 Plans:
 - [ ] 02-01-PLAN.md — Migration 008: table phase dédiée + suppression phases JSONB + PublishOptions
@@ -59,6 +59,9 @@ Plans:
 - [ ] 02-03-PLAN.md — Save/publish endpoints: écriture dans table phase (wave 2)
 - [ ] 02-04-PLAN.md — Edit route: accept ready/started + charger phases + EventStep readonly + Breadcrumb cliquable (wave 2)
 - [ ] 02-05-PLAN.md — PublishStep: supprimer checkboxes + conditionner Publier + liens edit ready/started (wave 2)
+- [ ] 02-06-PLAN.md — [gap] Fix timezone offset bug (toLocalDateISO) + registrationOpensAt datepicker binding
+- [ ] 02-07-PLAN.md — [gap] Tournament startDate datepicker in TournamentForm
+- [ ] 02-08-PLAN.md — [gap] Zod schemas for all SQL query results; tiers JSONB parsing; CLAUDE.md docs
 
 ### Phase 3: Player Registration
 **Goal**: Players can register for a tournament and the admin can manage the roster and check-in before launch
@@ -113,7 +116,7 @@ Phases execute in numeric order: 1 → 2 → 3 → 4 → 5 → 6
 | Phase | Plans Complete | Status | Completed |
 |-------|----------------|--------|-----------|
 | 1. Foundation | 5/6 | In Progress|  |
-| 2. Wizard Persistence | 5/5 | Complete   | 2026-03-02 |
+| 2. Wizard Persistence | 5/8 | Gap closure in progress | - |
 | 3. Player Registration | 0/? | Not started | - |
 | 4. Launch and Match Generation | 0/? | Not started | - |
 | 5. Results and Advancement | 0/? | Not started | - |
