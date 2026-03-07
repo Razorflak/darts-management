@@ -133,3 +133,59 @@ export const EventListItemSchema = EventSchema.omit({
 	tournament_count: z.number()
 })
 export type EventListItem = z.infer<typeof EventListItemSchema>
+
+/** ######################## */
+/** ####### PLAYER ######### */
+/** ######################## */
+
+export const PlayerSchema = z.object({
+	id: z.uuid(),
+	user_id: z.string().nullable(),
+	first_name: z.string(),
+	last_name: z.string(),
+	birth_date: z.string(), // DATE returned as text from postgres
+	licence_no: z.string().nullable()
+})
+export type Player = z.infer<typeof PlayerSchema>
+
+export const TournamentRegistrationSchema = z.object({
+	id: z.uuid(),
+	tournament_id: z.uuid(),
+	player_id: z.uuid(),
+	checked_in: z.boolean(),
+	registered_at: z.coerce.date()
+})
+export type TournamentRegistration = z.infer<typeof TournamentRegistrationSchema>
+
+// Used by public event page: tournament info + registration state for current visitor
+export const TournamentWithRegistrationSchema = z.object({
+	id: z.uuid(),
+	name: z.string(),
+	category: CategorySchema,
+	check_in_required: z.boolean(),
+	registration_count: z.number().int(),
+	is_registered: z.boolean() // true if current user's player is registered
+})
+export type TournamentWithRegistration = z.infer<typeof TournamentWithRegistrationSchema>
+
+// Used by roster views (public + admin)
+export const RosterEntrySchema = z.object({
+	registration_id: z.uuid(),
+	player_id: z.uuid(),
+	first_name: z.string(),
+	last_name: z.string(),
+	licence_no: z.string().nullable(),
+	checked_in: z.boolean(),
+	registered_at: z.coerce.date()
+})
+export type RosterEntry = z.infer<typeof RosterEntrySchema>
+
+// Used by admin player search endpoint
+export const PlayerSearchResultSchema = z.object({
+	id: z.uuid(),
+	first_name: z.string(),
+	last_name: z.string(),
+	birth_date: z.string(), // DATE as text
+	licence_no: z.string().nullable()
+})
+export type PlayerSearchResult = z.infer<typeof PlayerSearchResultSchema>
