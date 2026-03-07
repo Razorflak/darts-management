@@ -11,6 +11,7 @@ declare global {
 		interface Locals {
 			user: User | null
 			session: Session | null
+			player: import('$lib/server/schemas/event-schemas.js').Player | null
 		}
 		// interface PageData {}
 		// interface PageState {}
