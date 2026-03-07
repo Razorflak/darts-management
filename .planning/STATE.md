@@ -3,12 +3,12 @@ gsd_state_version: 1.0
 milestone: v1.0
 milestone_name: milestone
 status: unknown
-last_updated: "2026-03-07T23:33:12.055Z"
+last_updated: "2026-03-07T23:39:31.807Z"
 progress:
   total_phases: 4
   completed_phases: 3
   total_plans: 23
-  completed_plans: 20
+  completed_plans: 22
 ---
 
 # Project State
@@ -22,12 +22,12 @@ See: .planning/PROJECT.md (updated 2026-02-28)
 
 ## Current Position
 
-Phase: 03.1-teams-and-doubles-registration — plan 01 complete
-Plan: 03.1-01 complete (DB migration 013 + Zod schemas for team model)
-Status: 03.1-01 complete — team/team_member tables, player.department, tournament_registration refactored to team_id
-Last activity: 2026-03-08 — Completed plan 03.1-01: Teams DB migration and Zod schemas
+Phase: 03.1-teams-and-doubles-registration — plan 03 complete
+Plan: 03.1-03 complete (partner/search endpoint + admin player search department)
+Status: 03.1-03 complete — GET /tournaments/[id]/partner/search created, department added to admin player search
+Last activity: 2026-03-08 — Completed plan 03.1-03: Server-side endpoints refactor
 
-Progress: [████░░░░░░] 52% (21/40 plans estimated)
+Progress: [████░░░░░░] 55% (22/40 plans estimated)
 
 ## Performance Metrics
 
@@ -57,6 +57,8 @@ Progress: [████░░░░░░] 52% (21/40 plans estimated)
 | Phase 03-player-registration P02 | 3 | 2 tasks | 3 files |
 | Phase 03-player-registration P03 | 3 | 3 tasks | 4 files |
 | Phase 03.1-teams-and-doubles-registration P01 | 7 | 2 tasks | 11 files |
+| Phase 03.1-teams-and-doubles-registration P03 | 7 | 2 tasks | 2 files |
+| Phase 03.1-teams-and-doubles-registration P02 | 5 | 2 tasks | 3 files |
 
 ## Accumulated Context
 
@@ -125,6 +127,10 @@ Progress: [████░░░░░░] 52% (21/40 plans estimated)
 - [Phase 03.1-01]: Solo registration creates a team of 1: CREATE team + team_member + tournament_registration in transaction
 - [Phase 03.1-01]: Roster query uses json_agg via team_member JOIN — members is array in RosterEntry, not flat player fields
 - [Phase 03.1-01]: is_registered uses correlated EXISTS through team_member, not LEFT JOIN on player_id
+- [Phase 03.1-03]: partner/search endpoint is global (not filtered by tournament) — [id] param is routing-only
+- [Phase 03.1-03]: is_registered (EXISTS+team_member) and json_agg roster were already complete from Plan 01 — only player search department field needed adding
+- [Phase 03.1-teams-and-doubles-registration]: rawTx as unknown as postgres.Sql cast in sql.begin() callbacks — TransactionSql strips call signatures, cast restores callability (established pattern)
+- [Phase 03.1-teams-and-doubles-registration]: findOrCreate inside sql.begin() for team creation — atomic, idempotent, no ON CONFLICT needed since team has no natural key
 
 ### Roadmap Evolution
 
@@ -147,5 +153,5 @@ None yet.
 ## Session Continuity
 
 Last session: 2026-03-08
-Stopped at: Completed 03.1-01-PLAN.md — DB migration 013 + Zod schemas for team model.
+Stopped at: Completed 03.1-03-PLAN.md — partner/search endpoint + admin player search department.
 Resume file: None
