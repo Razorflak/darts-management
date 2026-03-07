@@ -81,6 +81,19 @@ Plans:
 - [ ] 03-04-PLAN.md — Section Tournois disponibles dashboard + page publique /tournaments/[id] roster
 - [ ] 03-05-PLAN.md — Interface admin /tournaments/[id]/admin: roster, check-in, recherche joueur, inscription admin
 
+### Phase 03.1: Teams and Doubles Registration (INSERTED)
+
+**Goal:** Refactor du modèle d'inscription vers les équipes — toujours jouer en teams (team de 1 pour indiv, team de 2 pour doubles), modal de sélection de partenaire pour les catégories doubles, champ département sur le profil joueur
+**Requirements**: TEAM-01, TEAM-02, TEAM-03, TEAM-04
+**Depends on:** Phase 3
+**Plans:** 4 plans
+
+Plans:
+- [ ] 03.1-01-PLAN.md — Migration DB 013 (tables team, team_member, department, refactor registration) + schemas Zod
+- [ ] 03.1-02-PLAN.md — Module teams.ts (findOrCreateSoloTeam/DoublesTeam) + refactor endpoints register self-service et admin
+- [ ] 03.1-03-PLAN.md — Endpoint partner/search + is_registered refactorisé + roster query json_agg + player search department
+- [ ] 03.1-04-PLAN.md — DoublesModal.svelte + events/[id]/+page.svelte branching + admin roster UI + unregister team_id
+
 ### Phase 4: Launch and Match Generation
 **Goal**: An admin tournoi can launch a tournament, locking configuration and generating every match for every phase atomically in one database transaction
 **Depends on**: Phase 3
@@ -125,6 +138,7 @@ Phases execute in numeric order: 1 → 2 → 3 → 4 → 5 → 6
 | 1. Foundation | 5/6 | In Progress|  |
 | 2. Wizard Persistence | 8/8 | Complete   | 2026-03-02 |
 | 3. Player Registration | 3/5 | In Progress|  |
+| 03.1. Teams and Doubles | 0/4 | Not started | - |
 | 4. Launch and Match Generation | 0/? | Not started | - |
 | 5. Results and Advancement | 0/? | Not started | - |
 | 6. Views and Dashboard | 0/? | Not started | - |
