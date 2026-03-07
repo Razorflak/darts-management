@@ -3,12 +3,12 @@ gsd_state_version: 1.0
 milestone: v1.0
 milestone_name: milestone
 status: unknown
-last_updated: "2026-03-02T19:06:29.451Z"
+last_updated: "2026-03-07T13:52:37.378Z"
 progress:
-  total_phases: 2
+  total_phases: 3
   completed_phases: 2
-  total_plans: 14
-  completed_plans: 14
+  total_plans: 19
+  completed_plans: 16
 ---
 
 # Project State
@@ -22,10 +22,10 @@ See: .planning/PROJECT.md (updated 2026-02-28)
 
 ## Current Position
 
-Phase: 3 of 6 (Player Registration) — plan 01 complete
-Plan: 03-01 complete (player & tournament_registration DB migrations)
-Status: 03-01 complete — player table + tournament_registration table + check_in_required column migrated
-Last activity: 2026-03-07 — Completed plan 03-01: SQL migrations for player profile and registration data model
+Phase: 3 of 6 (Player Registration) — plan 02 complete
+Plan: 03-02 complete (Phase 3 Zod schemas + player auto-creation in hooks)
+Status: 03-02 complete — PlayerSchema + 4 more schemas added to event-schemas.ts; hooks.server.ts bootstraps player profile on first login
+Last activity: 2026-03-07 — Completed plan 03-02: Phase 3 Zod schemas + locals.player auto-creation
 
 Progress: [████░░░░░░] 50% (14/28 plans estimated)
 
@@ -54,6 +54,7 @@ Progress: [████░░░░░░] 50% (14/28 plans estimated)
 | Phase 02-wizard-persistence P06 | 5 | 2 tasks | 3 files |
 | Phase 02-wizard-persistence P07 | 7 | 2 tasks | 2 files |
 | Phase 02-wizard-persistence P08 | 11 | 2 tasks | 11 files |
+| Phase 03-player-registration P02 | 3 | 2 tasks | 3 files |
 
 ## Accumulated Context
 
@@ -114,6 +115,9 @@ Progress: [████░░░░░░] 50% (14/28 plans estimated)
 - [03-01]: tournament_registration deduplication via UNIQUE(tournament_id, player_id) DB constraint — app catches PostgreSQL error 23505
 - [03-01]: Partial UNIQUE index player_user_unique_idx WHERE user_id IS NOT NULL — admin-created profiles (NULL user_id) exempt from uniqueness
 - [03-01]: player_id FK ON DELETE RESTRICT, tournament_id FK ON DELETE CASCADE — protects registration data, cleans up when tournament deleted
+- [Phase 03-02]: ON CONFLICT DO NOTHING in player INSERT + re-SELECT guards against concurrent first-login race conditions
+- [Phase 03-02]: birth_date::text cast in SQL — DATE stored as text, parsed by z.string() not z.coerce.date()
+- [Phase 03-02]: Name split best-effort for auto-created players: parts[0]=first_name, parts.slice(1).join(' ')||parts[0]=last_name; placeholder birth_date '1900-01-01'
 
 ### Pending Todos
 
@@ -132,5 +136,5 @@ None yet.
 ## Session Continuity
 
 Last session: 2026-03-07
-Stopped at: Completed 03-01-PLAN.md — player table + tournament_registration table + check_in_required migrated.
+Stopped at: Completed 03-02-PLAN.md — Phase 3 Zod schemas + player auto-creation in hooks.server.ts.
 Resume file: None
