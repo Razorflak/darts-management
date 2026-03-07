@@ -11,7 +11,7 @@ export const GET: RequestHandler = async ({ locals, url }) => {
 	if (q.length < 2) return json([])
 
 	const rows = await sql<Record<string, unknown>[]>`
-		SELECT id, first_name, last_name, birth_date::text, licence_no
+		SELECT id, first_name, last_name, birth_date::text, licence_no, department
 		FROM player
 		WHERE last_name  ILIKE ${"%" + q + "%"}
 		   OR first_name ILIKE ${"%" + q + "%"}
