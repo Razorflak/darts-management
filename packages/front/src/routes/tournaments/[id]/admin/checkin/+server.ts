@@ -22,7 +22,9 @@ export const POST: RequestHandler = async ({ request, locals, params }) => {
 	const hasAccess = roles.some(
 		(r) =>
 			r.entityId === entityId &&
-			["adminTournoi", "adminClub", "adminComite", "adminLigue", "adminFederal"].includes(r.role)
+			["adminTournoi", "adminClub", "adminComite", "adminLigue", "adminFederal"].includes(
+				r.role
+			)
 	)
 	if (!hasAccess) error(403, "Accès refusé")
 

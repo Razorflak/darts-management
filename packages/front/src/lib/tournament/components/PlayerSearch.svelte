@@ -56,7 +56,9 @@
 					>
 						<span class="font-medium">{player.last_name} {player.first_name}</span>
 						{#if player.licence_no}
-							<span class="text-gray-500 dark:text-gray-400">#{player.licence_no}</span>
+							<span class="text-gray-500 dark:text-gray-400"
+								>#{player.licence_no}</span
+							>
 						{/if}
 					</button>
 				</li>

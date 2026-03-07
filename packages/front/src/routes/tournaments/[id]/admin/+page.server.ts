@@ -3,10 +3,7 @@ import { z } from "zod"
 import { sql } from "$lib/server/db"
 import { getUserRoles } from "$lib/server/authz"
 import type { PageServerLoad } from "./$types"
-import {
-	AdminTournamentSchema,
-	RosterEntrySchema
-} from "$lib/server/schemas/event-schemas.js"
+import { AdminTournamentSchema, RosterEntrySchema } from "$lib/server/schemas/event-schemas.js"
 
 export const load: PageServerLoad = async ({ locals, params }) => {
 	if (!locals.user) error(401, "Non authentifié")
@@ -24,7 +21,9 @@ export const load: PageServerLoad = async ({ locals, params }) => {
 	const hasAccess = roles.some(
 		(r) =>
 			r.entityId === entityId &&
-			["adminTournoi", "adminClub", "adminComite", "adminLigue", "adminFederal"].includes(r.role)
+			["adminTournoi", "adminClub", "adminComite", "adminLigue", "adminFederal"].includes(
+				r.role
+			)
 	)
 	if (!hasAccess) error(403, "Accès refusé")
 
