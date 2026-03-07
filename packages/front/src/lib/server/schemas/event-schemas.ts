@@ -144,14 +144,27 @@ export const PlayerSchema = z.object({
 	first_name: z.string(),
 	last_name: z.string(),
 	birth_date: z.string(), // DATE returned as text from postgres
-	licence_no: z.string().nullable()
+	licence_no: z.string().nullable(),
+	department: z.string().nullable()
 })
 export type Player = z.infer<typeof PlayerSchema>
+
+export const TeamSchema = z.object({
+	id: z.uuid(),
+	created_at: z.coerce.date()
+})
+export type Team = z.infer<typeof TeamSchema>
+
+export const TeamMemberSchema = z.object({
+	team_id: z.uuid(),
+	player_id: z.uuid()
+})
+export type TeamMember = z.infer<typeof TeamMemberSchema>
 
 export const TournamentRegistrationSchema = z.object({
 	id: z.uuid(),
 	tournament_id: z.uuid(),
-	player_id: z.uuid(),
+	team_id: z.uuid(),
 	checked_in: z.boolean(),
 	registered_at: z.coerce.date()
 })
@@ -169,12 +182,20 @@ export const TournamentWithRegistrationSchema = z.object({
 export type TournamentWithRegistration = z.infer<typeof TournamentWithRegistrationSchema>
 
 // Used by roster views (public + admin)
-export const RosterEntrySchema = z.object({
-	registration_id: z.uuid(),
+const RosterMemberSchema = z.object({
 	player_id: z.uuid(),
 	first_name: z.string(),
 	last_name: z.string(),
-	licence_no: z.string().nullable(),
+	department: z.string().nullable()
+})
+
+export const RosterEntrySchema = z.object({
+	registration_id: z.uuid(),
+	team_id: z.uuid(),
+	members: z.preprocess(
+		(val) => (typeof val === "string" ? JSON.parse(val) : val),
+		z.array(RosterMemberSchema)
+	),
 	checked_in: z.boolean(),
 	registered_at: z.coerce.date()
 })
@@ -186,9 +207,19 @@ export const PlayerSearchResultSchema = z.object({
 	first_name: z.string(),
 	last_name: z.string(),
 	birth_date: z.string(), // DATE as text
-	licence_no: z.string().nullable()
+	licence_no: z.string().nullable(),
+	department: z.string().nullable()
 })
 export type PlayerSearchResult = z.infer<typeof PlayerSearchResultSchema>
+
+// Used by doubles partner search endpoint
+export const PartnerSearchResultSchema = z.object({
+	id: z.uuid(),
+	first_name: z.string(),
+	last_name: z.string(),
+	department: z.string().nullable()
+})
+export type PartnerSearchResult = z.infer<typeof PartnerSearchResultSchema>
 
 // Used by admin roster page load
 export const AdminTournamentSchema = z.object({

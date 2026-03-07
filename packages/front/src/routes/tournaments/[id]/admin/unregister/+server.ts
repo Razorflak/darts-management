@@ -5,7 +5,7 @@ import { getUserRoles } from "$lib/server/authz"
 import type { RequestHandler } from "./$types"
 
 const UnregisterSchema = z.object({
-	player_id: z.string().uuid()
+	team_id: z.string().uuid()
 })
 
 export const DELETE: RequestHandler = async ({ request, locals, params }) => {
@@ -31,7 +31,7 @@ export const DELETE: RequestHandler = async ({ request, locals, params }) => {
 
 	await sql`
 		DELETE FROM tournament_registration
-		WHERE tournament_id = ${params.id} AND player_id = ${body.player_id}
+		WHERE tournament_id = ${params.id} AND team_id = ${body.team_id}
 	`
 
 	return json({ ok: true })

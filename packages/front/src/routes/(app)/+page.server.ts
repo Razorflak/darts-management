@@ -9,6 +9,7 @@ const OpenEventRowSchema = z.object({
 	event_name: z.string(),
 	starts_at: z.coerce.date(),
 	ends_at: z.coerce.date(),
+	status: z.enum(["ready"]),
 	location: z.string(),
 	entity_name: z.string(),
 	tournament_id: z.uuid(),
@@ -24,6 +25,7 @@ type OpenEvent = {
 	event: {
 		id: string
 		name: string
+		status: "ready"
 		starts_at: Date
 		ends_at: Date
 		location: string
@@ -38,20 +40,22 @@ export const load: PageServerLoad = async ({ locals }) => {
 	const rawRows = await sql<Record<string, unknown>[]>`
 		SELECT
 			e.id AS event_id, e.name AS event_name,
-			e.starts_at, e.ends_at,
+			e.starts_at, e.ends_at, e.status,
 			e.location, ent.name AS entity_name,
 			t.id AS tournament_id, t.name AS tournament_name,
 			t.category, t.check_in_required,
 			COUNT(r.id)::int AS registration_count,
-			(r_me.id IS NOT NULL) AS is_registered
+			EXISTS (
+				SELECT 1 FROM tournament_registration r_me
+				JOIN team_member tm ON tm.team_id = r_me.team_id
+				WHERE r_me.tournament_id = t.id AND tm.player_id = ${currentPlayerId}
+			) AS is_registered
 		FROM event e
 		JOIN entity ent ON ent.id = e.entity_id
 		JOIN tournament t ON t.event_id = e.id
 		LEFT JOIN tournament_registration r ON r.tournament_id = t.id
-		LEFT JOIN tournament_registration r_me
-			ON r_me.tournament_id = t.id AND r_me.player_id = ${currentPlayerId}
 		WHERE e.status = 'ready'
-		GROUP BY e.id, ent.name, t.id, r_me.id
+		GROUP BY e.id, ent.name, t.id
 		ORDER BY e.starts_at, e.name, t.name
 	`
 
@@ -64,6 +68,7 @@ export const load: PageServerLoad = async ({ locals }) => {
 			eventMap.set(row.event_id, {
 				event: {
 					id: row.event_id,
+					status: row.status,
 					name: row.event_name,
 					starts_at: row.starts_at,
 					ends_at: row.ends_at,

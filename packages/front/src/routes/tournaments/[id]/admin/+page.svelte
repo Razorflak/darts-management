@@ -37,13 +37,13 @@
 		if (entry) entry.checked_in = value
 	}
 
-	async function unregister(playerId: string) {
+	async function unregister(teamId: string) {
 		await fetch(`/tournaments/${data.tournament.id}/admin/unregister`, {
 			method: "DELETE",
 			headers: { "Content-Type": "application/json" },
-			body: JSON.stringify({ player_id: playerId })
+			body: JSON.stringify({ team_id: teamId })
 		})
-		roster = roster.filter((e) => e.player_id !== playerId)
+		roster = roster.filter((e) => e.team_id !== teamId)
 	}
 
 	async function checkInAll() {
@@ -96,7 +96,7 @@
 	<div class="mb-4">
 		<h1 class="text-2xl font-bold">{data.tournament.name}</h1>
 		<p class="text-gray-500">{data.tournament.event_name}</p>
-		<p class="mt-1 text-sm text-gray-600">{roster.length} joueur(s) inscrit(s)</p>
+		<p class="mt-1 text-sm text-gray-600">{roster.length} équipe(s) inscrite(s)</p>
 	</div>
 
 	{#if data.tournament.check_in_required}
@@ -107,8 +107,7 @@
 
 	<Table>
 		<TableHead>
-			<TableHeadCell>Nom</TableHeadCell>
-			<TableHeadCell>Licence</TableHeadCell>
+			<TableHeadCell>Équipe</TableHeadCell>
 			{#if data.tournament.check_in_required}
 				<TableHeadCell>Présent</TableHeadCell>
 			{/if}
@@ -117,8 +116,11 @@
 		<TableBody>
 			{#each roster as entry}
 				<TableBodyRow>
-					<TableBodyCell>{entry.last_name} {entry.first_name}</TableBodyCell>
-					<TableBodyCell>{entry.licence_no ?? "—"}</TableBodyCell>
+					<TableBodyCell>
+						{#each entry.members as member, i}
+							{member.last_name} {member.first_name}{i < entry.members.length - 1 ? " / " : ""}
+						{/each}
+					</TableBodyCell>
 					{#if data.tournament.check_in_required}
 						<TableBodyCell>
 							{#if entry.checked_in}
@@ -135,13 +137,13 @@
 									color="light"
 									onclick={() => checkIn(entry.registration_id, true)}
 								>
-									<Badge color="dark">Absent</Badge>
+									<Badge color="gray">Absent</Badge>
 								</Button>
 							{/if}
 						</TableBodyCell>
 					{/if}
 					<TableBodyCell>
-						<Button color="red" size="xs" onclick={() => unregister(entry.player_id)}>
+						<Button color="red" size="xs" onclick={() => unregister(entry.team_id)}>
 							Retirer
 						</Button>
 					</TableBodyCell>

@@ -59,13 +59,15 @@ export const load: PageServerLoad = async ({ locals, params }) => {
 		SELECT
 			t.id, t.name, t.category, t.check_in_required,
 			COUNT(r.id)::int AS registration_count,
-			(r_me.id IS NOT NULL) AS is_registered
+			EXISTS (
+				SELECT 1 FROM tournament_registration r_me
+				JOIN team_member tm ON tm.team_id = r_me.team_id
+				WHERE r_me.tournament_id = t.id AND tm.player_id = ${currentPlayerId}
+			) AS is_registered
 		FROM tournament t
 		LEFT JOIN tournament_registration r ON r.tournament_id = t.id
-		LEFT JOIN tournament_registration r_me
-			ON r_me.tournament_id = t.id AND r_me.player_id = ${currentPlayerId}
 		WHERE t.event_id = ${eventId}
-		GROUP BY t.id, r_me.id
+		GROUP BY t.id
 		ORDER BY t.name
 	`
 

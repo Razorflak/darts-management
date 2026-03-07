@@ -41,7 +41,7 @@
 		<Badge color="blue">{CATEGORY_LABELS[data.tournament.category]}</Badge>
 	</div>
 	<p class="mt-2 text-sm text-gray-500">
-		{data.roster.length} joueur{data.roster.length !== 1 ? "s" : ""} inscrit{data.roster
+		{data.roster.length} équipe{data.roster.length !== 1 ? "s" : ""} inscrite{data.roster
 			.length !== 1
 			? "s"
 			: ""}
@@ -49,12 +49,11 @@
 </div>
 
 {#if data.roster.length === 0}
-	<p class="text-gray-500">Aucun joueur inscrit pour le moment.</p>
+	<p class="text-gray-500">Aucune équipe inscrite pour le moment.</p>
 {:else}
 	<Table>
 		<TableHead>
-			<TableHeadCell>Nom</TableHeadCell>
-			<TableHeadCell>Licence</TableHeadCell>
+			<TableHeadCell>Équipe</TableHeadCell>
 			{#if data.tournament.check_in_required}
 				<TableHeadCell>Présent</TableHeadCell>
 			{/if}
@@ -62,8 +61,11 @@
 		<TableBody>
 			{#each data.roster as entry (entry.registration_id)}
 				<TableBodyRow>
-					<TableBodyCell>{entry.last_name} {entry.first_name}</TableBodyCell>
-					<TableBodyCell>{entry.licence_no ?? "—"}</TableBodyCell>
+					<TableBodyCell>
+						{#each entry.members as member, i}
+							{member.last_name} {member.first_name}{i < entry.members.length - 1 ? " / " : ""}
+						{/each}
+					</TableBodyCell>
 					{#if data.tournament.check_in_required}
 						<TableBodyCell>{entry.checked_in ? "✓" : ""}</TableBodyCell>
 					{/if}
