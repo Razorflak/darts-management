@@ -3,12 +3,12 @@ gsd_state_version: 1.0
 milestone: v1.0
 milestone_name: milestone
 status: unknown
-last_updated: "2026-03-07T17:12:00.860Z"
+last_updated: "2026-03-07T23:33:12.055Z"
 progress:
-  total_phases: 3
+  total_phases: 4
   completed_phases: 3
-  total_plans: 19
-  completed_plans: 19
+  total_plans: 23
+  completed_plans: 20
 ---
 
 # Project State
@@ -22,12 +22,12 @@ See: .planning/PROJECT.md (updated 2026-02-28)
 
 ## Current Position
 
-Phase: 3 of 6 (Player Registration) — plan 03 complete
-Plan: 03-03 complete (Public event page + self-registration API)
-Status: 03-03 complete — /events/[id] page with auth redirect, tournament listing, optimistic register/unregister
-Last activity: 2026-03-07 — Completed plan 03-03: Public event page + self-registration API
+Phase: 03.1-teams-and-doubles-registration — plan 01 complete
+Plan: 03.1-01 complete (DB migration 013 + Zod schemas for team model)
+Status: 03.1-01 complete — team/team_member tables, player.department, tournament_registration refactored to team_id
+Last activity: 2026-03-08 — Completed plan 03.1-01: Teams DB migration and Zod schemas
 
-Progress: [████░░░░░░] 50% (14/28 plans estimated)
+Progress: [████░░░░░░] 52% (21/40 plans estimated)
 
 ## Performance Metrics
 
@@ -56,6 +56,7 @@ Progress: [████░░░░░░] 50% (14/28 plans estimated)
 | Phase 02-wizard-persistence P08 | 11 | 2 tasks | 11 files |
 | Phase 03-player-registration P02 | 3 | 2 tasks | 3 files |
 | Phase 03-player-registration P03 | 3 | 3 tasks | 4 files |
+| Phase 03.1-teams-and-doubles-registration P01 | 7 | 2 tasks | 11 files |
 
 ## Accumulated Context
 
@@ -121,6 +122,13 @@ Progress: [████░░░░░░] 50% (14/28 plans estimated)
 - [Phase 03-02]: Name split best-effort for auto-created players: parts[0]=first_name, parts.slice(1).join(' ')||parts[0]=last_name; placeholder birth_date '1900-01-01'
 - [Phase 03-03]: Child +layout.server.ts overrides parent (app) redirect to add ?redirectTo=/events/[id] — keeps navbar, preserves return URL
 - [Phase 03-03]: EventDetailSchema = EventSchema.omit({ tournaments: true }) — avoids TournamentSchema.min(1) mismatch for player-facing view
+- [Phase 03.1-01]: Solo registration creates a team of 1: CREATE team + team_member + tournament_registration in transaction
+- [Phase 03.1-01]: Roster query uses json_agg via team_member JOIN — members is array in RosterEntry, not flat player fields
+- [Phase 03.1-01]: is_registered uses correlated EXISTS through team_member, not LEFT JOIN on player_id
+
+### Roadmap Evolution
+
+- Phase 03.1 inserted after Phase 3: Teams and Doubles Registration (URGENT) — modèle équipe, inscription double avec modal de recherche partenaire, champ département joueur
 
 ### Pending Todos
 
@@ -138,6 +146,6 @@ None yet.
 
 ## Session Continuity
 
-Last session: 2026-03-07
-Stopped at: Completed 03-03-PLAN.md — Public event page + self-registration API.
+Last session: 2026-03-08
+Stopped at: Completed 03.1-01-PLAN.md — DB migration 013 + Zod schemas for team model.
 Resume file: None
