@@ -1,24 +1,32 @@
 import { error, json } from "@sveltejs/kit"
-import type postgres from "postgres"
 import { sql } from "$lib/server/db"
 import { z } from "zod"
+import { findOrCreateSoloTeam, findOrCreateDoublesTeam } from "$lib/server/teams.js"
 import type { RequestHandler } from "./$types"
 
-// postgres.js TransactionSql uses Omit<Sql, ...> which strips call signatures.
-// At runtime it IS callable — this cast restores the type for template literal queries.
-type TxSql = postgres.Sql
+const RegisterBodySchema = z.object({
+	tournament_id: z.string().uuid(),
+	partner_player_id: z.string().uuid().optional(),
+	new_partner: z
+		.object({
+			first_name: z.string().min(1),
+			last_name: z.string().min(1),
+			department: z.string().min(1)
+		})
+		.optional()
+})
 
-const BodySchema = z.object({ tournament_id: z.string().uuid() })
+const DeleteBodySchema = z.object({ tournament_id: z.string().uuid() })
 
 export const POST: RequestHandler = async ({ locals, params, request }) => {
 	if (!locals.user || !locals.player) {
 		error(401, "Non authentifié")
 	}
 
-	const body = BodySchema.parse(await request.json())
+	const body = RegisterBodySchema.parse(await request.json())
 	const tournamentId = body.tournament_id
 	const eventId = params.id
-	const playerId = locals.player.id
+	const selfPlayerId = locals.player.id
 
 	// Verify tournament belongs to this event and event is open for registration
 	const [row] = await sql<Record<string, unknown>[]>`
@@ -33,23 +41,27 @@ export const POST: RequestHandler = async ({ locals, params, request }) => {
 		error(404, "Tournoi introuvable ou fermé")
 	}
 
+	let teamId: string
+
+	if (body.partner_player_id) {
+		teamId = await findOrCreateDoublesTeam(selfPlayerId, body.partner_player_id)
+	} else if (body.new_partner) {
+		const [newPlayer] = await sql<Record<string, unknown>[]>`
+			INSERT INTO player (first_name, last_name, birth_date, department)
+			VALUES (${body.new_partner.first_name}, ${body.new_partner.last_name}, '1900-01-01', ${body.new_partner.department})
+			RETURNING id
+		`
+		const newPlayerId = newPlayer.id as string
+		teamId = await findOrCreateDoublesTeam(selfPlayerId, newPlayerId)
+	} else {
+		teamId = await findOrCreateSoloTeam(selfPlayerId)
+	}
+
 	try {
-		// Create a solo team for this player, then register the team
-		await sql.begin(async (rawTx) => {
-			const tx = rawTx as unknown as TxSql
-			const [team] = await tx<Record<string, unknown>[]>`
-				INSERT INTO team DEFAULT VALUES RETURNING id
-			`
-			const teamId = team.id as string
-			await tx`
-				INSERT INTO team_member (team_id, player_id)
-				VALUES (${teamId}, ${playerId})
-			`
-			await tx`
-				INSERT INTO tournament_registration (tournament_id, team_id)
-				VALUES (${tournamentId}, ${teamId})
-			`
-		})
+		await sql`
+			INSERT INTO tournament_registration (tournament_id, team_id)
+			VALUES (${tournamentId}, ${teamId})
+		`
 	} catch (err) {
 		// Unique constraint violation — already registered
 		if (typeof err === "object" && err !== null && "code" in err && err.code === "23505") {
@@ -66,32 +78,22 @@ export const DELETE: RequestHandler = async ({ locals, params, request }) => {
 		error(401, "Non authentifié")
 	}
 
-	const body = BodySchema.parse(await request.json())
+	const body = DeleteBodySchema.parse(await request.json())
 	const tournamentId = body.tournament_id
 	const eventId = params.id
 	const playerId = locals.player.id
 
-	// Delete only if event is still 'ready' (can't unregister after start)
-	// Find the team that contains only this player and is registered in this tournament
+	// Delete registration found via team_member JOIN (handles both solo and doubles)
 	await sql`
-		DELETE FROM tournament_registration
-		WHERE tournament_id = ${tournamentId}
-		  AND team_id IN (
-		    SELECT tm.team_id
-		    FROM team_member tm
-		    WHERE tm.player_id = ${playerId}
-		      AND NOT EXISTS (
-		        SELECT 1 FROM team_member tm2
-		        WHERE tm2.team_id = tm.team_id AND tm2.player_id != ${playerId}
-		      )
-		  )
-		  AND EXISTS (
-		    SELECT 1 FROM tournament t
-		    JOIN event e ON e.id = t.event_id
-		    WHERE t.id = ${tournamentId}
-		      AND e.id = ${eventId}
-		      AND e.status = 'ready'
-		  )
+		DELETE FROM tournament_registration r
+		USING tournament t
+		JOIN event e ON e.id = t.event_id
+		JOIN team_member tm ON tm.team_id = r.team_id
+		WHERE r.tournament_id = ${tournamentId}
+		  AND tm.player_id = ${playerId}
+		  AND t.id = ${tournamentId}
+		  AND e.id = ${eventId}
+		  AND e.status = 'ready'
 	`
 
 	// Idempotent: no error if registration didn't exist
