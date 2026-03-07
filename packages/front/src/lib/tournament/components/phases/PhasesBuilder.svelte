@@ -1,23 +1,24 @@
 <script lang="ts">
-	import type { Phase, PhaseType } from '../../types.js'
-	import { sortable } from '../../sortable.js'
-	import { createGroupPhase, createEliminationPhase } from '../../utils.js'
-	import PhaseCard from './PhaseCard.svelte'
-	import AddPhaseMenu from './AddPhaseMenu.svelte'
+	import { sortable } from "../../sortable.js"
+	import { createGroupPhase, createEliminationPhase } from "../../utils.js"
+	import PhaseCard from "./PhaseCard.svelte"
+	import AddPhaseMenu from "./AddPhaseMenu.svelte"
+	import type { Phase, PhaseType } from "$lib/server/schemas/event-schemas.js"
 
 	interface Props {
 		phases: Phase[]
+		tournament_id: string
 	}
 
-	let { phases = $bindable() }: Props = $props()
+	let { phases = $bindable(), tournament_id }: Props = $props()
 
 	const lastPhaseId = $derived(phases[phases.length - 1]?.id ?? null)
 
 	function addPhase(type: PhaseType) {
 		const phase =
-			type === 'round_robin' || type === 'double_loss_groups'
-				? createGroupPhase(type)
-				: createEliminationPhase(type)
+			type === "round_robin" || type === "double_loss_groups"
+				? createGroupPhase(type, tournament_id, phases.length + 1)
+				: createEliminationPhase(type, tournament_id, phases.length + 1)
 		phases = [...phases, phase]
 	}
 
@@ -40,8 +41,8 @@
 		<ul
 			use:sortable={{
 				animation: 150,
-				handle: '[data-drag]',
-				onEnd: onSortEnd,
+				handle: "[data-drag]",
+				onEnd: onSortEnd
 			}}
 			class="space-y-3"
 		>

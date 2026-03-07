@@ -1,5 +1,5 @@
 <script lang="ts">
-	import type { PhaseType } from '../../types.js'
+	import type { PhaseType } from '$lib/server/schemas/event-schemas.js'
 	import { PHASE_TYPE_LABELS } from '../../labels.js'
 
 	interface Props {
@@ -8,7 +8,7 @@
 
 	let { onAdd }: Props = $props()
 
-	const phaseTypes: PhaseType[] = ['round_robin', 'double_loss_groups', 'single_elim', 'double_elim']
+	const phaseTypes: PhaseType[] = ['round_robin', 'double_loss_groups', 'single_elimination', 'double_elimination']
 
 	let open = $state(false)
 

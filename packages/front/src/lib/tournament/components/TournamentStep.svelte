@@ -1,35 +1,37 @@
 <script lang="ts">
-	import type { Tournament } from '../types.js'
-	import { Button } from 'flowbite-svelte'
-	import TournamentTabs from './TournamentTabs.svelte'
-	import TournamentForm from './TournamentForm.svelte'
+	import { Button } from "flowbite-svelte"
+	import TournamentTabs from "./TournamentTabs.svelte"
+	import TournamentForm from "./TournamentForm.svelte"
+	import type { DraftTournament, Tournament } from "$lib/server/schemas/event-schemas"
 
 	interface Props {
-		tournaments: Tournament[]
+		tournaments: (Tournament | DraftTournament)[]
 		onPrev: () => void
 		onNext: () => void
 	}
 
-	let { tournaments = $bindable(), onPrev, onNext }: Props = $props()
+	let { tournaments: tournamentProps = $bindable(), onPrev, onNext }: Props = $props()
 
-	let activeId = $state(tournaments[0]?.id ?? '')
+	let tournaments = $state(tournamentProps)
 
-	const activeTournament = $derived(tournaments.find((t) => t.id === activeId))
+	let activeId = $derived(tournaments[0]?.id ?? "")
+
+	let activeTournament = $derived(tournaments.find((t) => t.id === activeId))
 	const activeIndex = $derived(tournaments.findIndex((t) => t.id === activeId))
+
+	function updateTournament(updated: Tournament | DraftTournament) {
+		tournaments = tournaments.map((t) => (t.id === updated.id ? updated : t))
+	}
 </script>
 
 <div class="space-y-5">
 	<!-- Tabs -->
-	<TournamentTabs
-		bind:tournaments
-		{activeId}
-		onSelect={(id) => (activeId = id)}
-	/>
+	<TournamentTabs bind:tournaments {activeId} onSelect={(id) => (activeId = id)} />
 
 	<!-- Active tournament form -->
 	{#if activeTournament !== undefined && activeIndex !== -1}
-		<div class="rounded-card border border-gray-200 bg-white p-5 shadow-card">
-			<TournamentForm bind:tournament={tournaments[activeIndex]} />
+		<div class="rounded-card shadow-card border border-gray-200 bg-white p-5">
+			<TournamentForm bind:tournament={activeTournament} onUpdate={updateTournament} />
 		</div>
 	{:else}
 		<div class="rounded-card border-2 border-dashed border-gray-200 p-8 text-center">
@@ -40,6 +42,8 @@
 	<!-- Actions -->
 	<div class="flex justify-between pt-2">
 		<Button color="alternative" pill onclick={onPrev}>← Précédent</Button>
-		<Button color="blue" pill onclick={onNext} disabled={tournaments.length === 0}>Suivant →</Button>
+		<Button color="blue" pill onclick={onNext} disabled={tournaments.length === 0}
+			>Suivant →</Button
+		>
 	</div>
 </div>

@@ -1,87 +1,135 @@
-import { z } from 'zod'
+import { z } from "zod"
 
-// ------------------------------------------------------------------
-// Event list row (events/+page.server.ts)
-// ------------------------------------------------------------------
-export const EventRowSchema = z.object({
-	id: z.string(),
+export const EntitySchema = z.object({
+	id: z.uuid(),
+	type: z.enum(["federation", "ligue", "comité", "club"]),
+	name: z.string()
+})
+export type Entity = z.infer<typeof EntitySchema>
+
+export const BracketTierSchema = z.object({
+	round: z.enum(["4096", "2048", "1024", "512", "256", "128", "64", "32", "16", "8", "4", "2"]),
+	legs: z.number().int().positive()
+})
+export type BracketTier = z.infer<typeof BracketTierSchema>
+
+/** ######################## */
+/** ######## PHASES ######## */
+/** ######################## */
+
+const CommonPhaseSchema = z.object({
+	id: z.uuid(),
+	tournament_id: z.uuid(),
+	position: z.number().int()
+})
+
+export const PhaseTypeSchema = z.enum([
+	"round_robin",
+	"double_loss_groups",
+	"single_elimination",
+	"double_elimination"
+])
+export type PhaseType = z.infer<typeof PhaseTypeSchema>
+
+export const GroupPhaseSchema = CommonPhaseSchema.extend({
+	type: z.enum(["round_robin", "double_loss_groups"]),
+	players_per_group: z.number().int(),
+	qualifiers_per_group: z.number().int()
+})
+
+export const EliminationPhaseSchema = CommonPhaseSchema.extend({
+	type: z.enum(["single_elimination", "double_elimination"]),
+	tiers: z.array(BracketTierSchema).min(1),
+	qualifiers_count: z.number().int().nonnegative()
+})
+
+export const SwissPhaseSchema = CommonPhaseSchema.extend({
+	type: z.literal("swiss"),
+	entrants: z.number().int().positive(),
+	rounds: z.number().int().positive()
+})
+
+export const PhaseSchema = z.discriminatedUnion("type", [
+	GroupPhaseSchema,
+	EliminationPhaseSchema
+	//SwissPhaseSchema
+])
+export type Phase = z.infer<typeof PhaseSchema>
+
+export type GroupPhase = z.infer<typeof GroupPhaseSchema>
+export type EliminationPhase = z.infer<typeof EliminationPhaseSchema>
+export type SwissPhase = z.infer<typeof SwissPhaseSchema>
+
+/** ######################## */
+/** ####### TOURNAMENTS ###### */
+/** ######################## */
+
+export const CategorySchema = z.enum([
+	"male",
+	"female",
+	"junior",
+	"veteran",
+	"open",
+	"mix",
+	"double",
+	"double_female",
+	"double_mix"
+])
+export type Category = z.infer<typeof CategorySchema>
+
+export const TournamentSchema = z.object({
+	id: z.uuid(),
 	name: z.string(),
-	status: z.enum(['draft', 'ready', 'started', 'finished']),
-	starts_at: z.string(),
-	ends_at: z.string(),
+	category: CategorySchema,
+	start_at: z.coerce.date().nullable(),
+	phases: z.array(PhaseSchema).min(1),
+	auto_referee: z.boolean()
+})
+export type Tournament = z.infer<typeof TournamentSchema>
+
+export const DraftTournamentSchema = TournamentSchema.partial().extend({
+	id: TournamentSchema.shape.id,
+	name: TournamentSchema.shape.name,
+	phases: z.array(PhaseSchema).default([])
+})
+export type DraftTournament = z.infer<typeof DraftTournamentSchema>
+
+/** ######################## */
+/** ######## EVENT ######### */
+/** ######################## */
+
+export const EventSchema = z.object({
+	id: z.uuid(),
+	name: z.string(),
+	status: z.enum(["ready", "started", "finished"]),
+	starts_at: z.coerce.date(),
+	ends_at: z.coerce.date(),
 	location: z.string(),
-	registration_opens_at: z.string().nullable(),
+	registration_opens_at: z.coerce.date(),
+	entity: EntitySchema,
+	tournaments: z.array(TournamentSchema).min(1)
+})
+export type Event = z.infer<typeof EventSchema>
+
+export const DraftEventSchema = EventSchema.partial().extend({
+	id: EventSchema.shape.id,
+	status: z.enum(["draft"]),
+	entity: EntitySchema.nullish(),
+	tournaments: z.array(DraftTournamentSchema)
+})
+export type DraftEvent = z.infer<typeof DraftEventSchema>
+
+/** ######################## */
+/** ####### EVENT LIST ###### */
+/** ######################## */
+
+export const EventListItemSchema = EventSchema.omit({
+	entity: true,
+	tournaments: true,
+	status: true
+}).extend({
+	status: z.enum(["draft", "ready", "started", "finished"]),
 	entity_name: z.string(),
-	tournament_count: z.number().int(),
+	tournament_count: z.number()
 })
-export type EventRow = z.infer<typeof EventRowSchema>
-
-// ------------------------------------------------------------------
-// Event detail row (edit/+page.server.ts event query)
-// ------------------------------------------------------------------
-export const EventDetailRowSchema = z.object({
-	id: z.string(),
-	name: z.string(),
-	entity_id: z.string(),
-	starts_at: z.string().nullable(),
-	ends_at: z.string().nullable(),
-	location: z.string(),
-	registration_opens_at: z.string().nullable(),
-	status: z.string(),
-})
-export type EventDetailRow = z.infer<typeof EventDetailRowSchema>
-
-// ------------------------------------------------------------------
-// Tournament row (edit/+page.server.ts tournament query)
-// ------------------------------------------------------------------
-export const TournamentRowSchema = z.object({
-	id: z.string(),
-	name: z.string(),
-	club: z.string().nullable(),
-	category: z.string().nullable(),
-	quota: z.number().int(),
-	start_time: z.string(),
-	start_date: z.string().nullable(),
-	auto_referee: z.boolean(),
-})
-export type TournamentRow = z.infer<typeof TournamentRowSchema>
-
-// ------------------------------------------------------------------
-// BracketTier schema (used inside PhaseRowSchema for tiers JSONB)
-// ------------------------------------------------------------------
-const BracketTierSchema = z.object({
-	id: z.string(),
-	round: z.number().int(),
-	legs: z.number().int(),
-})
-
-// ------------------------------------------------------------------
-// Phase row (edit/+page.server.ts phase query)
-// tiers is JSONB — postgres.js may return it already parsed (object)
-// or as a JSON string. Use z.preprocess to handle both cases.
-// ------------------------------------------------------------------
-export const PhaseRowSchema = z.object({
-	id: z.string(),
-	tournament_id: z.string(),
-	position: z.number().int(),
-	type: z.string(),
-	entrants: z.number().int(),
-	players_per_group: z.number().int().nullable(),
-	qualifiers_per_group: z.number().int().nullable(),
-	qualifiers: z.number().int().nullable(),
-	tiers: z.preprocess(
-		(val) => (typeof val === 'string' ? JSON.parse(val) : val),
-		z.array(BracketTierSchema).nullable(),
-	),
-})
-export type PhaseRow = z.infer<typeof PhaseRowSchema>
-
-// ------------------------------------------------------------------
-// Entity row for event wizard (edit/+page.server.ts entity query)
-// ------------------------------------------------------------------
-export const EventEntityRowSchema = z.object({
-	id: z.string(),
-	name: z.string(),
-	type: z.string(),
-})
-export type EventEntityRow = z.infer<typeof EventEntityRowSchema>
+export type EventListItem = z.infer<typeof EventListItemSchema>

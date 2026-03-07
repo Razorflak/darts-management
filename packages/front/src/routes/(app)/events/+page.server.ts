@@ -1,12 +1,12 @@
-import { redirect } from '@sveltejs/kit'
-import { sql } from '$lib/server/db'
-import { getUserRoles } from '$lib/server/authz'
-import type { PageServerLoad } from './$types'
-import { z } from 'zod'
-import { EventRowSchema, type EventRow } from '$lib/server/schemas/event-schemas.js'
+import { redirect } from "@sveltejs/kit"
+import { sql } from "$lib/server/db"
+import { getUserRoles } from "$lib/server/authz"
+import type { PageServerLoad } from "./$types"
+import { z } from "zod"
+import { EventListItemSchema, type EventListItem } from "$lib/server/schemas/event-schemas.js"
 
 export const load: PageServerLoad = async ({ locals }) => {
-	if (!locals.user) redirect(302, '/login')
+	if (!locals.user) redirect(302, "/login")
 
 	const roles = await getUserRoles(locals.user.id)
 	const entityIds = roles.map((r) => r.entityId)
@@ -49,7 +49,7 @@ export const load: PageServerLoad = async ({ locals }) => {
 				ORDER BY e.starts_at DESC
 			`
 
-	const events: EventRow[] = z.array(EventRowSchema).parse(rawEvents)
+	const events: EventListItem[] = z.array(EventListItemSchema).parse(rawEvents)
 
 	return { events }
 }

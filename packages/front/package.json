@@ -18,10 +18,12 @@
 	"dependencies": {
 		"@darts-management/db": "workspace:*",
 		"better-auth": "^1.4.20",
+		"dayjs": "^1.11.19",
 		"flowbite-svelte": "^1.31.0",
 		"flowbite-svelte-icons": "^3.1.0",
 		"postgres": "^3.4.8",
 		"sortablejs": "^1.15.6",
+		"uuid": "^13.0.0",
 		"zod": "^4.3.6"
 	},
 	"devDependencies": {

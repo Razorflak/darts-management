@@ -1,30 +1,44 @@
 <script lang="ts">
-	import { BRACKET_ROUNDS } from '../../types.js'
-	import type { BracketTier, BracketRound } from '../../types.js'
-	import { BRACKET_ROUND_LABELS } from '../../labels.js'
-	import { sortable } from '../../sortable.js'
-	import { createBracketTier } from '../../utils.js'
-	import { Input } from 'flowbite-svelte'
+	import type { BracketTier } from "$lib/server/schemas/event-schemas.js"
+	import { BRACKET_ROUND_LABELS } from "../../labels.js"
+	import { sortable } from "../../sortable.js"
+	import { createBracketTier } from "../../utils.js"
+	import { Input } from "flowbite-svelte"
 
 	interface Props {
 		tiers: BracketTier[]
 	}
 
+	const BRACKET_ROUNDS: BracketTier["round"][] = [
+		"4096",
+		"2048",
+		"1024",
+		"512",
+		"256",
+		"128",
+		"64",
+		"32",
+		"16",
+		"8",
+		"4",
+		"2"
+	]
+
 	let { tiers = $bindable() }: Props = $props()
 
 	const availableRounds = $derived(
-		BRACKET_ROUNDS.filter((r) => !tiers.some((t) => t.round === r)),
+		BRACKET_ROUNDS.filter((r) => !tiers.some((t) => t.round === r))
 	)
 
 	let addOpen = $state(false)
 
-	function addTier(round: BracketRound) {
+	function addTier(round: BracketTier["round"]) {
 		tiers = [...tiers, createBracketTier(round)]
 		// stay open so multiple tiers can be added in one session
 	}
 
-	function removeTier(id: string) {
-		tiers = tiers.filter((t) => t.id !== id)
+	function removeTier(round: BracketTier["round"]) {
+		tiers = tiers.filter((t) => t.round !== round)
 	}
 
 	function onSortEnd(evt: { oldIndex?: number; newIndex?: number }) {
@@ -41,17 +55,19 @@
 	<ul
 		use:sortable={{
 			animation: 150,
-			handle: '[data-drag]',
-			onEnd: onSortEnd,
+			handle: "[data-drag]",
+			onEnd: onSortEnd
 		}}
 		class="space-y-2"
 	>
-		{#each tiers as tier (tier.id)}
-			<li class="flex items-center gap-3 rounded-lg border border-gray-200 bg-white px-3 py-2">
+		{#each tiers as tier (tier.round)}
+			<li
+				class="flex items-center gap-3 rounded-lg border border-gray-200 bg-white px-3 py-2"
+			>
 				<!-- Drag handle -->
 				<span
 					data-drag
-					class="cursor-grab select-none text-gray-300 hover:text-gray-500 active:cursor-grabbing"
+					class="cursor-grab text-gray-300 select-none hover:text-gray-500 active:cursor-grabbing"
 					aria-hidden="true"
 				>
 					⠿
@@ -79,12 +95,14 @@
 				<!-- Remove -->
 				<button
 					type="button"
-					onclick={() => removeTier(tier.id)}
+					onclick={() => removeTier(tier.round)}
 					class="text-gray-300 transition-colors hover:text-red-400"
 					aria-label="Supprimer ce palier"
 				>
 					<svg class="h-5 w-5" viewBox="0 0 20 20" fill="currentColor" aria-hidden="true">
-						<path d="M6.28 5.22a.75.75 0 0 0-1.06 1.06L8.94 10l-3.72 3.72a.75.75 1 0 1.06 1.06L10 11.06l3.72 3.72a.75.75 1 1 1.06-1.06L11.06 10l3.72-3.72a.75.75 0 0 0-1.06-1.06L10 8.94 6.28 5.22Z" />
+						<path
+							d="M6.28 5.22a.75.75 0 0 0-1.06 1.06L8.94 10l-3.72 3.72a.75.75 1 0 1.06 1.06L10 11.06l3.72 3.72a.75.75 1 1 1.06-1.06L11.06 10l3.72-3.72a.75.75 0 0 0-1.06-1.06L10 8.94 6.28 5.22Z"
+						/>
 					</svg>
 				</button>
 			</li>
@@ -110,17 +128,25 @@
 				class="inline-flex items-center gap-1 rounded-full border border-gray-300 px-2.5 py-1 text-xs font-medium text-gray-600 transition-colors hover:border-blue-400 hover:text-blue-600"
 			>
 				<svg class="h-3 w-3" viewBox="0 0 20 20" fill="currentColor" aria-hidden="true">
-					<path d="M10.75 4.75a.75.75 0 0 0-1.5 0v4.5h-4.5a.75.75 0 0 0 0 1.5h4.5v4.5a.75.75 0 0 0 1.5 0v-4.5h4.5a.75.75 0 0 0 0-1.5h-4.5v-4.5Z" />
+					<path
+						d="M10.75 4.75a.75.75 0 0 0-1.5 0v4.5h-4.5a.75.75 0 0 0 0 1.5h4.5v4.5a.75.75 0 0 0 1.5 0v-4.5h4.5a.75.75 0 0 0 0-1.5h-4.5v-4.5Z"
+					/>
 				</svg>
 				Ajouter un palier
 				<svg class="h-2.5 w-2.5" viewBox="0 0 20 20" fill="currentColor" aria-hidden="true">
-					<path fill-rule="evenodd" d="M5.22 8.22a.75.75 0 0 1 1.06 0L10 11.94l3.72-3.72a.75.75 1 1 1.06 1.06l-4.25 4.25a.75.75 0 0 1-1.06 0L5.22 9.28a.75.75 0 0 1 0-1.06Z" clip-rule="evenodd" />
+					<path
+						fill-rule="evenodd"
+						d="M5.22 8.22a.75.75 0 0 1 1.06 0L10 11.94l3.72-3.72a.75.75 1 1 1.06 1.06l-4.25 4.25a.75.75 0 0 1-1.06 0L5.22 9.28a.75.75 0 0 1 0-1.06Z"
+						clip-rule="evenodd"
+					/>
 				</svg>
 			</button>
 
 			<!-- Dropdown menu — stays open so multiple tiers can be added -->
 			{#if addOpen}
-				<div class="absolute left-0 top-full z-20 mt-1 min-w-44 overflow-hidden rounded-lg border border-gray-200 bg-white shadow-lg">
+				<div
+					class="absolute top-full left-0 z-20 mt-1 min-w-44 overflow-hidden rounded-lg border border-gray-200 bg-white shadow-lg"
+				>
 					{#each availableRounds as round}
 						<button
 							type="button"

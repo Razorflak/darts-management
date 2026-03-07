@@ -1,21 +1,46 @@
 <script lang="ts">
+	import type { DraftTournament, Tournament } from "$lib/server/schemas/event-schemas"
+	import { untrack } from "svelte"
+	import { extractTimeFromDate } from "../utils"
+
 	interface Props {
+		tournament?: Tournament | DraftTournament
 		value: string
 		id?: string
-		'aria-label'?: string
+		"aria-label"?: string
 		class?: string
 		disabled?: boolean
 	}
 
-	let { value = $bindable(''), id, 'aria-label': ariaLabel, class: klass = '', disabled = false }: Props = $props()
+	let {
+		value = $bindable(""),
+		tournament = $bindable(),
+		id,
+		"aria-label": ariaLabel,
+		class: klass = "",
+		disabled = false
+	}: Props = $props()
 
 	function parse(v: string): [string, string] {
 		if (v && /^\d{1,2}:\d{1,2}$/.test(v)) {
-			const [h, m] = v.split(':')
-			return [(h ?? '').padStart(2, '0'), (m ?? '').padStart(2, '0')]
+			const [h, m] = v.split(":")
+			return [(h ?? "").padStart(2, "0"), (m ?? "").padStart(2, "0")]
 		}
-		return ['00', '00']
+		return ["00", "00"]
 	}
+	let internalChange = false
+
+	$effect(() => {
+		tournament
+		untrack(() => {
+			const [hhT, mmT] = tournament?.start_at
+				? extractTimeFromDate(tournament?.start_at).split(":")
+				: ["00", "00"]
+
+			hh = hhT
+			mm = mmT
+		})
+	})
 
 	const [initH, initM] = parse(value)
 	let hh = $state(initH)
@@ -25,15 +50,16 @@
 	let mmRef = $state<HTMLInputElement | null>(null)
 
 	function commit() {
-		value = `${hh.padStart(2, '0')}:${mm.padStart(2, '0')}`
+		internalChange = true
+		value = `${hh.padStart(2, "0")}:${mm.padStart(2, "0")}`
 	}
 
 	function onHoursKeydown(e: KeyboardEvent) {
 		if (
-			e.key === 'Backspace' ||
-			e.key === 'Delete' ||
-			e.key === 'Tab' ||
-			e.key.startsWith('Arrow') ||
+			e.key === "Backspace" ||
+			e.key === "Delete" ||
+			e.key === "Tab" ||
+			e.key.startsWith("Arrow") ||
 			e.ctrlKey ||
 			e.metaKey
 		)
@@ -43,8 +69,8 @@
 
 	function onHoursInput(e: Event) {
 		const input = e.currentTarget as HTMLInputElement
-		let v = input.value.replace(/\D/g, '').slice(0, 2)
-		if (v.length === 2 && parseInt(v) > 23) v = '23'
+		let v = input.value.replace(/\D/g, "").slice(0, 2)
+		if (v.length === 2 && parseInt(v) > 23) v = "23"
 		hh = v
 		input.value = v
 		commit()
@@ -55,21 +81,21 @@
 	}
 
 	function onHoursBlur() {
-		hh = hh.padStart(2, '0') || '00'
+		hh = hh.padStart(2, "0") || "00"
 		commit()
 	}
 
 	function onMinutesKeydown(e: KeyboardEvent) {
-		if (e.key === 'Backspace' && (e.currentTarget as HTMLInputElement).value === '') {
+		if (e.key === "Backspace" && (e.currentTarget as HTMLInputElement).value === "") {
 			hhRef?.focus()
 			hhRef?.select()
 			return
 		}
 		if (
-			e.key === 'Backspace' ||
-			e.key === 'Delete' ||
-			e.key === 'Tab' ||
-			e.key.startsWith('Arrow') ||
+			e.key === "Backspace" ||
+			e.key === "Delete" ||
+			e.key === "Tab" ||
+			e.key.startsWith("Arrow") ||
 			e.ctrlKey ||
 			e.metaKey
 		)
@@ -79,22 +105,24 @@
 
 	function onMinutesInput(e: Event) {
 		const input = e.currentTarget as HTMLInputElement
-		let v = input.value.replace(/\D/g, '').slice(0, 2)
-		if (v.length === 2 && parseInt(v) > 59) v = '59'
+		let v = input.value.replace(/\D/g, "").slice(0, 2)
+		if (v.length === 2 && parseInt(v) > 59) v = "59"
 		mm = v
 		input.value = v
 		commit()
 	}
 
 	function onMinutesBlur() {
-		mm = mm.padStart(2, '0') || '00'
+		mm = mm.padStart(2, "0") || "00"
 		commit()
 	}
 </script>
 
 <div
 	aria-label={ariaLabel}
-	class="flex items-center gap-1 rounded-lg border border-gray-300 bg-gray-50 px-2.5 py-2 text-sm text-gray-900 focus-within:border-blue-500 focus-within:ring-1 focus-within:ring-blue-500 {disabled ? 'cursor-not-allowed opacity-60' : ''} {klass}"
+	class="flex items-center gap-1 rounded-lg border border-gray-300 bg-gray-50 px-2.5 py-2 text-sm text-gray-900 focus-within:border-blue-500 focus-within:ring-1 focus-within:ring-blue-500 {disabled
+		? 'cursor-not-allowed opacity-60'
+		: ''} {klass}"
 >
 	<!-- Icône horloge -->
 	<svg
@@ -128,7 +156,7 @@
 		class="w-7 bg-transparent text-center outline-none"
 	/>
 
-	<span class="select-none text-gray-400">:</span>
+	<span class="text-gray-400 select-none">:</span>
 
 	<!-- Minutes -->
 	<input

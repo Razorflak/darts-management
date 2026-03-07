@@ -1,33 +1,38 @@
 <script lang="ts">
-	import type { EventData, Tournament, GroupPhase, EliminationPhase, Phase } from '../types.js'
-	import { CATEGORY_LABELS, PHASE_TYPE_LABELS, BRACKET_ROUND_LABELS } from '../labels.js'
-	import { Badge, Button, Card } from 'flowbite-svelte'
+	import type {
+		DraftEvent,
+		Event,
+		EliminationPhase,
+		GroupPhase,
+		Phase
+	} from "$lib/server/schemas/event-schemas.js"
+	import { CATEGORY_LABELS, PHASE_TYPE_LABELS, BRACKET_ROUND_LABELS } from "../labels.js"
+	import { Badge, Button, Card } from "flowbite-svelte"
 
 	function isGroupPhase(p: Phase): p is GroupPhase {
-		return p.type === 'round_robin' || p.type === 'double_loss_groups'
+		return p.type === "round_robin" || p.type === "double_loss_groups"
 	}
 	function isEliminationPhase(p: Phase): p is EliminationPhase {
-		return p.type === 'single_elim' || p.type === 'double_elim'
+		return p.type === "single_elimination" || p.type === "double_elimination"
 	}
 
 	type Props = {
-		event: EventData
-		tournaments: Tournament[]
+		event: Event | DraftEvent
 		onPrev: () => void
 		onPublish: () => void
 		publishError?: string
-		eventStatus?: 'draft' | 'ready' | 'started'
+		eventStatus?: "draft" | "ready" | "started" | "finished"
 	}
 
-	let { event, tournaments, onPrev, onPublish, publishError, eventStatus }: Props = $props()
+	let { event, onPrev, onPublish, publishError, eventStatus }: Props = $props()
 
-	function formatDate(date: string, time?: string): string {
-		if (!date) return '—'
-		const d = new Date(`${date}T${time || '00:00'}`)
-		return (
-			d.toLocaleDateString('fr-FR', { day: '2-digit', month: '2-digit', year: 'numeric' }) +
-			(time ? ` ${time}` : '')
-		)
+	function formatDate(date?: Date): string {
+		if (!date) return "—"
+		return date.toLocaleDateString("fr-FR", {
+			day: "2-digit",
+			month: "2-digit",
+			year: "numeric"
+		})
 	}
 </script>
 
@@ -38,36 +43,35 @@
 
 		<!-- Event -->
 		<div class="mb-5">
-			<p class="font-semibold text-gray-800">{event.name || '—'}</p>
+			<p class="font-semibold text-gray-800">{event.name || "—"}</p>
 			<p class="mt-1 text-sm text-gray-500">
-				{formatDate(event.startDate, event.startTime)} → {formatDate(event.endDate)}
-				· {event.location || '—'}
+				{formatDate(event.starts_at)} → {formatDate(event.ends_at)}
+				· {event.location || "—"}
 			</p>
 			{#if event.entity}
-				<p class="mt-0.5 text-sm text-gray-400">{event.entity}</p>
+				<p class="mt-0.5 text-sm text-gray-400">{event.entity.name}</p>
 			{/if}
 		</div>
 
 		<!-- Tournaments tree -->
-		{#if tournaments.length > 0}
+		{#if event.tournaments.length > 0}
 			<ul class="space-y-5 border-l-2 border-gray-100 pl-4">
-				{#each tournaments as t}
+				{#each event.tournaments as t}
 					<li>
 						<div class="flex flex-wrap items-baseline gap-2">
 							<span class="font-medium text-gray-700">
-								{t.name || 'Tournoi sans nom'}
+								{t.name || "Tournoi sans nom"}
 							</span>
 							{#if t.category}
 								<Badge color="blue" rounded>{CATEGORY_LABELS[t.category]}</Badge>
 							{/if}
-							<span class="text-sm text-gray-400">{t.quota} places</span>
 						</div>
-						{#if t.startTime}
-							<p class="mt-0.5 text-sm text-gray-400">{t.startTime}</p>
+						{#if t.start_at}
+							<p class="mt-0.5 text-sm text-gray-400">{t.start_at}</p>
 						{/if}
 
 						<!-- Phases -->
-						{#if t.phases.length > 0}
+						{#if (t.phases ?? []).length > 0}
 							<ul class="mt-3 space-y-1.5 border-l border-gray-100 pl-4">
 								{#each t.phases as phase}
 									<li class="text-sm">
@@ -76,19 +80,26 @@
 										</span>
 										{#if isGroupPhase(phase)}
 											<span class="text-gray-500">
-												— {phase.playersPerGroup} joueurs/poule · {phase.qualifiers} qualifié{phase.qualifiers > 1 ? 's' : ''}/poule
+												— {phase.players_per_group} joueurs/poule · {phase.qualifiers_per_group}
+												qualifié{phase.qualifiers_per_group > 1
+													? "s"
+													: ""}/poule
 											</span>
 										{:else if isEliminationPhase(phase)}
-											{#if phase.qualifiers}
+											{#if phase.qualifiers_count}
 												<span class="text-gray-500">
-													— {phase.qualifiers} qualifié{phase.qualifiers > 1 ? 's' : ''} pour la suite
+													— {phase.qualifiers_count} qualifié{phase.qualifiers_count >
+													1
+														? "s"
+														: ""} pour la suite
 												</span>
 											{/if}
 											{#if phase.tiers.length > 0}
 												<ul class="mt-1 space-y-0.5 pl-4">
 													{#each phase.tiers as tier}
 														<li class="text-sm text-gray-400">
-															{BRACKET_ROUND_LABELS[tier.round]} · {tier.legs} manche{tier.legs > 1 ? 's' : ''}
+															{BRACKET_ROUND_LABELS[tier.round]} · {tier.legs}
+															manche{tier.legs > 1 ? "s" : ""}
 														</li>
 													{/each}
 												</ul>
@@ -98,13 +109,15 @@
 								{/each}
 							</ul>
 						{:else}
-							<p class="mt-1 pl-4 text-sm italic text-gray-400">Aucune phase configurée</p>
+							<p class="mt-1 pl-4 text-sm text-gray-400 italic">
+								Aucune phase configurée
+							</p>
 						{/if}
 					</li>
 				{/each}
 			</ul>
 		{:else}
-			<p class="italic text-gray-400">Aucun tournoi configuré</p>
+			<p class="text-gray-400 italic">Aucun tournoi configuré</p>
 		{/if}
 	</Card>
 
@@ -117,7 +130,7 @@
 	<!-- Actions -->
 	<div class="flex justify-between pt-2">
 		<Button color="alternative" pill onclick={onPrev}>← Modifier</Button>
-		{#if eventStatus === 'ready' || eventStatus === 'started'}
+		{#if eventStatus === "ready" || eventStatus === "started"}
 			<p class="text-sm text-gray-500">
 				Cet événement est publié. Utilisez "Enregistrer" pour mettre à jour le contenu.
 			</p>

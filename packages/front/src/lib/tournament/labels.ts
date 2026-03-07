@@ -1,25 +1,25 @@
-import type { Category, PhaseType, BracketRound } from './types.js'
+import type { BracketTier, Category, PhaseType } from "$lib/server/schemas/event-schemas"
 
 export const CATEGORY_LABELS: Record<Category, string> = {
-	male: 'Masculin',
-	female: 'Féminin',
-	junior: 'Junior',
-	veteran: 'Vétéran',
-	open: 'Ouvert',
-	mix: 'Mixte',
-	double: 'Double',
-	double_female: 'Double Féminin',
-	double_mix: 'Double Mixte',
+	male: "Masculin",
+	female: "Féminin",
+	junior: "Junior",
+	veteran: "Vétéran",
+	open: "Ouvert",
+	mix: "Mixte",
+	double: "Double",
+	double_female: "Double Féminin",
+	double_mix: "Double Mixte"
 }
 
 export const PHASE_TYPE_LABELS: Record<PhaseType, string> = {
-	round_robin: 'Poules Classique',
-	double_loss_groups: 'Poules Double KO',
-	single_elim: 'Arbre Direct',
-	double_elim: 'Double Élimination',
+	round_robin: "Poules Classique",
+	double_loss_groups: "Poules Double KO",
+	single_elimination: "Arbre Direct",
+	double_elimination: "Double Élimination"
 }
 
-export const BRACKET_ROUND_LABELS: Record<BracketRound, string> = {
+export const BRACKET_ROUND_LABELS: Record<BracketTier["round"], string> = {
 	4096: "jusqu'en 1/4096",
 	2048: "jusqu'en 1/2048",
 	1024: "jusqu'en 1/1024",
@@ -29,7 +29,7 @@ export const BRACKET_ROUND_LABELS: Record<BracketRound, string> = {
 	64: "jusqu'en 1/64",
 	32: "jusqu'en 1/32",
 	16: "jusqu'en 1/16",
-	8: 'Quarts de finale',
-	4: 'Demi-finales',
-	2: 'Finale',
+	8: "Quarts de finale",
+	4: "Demi-finales",
+	2: "Finale"
 }

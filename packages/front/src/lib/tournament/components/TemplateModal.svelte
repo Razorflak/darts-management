@@ -1,13 +1,12 @@
 <script lang="ts">
-	import type { EventData, Tournament, Phase, GroupPhase, EliminationPhase } from '../types.js'
-	import type { EventTemplate, PhaseTemplate } from '../templates.js'
-	import { EVENT_TEMPLATES } from '../templates.js'
-	import { genId, toLocalDateISO } from '../utils.js'
-	import { Button, Datepicker, Modal } from 'flowbite-svelte'
+	import { EVENT_TEMPLATES } from "../templates.js"
+	import { Button, Datepicker, Modal } from "flowbite-svelte"
+	import type { DraftEvent } from "$lib/server/schemas/event-schemas.js"
+	import { gendUuidv7 } from "$lib/utils/uuid.js"
 
 	interface Props {
 		open: boolean
-		onApply: (event: EventData, tournaments: Tournament[]) => void
+		onApply: (event: DraftEvent) => void
 	}
 
 	let { open = $bindable(false), onApply }: Props = $props()
@@ -23,57 +22,48 @@
 		return d
 	}
 
-	function buildPhase(p: PhaseTemplate): Phase {
-		if (p.type === 'round_robin' || p.type === 'double_loss_groups') {
-			const gp: GroupPhase = {
-				id: genId(),
-				type: p.type,
-				entrants: p.entrants,
-				qualifiers: p.qualifiers,
-				playersPerGroup: p.playersPerGroup,
-			}
-			return gp
-		}
-		if (p.type === 'single_elim' || p.type === 'double_elim') {
-			const ep: EliminationPhase = {
-				id: genId(),
-				type: p.type,
-				entrants: p.entrants,
-				tiers: p.tiers.map((t) => ({ id: genId(), round: t.round, legs: t.legs })),
-			}
-			return ep
-		}
-		throw new Error(`Unknown phase type: ${(p as PhaseTemplate).type}`)
+	function setTimeToDate(templateDate: Date, eventDate: Date): Date {
+		const result = new Date(eventDate)
+		// Ajouter le décalage de jours (templateDate day - 1)
+		const dayOffset = templateDate.getDate() - 1
+		result.setDate(result.getDate() + dayOffset)
+
+		// Appliquer l'heure du template
+		result.setHours(
+			templateDate.getHours(),
+			templateDate.getMinutes(),
+			templateDate.getSeconds(),
+			templateDate.getMilliseconds()
+		)
+		return result
 	}
 
 	function apply() {
 		if (!selectedTemplate || !startDateObj) return
 
-		const startDate = toLocalDateISO(startDateObj)
-		const endDate = toLocalDateISO(addDays(startDateObj, selectedTemplate.durationDays - 1))
+		const startDate = startDateObj
+		const endDate = new Date(startDateObj)
+		endDate.setDate(startDateObj.getDate() + selectedTemplate.durationDays - 1)
+		const draftEvent = selectedTemplate.event
 
-		const newEvent: EventData = {
-			name: selectedTemplate.title,
-			entity: selectedTemplate.entity,
-			startDate,
-			startTime: '',
-			endDate,
-			location: selectedTemplate.location,
-		}
+		// Création de tous les id
+		draftEvent.id = gendUuidv7()
+		draftEvent.tournaments?.forEach((t) => {
+			const tournamentId = gendUuidv7()
+			t.id = tournamentId
+			t.start_at = t.start_at ? setTimeToDate(startDate, t.start_at) : startDate
+			t.phases?.forEach((p) => {
+				p.id = gendUuidv7()
+				p.tournament_id = tournamentId
+			})
+		})
 
-		const newTournaments: Tournament[] = selectedTemplate.tournaments.map((t) => ({
-			id: genId(),
-			name: t.name,
-			club: '',
-			quota: t.quota,
-			category: t.category,
-			startTime: t.startTime,
-			startDate: toLocalDateISO(addDays(startDateObj!, t.dayOffset ?? 0)),
-			phases: t.phases.map(buildPhase),
-			autoReferee: false,
-		}))
+		// Reglages des dates
+		draftEvent.starts_at = startDate
+		draftEvent.ends_at = endDate
+		draftEvent.registration_opens_at = addDays(startDate, -7) // Ouvre les inscriptions 7 jours avant le début de l'événement
 
-		onApply(newEvent, newTournaments)
+		onApply(draftEvent)
 		open = false
 	}
 
@@ -101,9 +91,9 @@
 				>
 					<p class="font-medium text-gray-900">{template.title}</p>
 					<p class="mt-0.5 text-sm text-gray-500">
-						{template.entity} · {template.durationDays} jour{template.durationDays > 1
-							? 's'
-							: ''}
+						{template.title} · {template.durationDays} jour{template.durationDays > 1
+							? "s"
+							: ""}
 					</p>
 					<p class="mt-1 text-sm text-gray-400">{template.summary}</p>
 				</button>
@@ -111,18 +101,18 @@
 		</div>
 
 		<!-- Date picker — shown once a template is selected -->
-			<div class="flex flex-row border-t border-gray-100 pt-4">
-				<p class="mb-2 text-sm font-medium text-gray-700">
-					Date de début de la compétition <span class="text-red-500">*</span>
-				</p>
-				<Datepicker
-					bind:value={startDateObj}
-					inline={true}
-					locale="fr-FR"
-					firstDayOfWeek={1}
-					placeholder="jj/mm/aaaa"
-				/>
-			</div>
+		<div class="flex flex-row border-t border-gray-100 pt-4">
+			<p class="mb-2 text-sm font-medium text-gray-700">
+				Date de début de la compétition <span class="text-red-500">*</span>
+			</p>
+			<Datepicker
+				bind:value={startDateObj}
+				inline={true}
+				locale="fr-FR"
+				firstDayOfWeek={1}
+				placeholder="jj/mm/aaaa"
+			/>
+		</div>
 	</div>
 
 	{#snippet footer()}
