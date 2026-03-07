@@ -189,3 +189,16 @@ export const PlayerSearchResultSchema = z.object({
 	licence_no: z.string().nullable()
 })
 export type PlayerSearchResult = z.infer<typeof PlayerSearchResultSchema>
+
+// Used by admin roster page load
+export const AdminTournamentSchema = z.object({
+	id: z.uuid(),
+	name: z.string(),
+	category: CategorySchema,
+	check_in_required: z.boolean(),
+	event_id: z.uuid(),
+	event_name: z.string(),
+	status: z.enum(["draft", "ready", "started", "finished"]),
+	entity_id: z.uuid()
+})
+export type AdminTournament = z.infer<typeof AdminTournamentSchema>
