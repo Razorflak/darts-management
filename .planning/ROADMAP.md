@@ -124,7 +124,7 @@ Phases execute in numeric order: 1 → 2 → 3 → 4 → 5 → 6
 |-------|----------------|--------|-----------|
 | 1. Foundation | 5/6 | In Progress|  |
 | 2. Wizard Persistence | 8/8 | Complete   | 2026-03-02 |
-| 3. Player Registration | 2/5 | In Progress|  |
+| 3. Player Registration | 3/5 | In Progress|  |
 | 4. Launch and Match Generation | 0/? | Not started | - |
 | 5. Results and Advancement | 0/? | Not started | - |
 | 6. Views and Dashboard | 0/? | Not started | - |

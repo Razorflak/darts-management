@@ -3,12 +3,12 @@ gsd_state_version: 1.0
 milestone: v1.0
 milestone_name: milestone
 status: unknown
-last_updated: "2026-03-07T13:52:37.378Z"
+last_updated: "2026-03-07T13:57:32.197Z"
 progress:
   total_phases: 3
   completed_phases: 2
   total_plans: 19
-  completed_plans: 16
+  completed_plans: 17
 ---
 
 # Project State
@@ -22,10 +22,10 @@ See: .planning/PROJECT.md (updated 2026-02-28)
 
 ## Current Position
 
-Phase: 3 of 6 (Player Registration) — plan 02 complete
-Plan: 03-02 complete (Phase 3 Zod schemas + player auto-creation in hooks)
-Status: 03-02 complete — PlayerSchema + 4 more schemas added to event-schemas.ts; hooks.server.ts bootstraps player profile on first login
-Last activity: 2026-03-07 — Completed plan 03-02: Phase 3 Zod schemas + locals.player auto-creation
+Phase: 3 of 6 (Player Registration) — plan 03 complete
+Plan: 03-03 complete (Public event page + self-registration API)
+Status: 03-03 complete — /events/[id] page with auth redirect, tournament listing, optimistic register/unregister
+Last activity: 2026-03-07 — Completed plan 03-03: Public event page + self-registration API
 
 Progress: [████░░░░░░] 50% (14/28 plans estimated)
 
@@ -55,6 +55,7 @@ Progress: [████░░░░░░] 50% (14/28 plans estimated)
 | Phase 02-wizard-persistence P07 | 7 | 2 tasks | 2 files |
 | Phase 02-wizard-persistence P08 | 11 | 2 tasks | 11 files |
 | Phase 03-player-registration P02 | 3 | 2 tasks | 3 files |
+| Phase 03-player-registration P03 | 3 | 3 tasks | 4 files |
 
 ## Accumulated Context
 
@@ -118,6 +119,8 @@ Progress: [████░░░░░░] 50% (14/28 plans estimated)
 - [Phase 03-02]: ON CONFLICT DO NOTHING in player INSERT + re-SELECT guards against concurrent first-login race conditions
 - [Phase 03-02]: birth_date::text cast in SQL — DATE stored as text, parsed by z.string() not z.coerce.date()
 - [Phase 03-02]: Name split best-effort for auto-created players: parts[0]=first_name, parts.slice(1).join(' ')||parts[0]=last_name; placeholder birth_date '1900-01-01'
+- [Phase 03-03]: Child +layout.server.ts overrides parent (app) redirect to add ?redirectTo=/events/[id] — keeps navbar, preserves return URL
+- [Phase 03-03]: EventDetailSchema = EventSchema.omit({ tournaments: true }) — avoids TournamentSchema.min(1) mismatch for player-facing view
 
 ### Pending Todos
 
@@ -136,5 +139,5 @@ None yet.
 ## Session Continuity
 
 Last session: 2026-03-07
-Stopped at: Completed 03-02-PLAN.md — Phase 3 Zod schemas + player auto-creation in hooks.server.ts.
+Stopped at: Completed 03-03-PLAN.md — Public event page + self-registration API.
 Resume file: None
