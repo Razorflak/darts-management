@@ -18,16 +18,16 @@ progress:
 See: .planning/PROJECT.md (updated 2026-02-28)
 
 **Core value:** Permettre a un organisateur de creer un tournoi complexe, de le lancer, et que le systeme gere automatiquement la generation des matchs et le suivi des resultats jusqu'aux classements finaux.
-**Current focus:** Phase 2 — Wizard Persistence
+**Current focus:** Phase 3 — Player Registration
 
 ## Current Position
 
-Phase: 2 of 6 (Wizard Persistence) — gap-closure plans in progress
-Plan: 02-07 complete (tournament startDate Datepicker in TournamentForm)
-Status: 02-07 complete — TournamentForm Datepicker for startDate, toLocalDateISO sync, TimeInput disabled prop added
-Last activity: 2026-03-02 — Completed plan 02-07: tournament date picker with local-timezone-safe ISO conversion
+Phase: 3 of 6 (Player Registration) — plan 01 complete
+Plan: 03-01 complete (player & tournament_registration DB migrations)
+Status: 03-01 complete — player table + tournament_registration table + check_in_required column migrated
+Last activity: 2026-03-07 — Completed plan 03-01: SQL migrations for player profile and registration data model
 
-Progress: [████░░░░░░] 46% (13/28 plans estimated)
+Progress: [████░░░░░░] 50% (14/28 plans estimated)
 
 ## Performance Metrics
 
@@ -110,6 +110,10 @@ Progress: [████░░░░░░] 46% (13/28 plans estimated)
 - [02-07]: TimeInput disabled prop added — EventStep uses disabled={readonly} on TimeInput, required the prop declaration
 - [Phase 02-08]: sql<Record<string,unknown>[]> not sql<unknown[]> — postgres.Sql<T> requires T extends readonly (object|undefined)[]
 - [Phase 02-08]: [02-08]: Zod schemas centralized in packages/front/src/lib/server/schemas/ per domain; authz schemas in packages/db/src/schemas.ts
+- [03-01]: player.user_id TEXT NULL no FK — same pattern as event.organizer_id; Better Auth manages its own user table, cross-schema FK avoided
+- [03-01]: tournament_registration deduplication via UNIQUE(tournament_id, player_id) DB constraint — app catches PostgreSQL error 23505
+- [03-01]: Partial UNIQUE index player_user_unique_idx WHERE user_id IS NOT NULL — admin-created profiles (NULL user_id) exempt from uniqueness
+- [03-01]: player_id FK ON DELETE RESTRICT, tournament_id FK ON DELETE CASCADE — protects registration data, cleans up when tournament deleted
 
 ### Pending Todos
 
@@ -127,6 +131,6 @@ None yet.
 
 ## Session Continuity
 
-Last session: 2026-03-02
-Stopped at: Completed 02-08-PLAN.md — Zod SQL validation schemas, centralized schema files, authz wired.
+Last session: 2026-03-07
+Stopped at: Completed 03-01-PLAN.md — player table + tournament_registration table + check_in_required migrated.
 Resume file: None

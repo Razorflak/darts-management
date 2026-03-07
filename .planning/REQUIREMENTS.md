@@ -29,10 +29,10 @@
 
 ### PLAYER — Inscription & Check-in
 
-- [ ] **PLAYER-01**: Un joueur peut s'inscrire à un tournoi
-- [ ] **PLAYER-02**: L'admin tournoi peut inscrire manuellement un joueur
-- [ ] **PLAYER-03**: L'admin tournoi peut effectuer le check-in des joueurs présents le jour J
-- [ ] **PLAYER-04**: Le check-in est configurable par tournoi (optionnel ou obligatoire avant lancement)
+- [x] **PLAYER-01**: Un joueur peut s'inscrire à un tournoi
+- [x] **PLAYER-02**: L'admin tournoi peut inscrire manuellement un joueur
+- [x] **PLAYER-03**: L'admin tournoi peut effectuer le check-in des joueurs présents le jour J
+- [x] **PLAYER-04**: Le check-in est configurable par tournoi (optionnel ou obligatoire avant lancement)
 
 ### LAUNCH — Lancement & Génération
 
@@ -97,10 +97,10 @@
 | EVENT-04 | Phase 2 — Wizard Persistence | Complete |
 | EVENT-05 | Phase 2 — Wizard Persistence | Complete |
 | EVENT-06 | Phase 2 — Wizard Persistence | Complete |
-| PLAYER-01 | Phase 3 — Player Registration | Pending |
-| PLAYER-02 | Phase 3 — Player Registration | Pending |
-| PLAYER-03 | Phase 3 — Player Registration | Pending |
-| PLAYER-04 | Phase 3 — Player Registration | Pending |
+| PLAYER-01 | Phase 3 — Player Registration | Complete |
+| PLAYER-02 | Phase 3 — Player Registration | Complete |
+| PLAYER-03 | Phase 3 — Player Registration | Complete |
+| PLAYER-04 | Phase 3 — Player Registration | Complete |
 | LAUNCH-01 | Phase 4 — Launch and Match Generation | Pending |
 | LAUNCH-02 | Phase 4 — Launch and Match Generation | Pending |
 | LAUNCH-03 | Phase 4 — Launch and Match Generation | Pending |
