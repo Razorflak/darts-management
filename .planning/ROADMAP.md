@@ -72,7 +72,14 @@ Plans:
   2. An admin tournoi can manually add a player to a tournament by name
   3. An admin tournoi can mark players as present (check-in) on the day of the event, and absent players are visible before launch
   4. Check-in mode is configurable per tournament — when disabled, all registered players are treated as present
-**Plans**: TBD
+**Plans**: 5 plans
+
+Plans:
+- [ ] 03-01-PLAN.md — Migrations 011 + 012: tables player et tournament_registration, colonne check_in_required
+- [ ] 03-02-PLAN.md — Zod schemas Phase 3 (event-schemas.ts) + auto-création profil joueur dans hooks.server.ts
+- [ ] 03-03-PLAN.md — Page publique /events/[id] + endpoint POST/DELETE /events/[id]/register (auto-inscription)
+- [ ] 03-04-PLAN.md — Section Tournois disponibles dashboard + page publique /tournaments/[id] roster
+- [ ] 03-05-PLAN.md — Interface admin /tournaments/[id]/admin: roster, check-in, recherche joueur, inscription admin
 
 ### Phase 4: Launch and Match Generation
 **Goal**: An admin tournoi can launch a tournament, locking configuration and generating every match for every phase atomically in one database transaction
@@ -117,7 +124,7 @@ Phases execute in numeric order: 1 → 2 → 3 → 4 → 5 → 6
 |-------|----------------|--------|-----------|
 | 1. Foundation | 5/6 | In Progress|  |
 | 2. Wizard Persistence | 8/8 | Complete   | 2026-03-02 |
-| 3. Player Registration | 0/? | Not started | - |
+| 3. Player Registration | 0/5 | Not started | - |
 | 4. Launch and Match Generation | 0/? | Not started | - |
 | 5. Results and Advancement | 0/? | Not started | - |
 | 6. Views and Dashboard | 0/? | Not started | - |
