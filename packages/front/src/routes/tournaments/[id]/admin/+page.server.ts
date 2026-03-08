@@ -10,7 +10,7 @@ export const load: PageServerLoad = async ({ locals, params }) => {
 
 	const tournamentRows = await sql<Record<string, unknown>[]>`
 		SELECT t.id, t.name, t.category, t.check_in_required,
-		       e.id AS event_id, e.name AS event_name, e.status, e.entity_id
+		       e.id AS event_id, e.name AS event_name, t.status, e.entity_id
 		FROM tournament t JOIN event e ON e.id = t.event_id
 		WHERE t.id = ${params.id}
 	`

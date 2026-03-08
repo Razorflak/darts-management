@@ -229,7 +229,7 @@ export const AdminTournamentSchema = z.object({
 	check_in_required: z.boolean(),
 	event_id: z.uuid(),
 	event_name: z.string(),
-	status: z.enum(["draft", "ready", "started", "finished"]),
+	status: z.enum(["ready", "check-in", "started", "finished"]),
 	entity_id: z.uuid()
 })
 export type AdminTournament = z.infer<typeof AdminTournamentSchema>
