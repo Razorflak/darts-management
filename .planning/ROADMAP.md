@@ -72,7 +72,7 @@ Plans:
   2. An admin tournoi can manually add a player to a tournament by name
   3. An admin tournoi can mark players as present (check-in) on the day of the event, and absent players are visible before launch
   4. Check-in mode is configurable per tournament — when disabled, all registered players are treated as present
-**Plans**: 5 plans
+**Plans**: 6 plans (5 original + 1 gap closure)
 
 Plans:
 - [ ] 03-01-PLAN.md — Migrations 011 + 012: tables player et tournament_registration, colonne check_in_required
@@ -80,6 +80,7 @@ Plans:
 - [ ] 03-03-PLAN.md — Page (app)/events/[id] + endpoint POST/DELETE /events/[id]/register (auto-inscription)
 - [ ] 03-04-PLAN.md — Migration 014 tournament.status + check_in_required wizard + page admin /admin/events/[id]
 - [ ] 03-05-PLAN.md — Roster admin (admin) /admin/events/[id]/tournaments/[tid]: check-in, player search, status buttons
+- [ ] 03-06-PLAN.md — [gap] Zod-first cleanup: extend TournamentWithRegistrationSchema + add OpenEventSchema, remove local schema re-definitions
 
 ### Phase 03.1: Teams and Doubles Registration (INSERTED)
 
@@ -137,7 +138,7 @@ Phases execute in numeric order: 1 → 2 → 3 → 4 → 5 → 6
 |-------|----------------|--------|-----------|
 | 1. Foundation | 5/6 | In Progress|  |
 | 2. Wizard Persistence | 8/8 | Complete   | 2026-03-02 |
-| 3. Player Registration | 3/5 | In Progress|  |
+| 3. Player Registration | 3/6 | In Progress|  |
 | 03.1. Teams and Doubles | 4/4 | Complete   | 2026-03-08 |
 | 4. Launch and Match Generation | 0/? | Not started | - |
 | 5. Results and Advancement | 0/? | Not started | - |
