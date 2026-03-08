@@ -39,6 +39,7 @@
 
 	let open = $state(false)
 	let query = $state("")
+	let highlighted = $state(0)
 	let inputEl: HTMLInputElement | undefined = $state()
 	let dropdownStyle = $state("")
 
@@ -58,11 +59,13 @@
 		value = dept
 		query = ""
 		open = false
+		highlighted = 0
 	}
 
 	function onInput(e: Event) {
 		query = (e.target as HTMLInputElement).value
 		value = query
+		highlighted = 0
 		open = true
 		updatePosition()
 	}
@@ -74,6 +77,22 @@
 
 	function onBlur() {
 		setTimeout(() => { open = false }, 150)
+	}
+
+	function onKeydown(e: KeyboardEvent) {
+		if (!open || filtered.length === 0) return
+		if (e.key === "ArrowDown") {
+			e.preventDefault()
+			highlighted = (highlighted + 1) % filtered.length
+		} else if (e.key === "ArrowUp") {
+			e.preventDefault()
+			highlighted = (highlighted - 1 + filtered.length) % filtered.length
+		} else if (e.key === "Enter") {
+			e.preventDefault()
+			select(filtered[highlighted])
+		} else if (e.key === "Escape") {
+			open = false
+		}
 	}
 </script>
 
@@ -89,6 +108,7 @@
 		oninput={onInput}
 		onfocus={onFocus}
 		onblur={onBlur}
+		onkeydown={onKeydown}
 		autocomplete="off"
 		class="block w-full rounded-lg border border-gray-300 bg-gray-50 p-2.5 text-sm text-gray-900 focus:border-primary-500 focus:ring-primary-500 dark:border-gray-600 dark:bg-gray-700 dark:text-white dark:placeholder-gray-400 dark:focus:border-primary-500 dark:focus:ring-primary-500"
 	/>
@@ -99,12 +119,13 @@
 		style="position:fixed;{dropdownStyle};z-index:9999"
 		class="max-h-52 overflow-auto rounded-lg border border-gray-200 bg-white shadow-lg dark:border-gray-600 dark:bg-gray-700"
 	>
-		{#each filtered as dept}
+		{#each filtered as dept, i}
 			<li>
 				<button
 					type="button"
-					class="flex w-full items-center px-3 py-2 text-left text-sm text-gray-800 hover:bg-primary-50 dark:text-gray-200 dark:hover:bg-gray-600"
+					class="flex w-full items-center px-3 py-2 text-left text-sm text-gray-800 dark:text-gray-200 {i === highlighted ? 'bg-primary-50 dark:bg-gray-600' : 'hover:bg-primary-50 dark:hover:bg-gray-600'}"
 					onmousedown={() => select(dept)}
+					onmouseenter={() => { highlighted = i }}
 				>
 					{dept}
 				</button>
