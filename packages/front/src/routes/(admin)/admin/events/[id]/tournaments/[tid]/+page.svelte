@@ -9,7 +9,7 @@
 		Button,
 		Badge,
 		Input,
-		Card
+		Modal
 	} from "flowbite-svelte"
 	import PlayerSearch from "$lib/tournament/components/PlayerSearch.svelte"
 	import DepartmentSelect from "$lib/tournament/components/DepartmentSelect.svelte"
@@ -22,10 +22,30 @@
 	const tournamentId = data.tournament.id
 	const baseUrl = `/admin/events/${eventId}/tournaments/${tournamentId}`
 
+	const DOUBLE_CATEGORIES = ["double", "double_female", "double_mix"]
+	const isDoubles = DOUBLE_CATEGORIES.includes(data.tournament.category)
+
 	let roster = $state<RosterEntry[]>(data.roster)
 	let tournamentStatus = $state(data.tournament.status)
 
-	// Add player state
+	// Filter
+	let filterQuery = $state("")
+	let filteredRoster = $derived(
+		filterQuery.trim().length === 0
+			? roster
+			: roster.filter((e) =>
+					e.members.some(
+						(m) =>
+							`${m.last_name} ${m.first_name}`.toLowerCase().includes(filterQuery.toLowerCase()) ||
+							`${m.first_name} ${m.last_name}`.toLowerCase().includes(filterQuery.toLowerCase())
+					)
+				)
+	)
+
+	// Modal state
+	let showAddModal = $state(false)
+
+	// Solo add state
 	let selectedPlayer = $state<PlayerSearchResult | null>(null)
 	let showNewPlayerForm = $state(false)
 	let newFirst = $state("")
@@ -33,6 +53,14 @@
 	let newBirth = $state("")
 	let newLicence = $state("")
 	let newDepartment = $state("")
+
+	// Doubles add state
+	let selectedPlayer1 = $state<PlayerSearchResult | null>(null)
+	let showNewPlayer1Form = $state(false)
+	let newPlayer1 = $state({ first: "", last: "", birth: "", licence: "", department: "" })
+	let selectedPlayer2 = $state<PlayerSearchResult | null>(null)
+	let showNewPlayer2Form = $state(false)
+	let newPlayer2 = $state({ first: "", last: "", birth: "", licence: "", department: "" })
 
 	// Status management
 	const STATUS_TRANSITIONS: Record<string, string | null> = {
@@ -90,11 +118,6 @@
 		roster = roster.filter((e) => e.team_id !== teamId)
 	}
 
-	async function checkInAll() {
-		await fetch(`${baseUrl}/checkin-all`, { method: "POST" })
-		roster = roster.map((e) => ({ ...e, checked_in: true }))
-	}
-
 	async function registerExisting() {
 		if (!selectedPlayer) return
 		const res = await fetch(`${baseUrl}/register`, {
@@ -131,6 +154,39 @@
 		}
 	}
 
+	function buildSlot(
+		sel: PlayerSearchResult | null,
+		form: { first: string; last: string; birth: string; licence: string; department: string }
+	) {
+		if (sel) return { type: "existing" as const, id: sel.id }
+		return {
+			type: "new" as const,
+			first_name: form.first,
+			last_name: form.last,
+			birth_date: form.birth,
+			licence_no: form.licence || undefined,
+			department: form.department || undefined
+		}
+	}
+
+	async function registerDoubles() {
+		const res = await fetch(`${baseUrl}/register`, {
+			method: "POST",
+			headers: { "Content-Type": "application/json" },
+			body: JSON.stringify({
+				mode: "doubles",
+				player1: buildSlot(selectedPlayer1, newPlayer1),
+				player2: buildSlot(selectedPlayer2, newPlayer2)
+			})
+		})
+		if (res.ok) {
+			window.location.reload()
+		} else {
+			const err = await res.json().catch(() => ({}))
+			alert(err.message ?? "Erreur lors de l'inscription")
+		}
+	}
+
 	function handlePlayerSelected(player: PlayerSearchResult) {
 		selectedPlayer = player
 	}
@@ -154,7 +210,9 @@
 	<h1 class="text-2xl font-bold text-gray-900">{data.tournament.name}</h1>
 	<p class="mt-1 text-sm text-gray-500">{data.tournament.event_name}</p>
 	<p class="mt-1 text-sm text-gray-600">
-		{roster.length} équipe{roster.length !== 1 ? "s" : ""} inscrite{roster.length !== 1 ? "s" : ""}
+		{roster.length} équipe{roster.length !== 1 ? "s" : ""} inscrite{roster.length !== 1
+			? "s"
+			: ""}
 	</p>
 
 	<!-- Status badge + transition buttons -->
@@ -168,7 +226,7 @@
 				color="light"
 				onclick={() => changeStatus(STATUS_PREV[tournamentStatus]!)}
 			>
-				← {STATUS_LABELS[STATUS_PREV[tournamentStatus]!]}
+				&larr; {STATUS_LABELS[STATUS_PREV[tournamentStatus]!]}
 			</Button>
 		{/if}
 		{#if STATUS_TRANSITIONS[tournamentStatus]}
@@ -177,18 +235,21 @@
 				color="primary"
 				onclick={() => changeStatus(STATUS_TRANSITIONS[tournamentStatus]!)}
 			>
-				Passer en {STATUS_LABELS[STATUS_TRANSITIONS[tournamentStatus]!]} →
+				Passer en {STATUS_LABELS[STATUS_TRANSITIONS[tournamentStatus]!]} &rarr;
 			</Button>
 		{/if}
 	</div>
 </div>
 
-<!-- Bulk check-in -->
-{#if data.tournament.check_in_required}
-	<div class="mb-4">
-		<Button color="blue" onclick={checkInAll}>Tout checker</Button>
-	</div>
-{/if}
+<!-- Add button + filter -->
+<div class="mb-4 flex items-center gap-3">
+	<Button color="primary" size="sm" onclick={() => (showAddModal = true)}>
+		{isDoubles ? "Ajouter une équipe" : "Ajouter un joueur"}
+	</Button>
+	{#if roster.length > 0}
+		<Input placeholder="Filtrer les inscrits..." bind:value={filterQuery} class="max-w-xs" />
+	{/if}
+</div>
 
 <!-- Roster table -->
 {#if roster.length === 0}
@@ -204,14 +265,16 @@
 				<TableHeadCell>Actions</TableHeadCell>
 			</TableHead>
 			<TableBody>
-				{#each roster as entry (entry.registration_id)}
-					<TableBodyRow>
+				{#each filteredRoster as entry (entry.registration_id)}
+					<TableBodyRow class="border-b border-gray-100">
 						<TableBodyCell>
 							{#each entry.members as member, i}
 								{member.last_name}
 								{member.first_name}{i < entry.members.length - 1 ? " / " : ""}
 								{#if member.department}
-									<span class="ml-1 text-xs text-gray-400">({member.department})</span>
+									<span class="ml-1 text-xs text-gray-400"
+										>({member.department})</span
+									>
 								{/if}
 							{/each}
 						</TableBodyCell>
@@ -248,53 +311,160 @@
 	</div>
 {/if}
 
-<!-- Add player section -->
-<Card class="mt-2">
-	<h2 class="mb-4 text-lg font-semibold">Ajouter un joueur</h2>
-
-	<!-- PlayerSearch uses the new (admin) search endpoint via searchUrl prop -->
-	<PlayerSearch
-		tournamentId={tournamentId}
-		searchUrl="{baseUrl}/players/search"
-		onSelect={handlePlayerSelected}
-	/>
-
-	{#if selectedPlayer}
-		<div class="mt-3 flex items-center gap-3 rounded-md bg-gray-50 p-3">
-			<span class="font-medium">{selectedPlayer.last_name} {selectedPlayer.first_name}</span>
-			{#if selectedPlayer.department}
-				<span class="text-sm text-gray-500">({selectedPlayer.department})</span>
-			{/if}
-			{#if selectedPlayer.licence_no}
-				<span class="text-sm text-gray-500">#{selectedPlayer.licence_no}</span>
-			{/if}
-			<Button size="xs" color="blue" onclick={registerExisting}>Inscrire</Button>
-			<Button size="xs" color="light" onclick={() => (selectedPlayer = null)}>Annuler</Button>
-		</div>
-	{/if}
-
-	<div class="mt-4">
-		<button
-			type="button"
-			class="text-sm text-blue-600 hover:underline"
-			onclick={() => (showNewPlayerForm = !showNewPlayerForm)}
-		>
-			{showNewPlayerForm ? "▲ Masquer" : "▼ Nouveau joueur"}
-		</button>
-
-		{#if showNewPlayerForm}
-			<div class="mt-3 grid grid-cols-2 gap-3">
-				<Input placeholder="Prénom" bind:value={newFirst} />
-				<Input placeholder="Nom" bind:value={newLast} />
-				<Input type="date" placeholder="Date de naissance" bind:value={newBirth} />
-				<Input placeholder="Licence (optionnel)" bind:value={newLicence} />
-				<div class="col-span-2">
-					<DepartmentSelect bind:value={newDepartment} placeholder="Département" />
-				</div>
-				<div class="col-span-2">
-					<Button color="blue" onclick={registerNew}>Créer et inscrire</Button>
+<!-- Add player / team modal -->
+<Modal
+	bind:open={showAddModal}
+	title={isDoubles ? "Ajouter une équipe" : "Ajouter un joueur"}
+	size="lg"
+	outsideclose
+>
+	{#if isDoubles}
+		<!-- Doubles mode: two player slots -->
+		<div class="space-y-6">
+			<!-- Player 1 -->
+			<div>
+				<h3 class="mb-2 font-semibold text-gray-700">Joueur 1</h3>
+				<PlayerSearch
+					{tournamentId}
+					searchUrl="{baseUrl}/players/search"
+					onSelect={(p) => {
+						selectedPlayer1 = p
+					}}
+				/>
+				{#if selectedPlayer1}
+					<div class="mt-2 flex items-center gap-2 rounded-md bg-gray-50 p-2">
+						<span class="font-medium"
+							>{selectedPlayer1.last_name} {selectedPlayer1.first_name}</span
+						>
+						{#if selectedPlayer1.department}
+							<span class="text-sm text-gray-500">({selectedPlayer1.department})</span>
+						{/if}
+						<Button size="xs" color="light" onclick={() => (selectedPlayer1 = null)}>
+							Changer
+						</Button>
+					</div>
+				{/if}
+				<div class="mt-2">
+					<button
+						type="button"
+						class="text-sm text-blue-600 hover:underline"
+						onclick={() => (showNewPlayer1Form = !showNewPlayer1Form)}
+					>
+						{showNewPlayer1Form ? "▲ Masquer" : "▼ Nouveau joueur"}
+					</button>
+					{#if showNewPlayer1Form}
+						<div class="mt-2 grid grid-cols-2 gap-2">
+							<Input placeholder="Prénom" bind:value={newPlayer1.first} />
+							<Input placeholder="Nom" bind:value={newPlayer1.last} />
+							<Input type="date" placeholder="Date de naissance" bind:value={newPlayer1.birth} />
+							<Input placeholder="Licence (optionnel)" bind:value={newPlayer1.licence} />
+							<div class="col-span-2">
+								<DepartmentSelect bind:value={newPlayer1.department} placeholder="Département" />
+							</div>
+						</div>
+					{/if}
 				</div>
 			</div>
+
+			<!-- Player 2 -->
+			<div>
+				<h3 class="mb-2 font-semibold text-gray-700">Joueur 2</h3>
+				<PlayerSearch
+					{tournamentId}
+					searchUrl="{baseUrl}/players/search"
+					onSelect={(p) => {
+						selectedPlayer2 = p
+					}}
+				/>
+				{#if selectedPlayer2}
+					<div class="mt-2 flex items-center gap-2 rounded-md bg-gray-50 p-2">
+						<span class="font-medium"
+							>{selectedPlayer2.last_name} {selectedPlayer2.first_name}</span
+						>
+						{#if selectedPlayer2.department}
+							<span class="text-sm text-gray-500">({selectedPlayer2.department})</span>
+						{/if}
+						<Button size="xs" color="light" onclick={() => (selectedPlayer2 = null)}>
+							Changer
+						</Button>
+					</div>
+				{/if}
+				<div class="mt-2">
+					<button
+						type="button"
+						class="text-sm text-blue-600 hover:underline"
+						onclick={() => (showNewPlayer2Form = !showNewPlayer2Form)}
+					>
+						{showNewPlayer2Form ? "▲ Masquer" : "▼ Nouveau joueur"}
+					</button>
+					{#if showNewPlayer2Form}
+						<div class="mt-2 grid grid-cols-2 gap-2">
+							<Input placeholder="Prénom" bind:value={newPlayer2.first} />
+							<Input placeholder="Nom" bind:value={newPlayer2.last} />
+							<Input type="date" placeholder="Date de naissance" bind:value={newPlayer2.birth} />
+							<Input placeholder="Licence (optionnel)" bind:value={newPlayer2.licence} />
+							<div class="col-span-2">
+								<DepartmentSelect bind:value={newPlayer2.department} placeholder="Département" />
+							</div>
+						</div>
+					{/if}
+				</div>
+			</div>
+		</div>
+
+		{#snippet footer()}
+			<Button color="primary" onclick={registerDoubles}>Confirmer l'inscription</Button>
+			<Button color="light" onclick={() => (showAddModal = false)}>Annuler</Button>
+		{/snippet}
+	{:else}
+		<!-- Solo mode -->
+		<PlayerSearch
+			{tournamentId}
+			searchUrl="{baseUrl}/players/search"
+			onSelect={handlePlayerSelected}
+		/>
+
+		{#if selectedPlayer}
+			<div class="mt-3 flex items-center gap-3 rounded-md bg-gray-50 p-3">
+				<span class="font-medium">{selectedPlayer.last_name} {selectedPlayer.first_name}</span>
+				{#if selectedPlayer.department}
+					<span class="text-sm text-gray-500">({selectedPlayer.department})</span>
+				{/if}
+				{#if selectedPlayer.licence_no}
+					<span class="text-sm text-gray-500">#{selectedPlayer.licence_no}</span>
+				{/if}
+				<Button size="xs" color="blue" onclick={registerExisting}>Inscrire</Button>
+				<Button size="xs" color="light" onclick={() => (selectedPlayer = null)}>Annuler</Button>
+			</div>
 		{/if}
-	</div>
-</Card>
+
+		<div class="mt-4">
+			<button
+				type="button"
+				class="text-sm text-blue-600 hover:underline"
+				onclick={() => (showNewPlayerForm = !showNewPlayerForm)}
+			>
+				{showNewPlayerForm ? "▲ Masquer" : "▼ Nouveau joueur"}
+			</button>
+
+			{#if showNewPlayerForm}
+				<div class="mt-3 grid grid-cols-2 gap-3">
+					<Input placeholder="Prénom" bind:value={newFirst} />
+					<Input placeholder="Nom" bind:value={newLast} />
+					<Input type="date" placeholder="Date de naissance" bind:value={newBirth} />
+					<Input placeholder="Licence (optionnel)" bind:value={newLicence} />
+					<div class="col-span-2">
+						<DepartmentSelect bind:value={newDepartment} placeholder="Département" />
+					</div>
+					<div class="col-span-2">
+						<Button color="blue" onclick={registerNew}>Créer et inscrire</Button>
+					</div>
+				</div>
+			{/if}
+		</div>
+
+		{#snippet footer()}
+			<Button color="light" onclick={() => (showAddModal = false)}>Fermer</Button>
+		{/snippet}
+	{/if}
+</Modal>
