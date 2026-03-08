@@ -103,6 +103,10 @@
 		error = null
 		submitting = false
 	}
+
+	$effect(() => {
+		if (!open) reset()
+	})
 </script>
 
 <Modal bind:open title="Inscription doubles — choisir un partenaire" size="md" outsideclose>
