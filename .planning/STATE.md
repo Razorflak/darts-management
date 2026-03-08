@@ -25,7 +25,7 @@ See: .planning/PROJECT.md (updated 2026-02-28)
 Phase: 03.1-teams-and-doubles-registration — plan 03 complete
 Plan: 03.1-03 complete (partner/search endpoint + admin player search department)
 Status: 03.1-03 complete — GET /tournaments/[id]/partner/search created, department added to admin player search
-Last activity: 2026-03-08 - Completed quick task 2: Restructuration des routes : section Administration avec dashboard et menu de navigation latéral/mobile
+Last activity: 2026-03-08 - Completed quick task 3: Corrections admin — supprimer /events, vider dashboard, sidebar overlay
 
 Progress: [████░░░░░░] 55% (22/40 plans estimated)
 
@@ -145,6 +145,7 @@ None yet.
 | # | Description | Date | Commit | Directory |
 |---|-------------|------|--------|-----------|
 | 2 | Restructuration des routes : section Administration avec dashboard et menu de navigation latéral/mobile | 2026-03-08 | 25cdc7b | [2-restructuration-des-routes-section-admin](./quick/2-restructuration-des-routes-section-admin/) |
+| 3 | Corrections admin — supprimer /events, vider dashboard, sidebar overlay | 2026-03-08 | 9a8702b | [3-corrections-admin-supprimer-events-dashb](./quick/3-corrections-admin-supprimer-events-dashb/) |
 
 ### Blockers/Concerns
 
@@ -159,5 +160,5 @@ None yet.
 ## Session Continuity
 
 Last session: 2026-03-08
-Stopped at: Completed quick-2 — (admin) route group with collapsible sidebar, all admin routes migrated.
+Stopped at: Completed quick-3 — removed (app)/events route, emptied admin dashboard, sidebar converted to overlay.
 Resume file: None
