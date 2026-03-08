@@ -53,6 +53,22 @@ async function resolvePlayerId(
 	return newPlayer.id as string
 }
 
+async function checkNoDuplicatePlayers(playerIds: string[], tournamentId: string): Promise<void> {
+	const duplicates = await sql<Record<string, unknown>[]>`
+		SELECT p.id, p.first_name, p.last_name
+		FROM player p
+		JOIN team_member tm ON tm.player_id = p.id
+		JOIN tournament_registration r ON r.team_id = tm.team_id
+		WHERE r.tournament_id = ${tournamentId}
+		AND p.id = ANY(${playerIds})
+	`
+	if (duplicates.length > 0) {
+		const first = duplicates[0]
+		const name = `${first.first_name as string} ${first.last_name as string}`
+		error(409, `Ce joueur est déjà inscrit à ce tournoi : ${name}`)
+	}
+}
+
 export const POST: RequestHandler = async ({ request, locals, params }) => {
 	const [tRow] = await sql<Record<string, unknown>[]>`
 		SELECT t.id, e.entity_id FROM tournament t JOIN event e ON e.id = t.event_id
@@ -74,6 +90,7 @@ export const POST: RequestHandler = async ({ request, locals, params }) => {
 
 	if (body.mode === "existing") {
 		const playerId = body.player_id
+		await checkNoDuplicatePlayers([playerId], params.tid)
 		teamId = await findOrCreateSoloTeam(playerId)
 	} else if (body.mode === "new") {
 		const [newPlayer] = await sql<Record<string, unknown>[]>`
@@ -87,11 +104,16 @@ export const POST: RequestHandler = async ({ request, locals, params }) => {
 			)
 			RETURNING id
 		`
+		await checkNoDuplicatePlayers([newPlayer.id as string], params.tid)
 		teamId = await findOrCreateSoloTeam(newPlayer.id as string)
 	} else {
 		// mode === "doubles"
 		const player1Id = await resolvePlayerId(body.player1)
 		const player2Id = await resolvePlayerId(body.player2)
+		if (player1Id === player2Id) {
+			error(400, "Un joueur ne peut pas être inscrit deux fois dans la même équipe")
+		}
+		await checkNoDuplicatePlayers([player1Id, player2Id], params.tid)
 		teamId = await findOrCreateDoublesTeam(player1Id, player2Id)
 	}
 
