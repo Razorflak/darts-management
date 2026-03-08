@@ -1,6 +1,7 @@
 <script lang="ts">
 	import { Button, Input, Modal } from "flowbite-svelte"
 	import type { PartnerSearchResult } from "$lib/server/schemas/event-schemas.js"
+	import DepartmentSelect from "$lib/tournament/components/DepartmentSelect.svelte"
 
 	type Props = {
 		open: boolean
@@ -108,7 +109,9 @@
 					disabled={showCreateForm}
 				/>
 				{#if results.length > 0}
-					<ul class="mt-1 max-h-48 overflow-auto rounded-md border border-gray-200 bg-white shadow dark:border-gray-600 dark:bg-gray-700">
+					<ul
+						class="mt-1 max-h-48 overflow-auto rounded-md border border-gray-200 bg-white shadow dark:border-gray-600 dark:bg-gray-700"
+					>
 						{#each results as player}
 							<li>
 								<button
@@ -116,9 +119,13 @@
 									class="flex w-full items-center gap-2 px-4 py-2 text-left text-sm hover:bg-gray-100 dark:hover:bg-gray-600"
 									onclick={() => selectPartner(player)}
 								>
-									<span class="font-medium">{player.last_name} {player.first_name}</span>
+									<span class="font-medium"
+										>{player.last_name} {player.first_name}</span
+									>
 									{#if player.department}
-										<span class="text-xs text-gray-400 dark:text-gray-500">({player.department})</span>
+										<span class="text-xs text-gray-400 dark:text-gray-500"
+											>({player.department})</span
+										>
 									{/if}
 								</button>
 							</li>
@@ -130,12 +137,21 @@
 			<!-- Selected partner display -->
 			<div class="flex items-center gap-3 rounded-md bg-green-50 p-3 dark:bg-green-900/20">
 				<span class="font-medium text-green-800 dark:text-green-200">
-					Partenaire sélectionné : {selected.last_name} {selected.first_name}
+					Partenaire sélectionné : {selected.last_name}
+					{selected.first_name}
 					{#if selected.department}
-						<span class="text-sm font-normal text-green-600 dark:text-green-400">({selected.department})</span>
+						<span class="text-sm font-normal text-green-600 dark:text-green-400"
+							>({selected.department})</span
+						>
 					{/if}
 				</span>
-				<Button size="xs" color="alternative" onclick={() => { selected = null }}>Changer</Button>
+				<Button
+					size="xs"
+					color="alternative"
+					onclick={() => {
+						selected = null
+					}}>Changer</Button
+				>
 			</div>
 		{/if}
 
@@ -149,15 +165,21 @@
 					selected = null
 				}}
 			>
-				{showCreateForm ? "▲ Annuler la création" : "▼ Joueur non trouvé ? Créer un nouveau joueur"}
+				{showCreateForm
+					? "▲ Annuler la création"
+					: "▼ Joueur non trouvé ? Créer un nouveau joueur"}
 			</button>
 
 			{#if showCreateForm}
+				<span class="mt-1 block text-sm text-red-500">
+					Merci de bien vérifier que le joueur n'existe pas déjà avant de le créer. En cas
+					de doute, contactez les organisateurs.</span
+				>
 				<div class="mt-3 grid grid-cols-2 gap-3">
 					<Input placeholder="Prénom" bind:value={newPartner.first_name} />
 					<Input placeholder="Nom" bind:value={newPartner.last_name} />
 					<div class="col-span-2">
-						<Input placeholder="Département (ex: 31 - Haute-Garonne)" bind:value={newPartner.department} />
+						<DepartmentSelect bind:value={newPartner.department} placeholder="Département" />
 					</div>
 				</div>
 			{/if}
@@ -165,7 +187,11 @@
 
 		<!-- Error message -->
 		{#if error}
-			<p class="rounded-md bg-red-50 p-3 text-sm text-red-700 dark:bg-red-900/20 dark:text-red-300">{error}</p>
+			<p
+				class="rounded-md bg-red-50 p-3 text-sm text-red-700 dark:bg-red-900/20 dark:text-red-300"
+			>
+				{error}
+			</p>
 		{/if}
 	</div>
 
@@ -177,7 +203,14 @@
 		>
 			{submitting ? "Inscription en cours..." : "Confirmer"}
 		</Button>
-		<Button color="alternative" onclick={() => { onClose(); open = false; reset() }}>
+		<Button
+			color="alternative"
+			onclick={() => {
+				onClose()
+				open = false
+				reset()
+			}}
+		>
 			Annuler
 		</Button>
 	{/snippet}

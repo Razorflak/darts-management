@@ -12,6 +12,7 @@
 		Card
 	} from "flowbite-svelte"
 	import PlayerSearch from "$lib/tournament/components/PlayerSearch.svelte"
+	import DepartmentSelect from "$lib/tournament/components/DepartmentSelect.svelte"
 	import type { PageData } from "./$types"
 	import type { PlayerSearchResult, RosterEntry } from "$lib/server/schemas/event-schemas.js"
 
@@ -193,7 +194,7 @@
 					<Input type="date" placeholder="Date de naissance" bind:value={newBirth} />
 					<Input placeholder="Licence (optionnel)" bind:value={newLicence} />
 					<div class="col-span-2">
-						<Input placeholder="Département (ex: 31 - Haute-Garonne)" bind:value={newDepartment} />
+						<DepartmentSelect bind:value={newDepartment} placeholder="Département" />
 					</div>
 					<div class="col-span-2">
 						<Button color="blue" onclick={registerNew}>Créer et inscrire</Button>
