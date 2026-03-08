@@ -153,5 +153,5 @@ None yet.
 ## Session Continuity
 
 Last session: 2026-03-08
-Stopped at: Completed 03.1-03-PLAN.md — partner/search endpoint + admin player search department.
+Stopped at: Completed quick-2 — (admin) route group with collapsible sidebar, all admin routes migrated.
 Resume file: None
