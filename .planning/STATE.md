@@ -3,12 +3,12 @@ gsd_state_version: 1.0
 milestone: v1.0
 milestone_name: milestone
 status: unknown
-last_updated: "2026-03-08T20:18:52Z"
+last_updated: "2026-03-08T20:27:14.808Z"
 progress:
   total_phases: 4
-  completed_phases: 3
+  completed_phases: 4
   total_plans: 23
-  completed_plans: 22
+  completed_plans: 23
 ---
 
 # Project State
@@ -22,10 +22,10 @@ See: .planning/PROJECT.md (updated 2026-02-28)
 
 ## Current Position
 
-Phase: 03-player-registration — plan 04 complete
-Plan: 03-04 complete (tournament.status migration 014, check_in_required in wizard, admin event detail page)
-Status: 03-04 complete — migration 014 applied, TournamentForm has check-in toggle, /admin/events/[id] page created
-Last activity: 2026-03-08 - Completed 03-04: tournament status column + admin event detail page
+Phase: 03-player-registration — plan 05 complete (PHASE COMPLETE)
+Plan: 03-05 complete (admin roster page, check-in, status management, player add/remove)
+Status: 03-05 complete — admin roster at /admin/events/[id]/tournaments/[tid] with all management actions
+Last activity: 2026-03-08 - Completed 03-05: admin roster page + tournament status control
 
 Progress: [████░░░░░░] 57% (23/40 plans estimated)
 
@@ -60,6 +60,7 @@ Progress: [████░░░░░░] 57% (23/40 plans estimated)
 | Phase 03.1-teams-and-doubles-registration P03 | 7 | 2 tasks | 2 files |
 | Phase 03.1-teams-and-doubles-registration P02 | 5 | 2 tasks | 3 files |
 | Phase 03-player-registration P04 | 12 | 3 tasks | 11 files |
+| Phase 03-player-registration P05 | 4 | 2 tasks | 9 files |
 
 ## Accumulated Context
 
@@ -135,6 +136,8 @@ Progress: [████░░░░░░] 57% (23/40 plans estimated)
 - [03-04]: tournament.status enum is [ready, check-in, started, finished] — no draft (events have draft, tournaments do not)
 - [03-04]: AdminEventDetailSchema defined in event-schemas.ts per Zod-first rule, not inline in route
 - [03-04]: Registration allowed when t.status IN ('ready', 'check-in') AND e.status = 'ready'
+- [Phase 03-05]: PlayerSearch searchUrl is optional — falls back to legacy URL for backwards compatibility with existing admin pages
+- [Phase 03-05]: STATUS_TRANSITIONS/STATUS_PREV maps in page.svelte enable linear status transitions with forward+back buttons without server-side validation
 
 ### Roadmap Evolution
 
