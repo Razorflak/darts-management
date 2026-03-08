@@ -4,9 +4,10 @@
 
 	type Props = {
 		tournamentId: string
+		searchUrl?: string
 		onSelect: (player: PlayerSearchResult) => void
 	}
-	let { tournamentId, onSelect }: Props = $props()
+	let { tournamentId, searchUrl, onSelect }: Props = $props()
 
 	let query = $state("")
 	let results = $state<PlayerSearchResult[]>([])
@@ -21,9 +22,8 @@
 			return
 		}
 		timer = setTimeout(async () => {
-			const res = await fetch(
-				`/tournaments/${tournamentId}/admin/players/search?q=${encodeURIComponent(query)}`
-			)
+			const url = searchUrl ?? `/tournaments/${tournamentId}/admin/players/search`
+			const res = await fetch(`${url}?q=${encodeURIComponent(query)}`)
 			results = await res.json()
 			open = results.length > 0
 		}, 300)
@@ -61,7 +61,9 @@
 							>
 						{/if}
 						{#if player.department}
-							<span class="text-gray-400 dark:text-gray-500 text-xs">({player.department})</span>
+							<span class="text-xs text-gray-400 dark:text-gray-500"
+								>({player.department})</span
+							>
 						{/if}
 					</button>
 				</li>
