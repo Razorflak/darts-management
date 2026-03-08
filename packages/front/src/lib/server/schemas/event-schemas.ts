@@ -223,6 +223,20 @@ export const PartnerSearchResultSchema = z.object({
 })
 export type PartnerSearchResult = z.infer<typeof PartnerSearchResultSchema>
 
+// Used by admin event detail page load
+export const AdminEventDetailSchema = z.object({
+	id: z.uuid(),
+	name: z.string(),
+	status: z.enum(["draft", "ready", "started", "finished"]),
+	starts_at: z.coerce.date(),
+	ends_at: z.coerce.date(),
+	location: z.string(),
+	entity_name: z.string(),
+	entity_id: z.uuid(),
+	organizer_id: z.uuid().nullable()
+})
+export type AdminEventDetail = z.infer<typeof AdminEventDetailSchema>
+
 // Used by admin roster page load
 export const AdminTournamentSchema = z.object({
 	id: z.uuid(),

@@ -1,7 +1,7 @@
 import { error, json } from "@sveltejs/kit"
-import { sql } from "$lib/server/db"
 import { z } from "zod"
-import { findOrCreateSoloTeam, findOrCreateDoublesTeam } from "$lib/server/teams.js"
+import { sql } from "$lib/server/db"
+import { findOrCreateDoublesTeam, findOrCreateSoloTeam } from "$lib/server/teams.js"
 import type { RequestHandler } from "./$types"
 
 const RegisterBodySchema = z.object({

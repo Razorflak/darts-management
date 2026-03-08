@@ -1,5 +1,11 @@
-import type { BracketTier, Category, DraftTournament } from "$lib/server/schemas/event-schemas.js"
-import type { GroupPhase, EliminationPhase, PhaseType } from "$lib/server/schemas/event-schemas.js"
+import type {
+	BracketTier,
+	Category,
+	DraftTournament,
+	EliminationPhase,
+	GroupPhase,
+	PhaseType
+} from "$lib/server/schemas/event-schemas.js"
 import { gendUuidv7 } from "$lib/utils/uuid.js"
 
 export function genId(): string {

@@ -1,17 +1,17 @@
-import { json, error } from "@sveltejs/kit"
-import { z } from "zod"
+import { error, json } from "@sveltejs/kit"
 import type postgres from "postgres"
-import { sql } from "$lib/server/db"
+import { z } from "zod"
 import { getUserRoles } from "$lib/server/authz"
-import type { RequestHandler } from "./$types"
+import { sql } from "$lib/server/db"
 import {
+	type DraftEvent,
 	DraftEventSchema,
-	GroupPhaseSchema,
-	EliminationPhaseSchema,
 	type DraftTournament,
-	type Phase,
-	type DraftEvent
+	type EliminationPhaseSchema,
+	type GroupPhaseSchema,
+	type Phase
 } from "$lib/server/schemas/event-schemas.js"
+import type { RequestHandler } from "./$types"
 
 // postgres.js TransactionSql uses Omit<Sql, ...> which strips call signatures in TypeScript.
 // At runtime it IS callable — this cast restores the type for template literal queries.

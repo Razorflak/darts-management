@@ -1,13 +1,9 @@
 import { redirect } from "@sveltejs/kit"
-import { sql } from "$lib/server/db"
-import { getUserRoles } from "$lib/server/authz"
-import type { PageServerLoad } from "./$types"
-import {
-	DraftEventSchema,
-	EntitySchema,
-	type DraftEvent
-} from "$lib/server/schemas/event-schemas"
 import { z } from "zod"
+import { getUserRoles } from "$lib/server/authz"
+import { sql } from "$lib/server/db"
+import { type DraftEvent, DraftEventSchema, EntitySchema } from "$lib/server/schemas/event-schemas"
+import type { PageServerLoad } from "./$types"
 
 export const load: PageServerLoad = async ({ locals, params }) => {
 	if (!locals.user) redirect(302, "/login")
@@ -53,7 +49,13 @@ export const load: PageServerLoad = async ({ locals, params }) => {
 
 	// Load selectable entities for the form
 	const roles = await getUserRoles(locals.user.id)
-	const organisableRoles = ["organisateur", "adminClub", "adminComite", "adminLigue", "adminFederal"]
+	const organisableRoles = [
+		"organisateur",
+		"adminClub",
+		"adminComite",
+		"adminLigue",
+		"adminFederal"
+	]
 	const entityIds = roles.filter((r) => organisableRoles.includes(r.role)).map((r) => r.entityId)
 	const entityRows =
 		entityIds.length > 0
@@ -109,5 +111,9 @@ export const load: PageServerLoad = async ({ locals, params }) => {
 
 	const event: DraftEvent = DraftEventSchema.parse(raw)
 
-	return { event, entities, eventStatus: eventRow.status as "draft" | "ready" | "started" }
+	return {
+		event,
+		entities,
+		eventStatus: eventRow.status as "draft" | "ready" | "started"
+	}
 }

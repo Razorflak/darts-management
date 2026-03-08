@@ -7,6 +7,7 @@ import type {
 	Phase,
 	Tournament
 } from "$lib/server/schemas/event-schemas.js"
+
 // ── Template-specific types (no IDs — generated on apply) ──────────────────
 
 // ── Shared phase blocks ────────────────────────────────────────────────────

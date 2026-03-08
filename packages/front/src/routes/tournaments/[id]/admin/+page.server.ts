@@ -1,9 +1,9 @@
 import { error } from "@sveltejs/kit"
 import { z } from "zod"
-import { sql } from "$lib/server/db"
 import { getUserRoles } from "$lib/server/authz"
-import type { PageServerLoad } from "./$types"
+import { sql } from "$lib/server/db"
 import { AdminTournamentSchema, RosterEntrySchema } from "$lib/server/schemas/event-schemas.js"
+import type { PageServerLoad } from "./$types"
 
 export const load: PageServerLoad = async ({ locals, params }) => {
 	if (!locals.user) error(401, "Non authentifié")

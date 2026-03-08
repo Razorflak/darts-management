@@ -1,15 +1,15 @@
 <script lang="ts">
+	import { Datepicker, Label, Select, Toggle } from "flowbite-svelte"
+	import { untrack } from "svelte"
+	import type {
+		Category,
+		DraftTournament,
+		Tournament
+	} from "$lib/server/schemas/event-schemas.js"
 	import { CATEGORY_LABELS } from "../labels.js"
-	import { Label, Select, Toggle, Datepicker } from "flowbite-svelte"
+	import { extractTimeFromDate } from "../utils.js"
 	import PhasesBuilder from "./phases/PhasesBuilder.svelte"
 	import TimeInput from "./TimeInput.svelte"
-	import type {
-		DraftTournament,
-		Tournament,
-		Category
-	} from "$lib/server/schemas/event-schemas.js"
-	import { untrack } from "svelte"
-	import { extractTimeFromDate } from "../utils.js"
 
 	interface Props {
 		tournament: Tournament | DraftTournament
