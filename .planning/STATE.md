@@ -25,7 +25,7 @@ See: .planning/PROJECT.md (updated 2026-02-28)
 Phase: 03.1-teams-and-doubles-registration — plan 03 complete
 Plan: 03.1-03 complete (partner/search endpoint + admin player search department)
 Status: 03.1-03 complete — GET /tournaments/[id]/partner/search created, department added to admin player search
-Last activity: 2026-03-08 — Completed plan 03.1-03: Server-side endpoints refactor
+Last activity: 2026-03-08 - Completed quick task 2: Restructuration des routes : section Administration avec dashboard et menu de navigation latéral/mobile
 
 Progress: [████░░░░░░] 55% (22/40 plans estimated)
 
@@ -139,6 +139,12 @@ Progress: [████░░░░░░] 55% (22/40 plans estimated)
 ### Pending Todos
 
 None yet.
+
+### Quick Tasks Completed
+
+| # | Description | Date | Commit | Directory |
+|---|-------------|------|--------|-----------|
+| 2 | Restructuration des routes : section Administration avec dashboard et menu de navigation latéral/mobile | 2026-03-08 | 25cdc7b | [2-restructuration-des-routes-section-admin](./quick/2-restructuration-des-routes-section-admin/) |
 
 ### Blockers/Concerns
 
