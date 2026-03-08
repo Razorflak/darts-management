@@ -1,15 +1,13 @@
 <script lang="ts">
-	import type { WizardStep } from "$lib/tournament/types.js"
-	import { createBlankTournament } from "$lib/tournament/utils.js"
-	import { gendUuidv7 } from "$lib/utils/uuid"
 	import Breadcrumb from "$lib/tournament/components/Breadcrumb.svelte"
 	import EventStep from "$lib/tournament/components/EventStep.svelte"
 	import TournamentStep from "$lib/tournament/components/TournamentStep.svelte"
 	import PublishStep from "$lib/tournament/components/PublishStep.svelte"
 	import TemplateModal from "$lib/tournament/components/TemplateModal.svelte"
-	import type { DraftEvent, DraftTournament } from "$lib/server/schemas/event-schemas.js"
 	import { Button } from "flowbite-svelte"
 	import { goto } from "$app/navigation"
+	import type { WizardStep } from "$lib/tournament/types.js"
+	import type { Event, DraftTournament, DraftEvent } from "$lib/server/schemas/event-schemas.js"
 
 	let { data } = $props()
 
@@ -18,13 +16,8 @@
 	let saveError = $state<string | null>(null)
 	let publishError = $state<string | null>(null)
 
-	let event = $state<DraftEvent>({
-		id: gendUuidv7(),
-		status: "draft",
-		name: "",
-		location: "",
-		tournaments: [createBlankTournament()]
-	})
+	let event = $derived<Event | DraftEvent>(data.event)
+	let tournaments = $derived<DraftTournament[]>(event.tournaments ?? []) // Pre-populated from DB
 
 	let templateModalOpen = $state(false)
 
@@ -32,22 +25,18 @@
 		event = newEvent
 	}
 
-	async function saveDraft() {
+	async function save() {
 		if (!event.name?.trim()) {
 			saveError = "Le nom de l'événement est requis pour enregistrer."
-			return
-		}
-		if (!event.entity) {
-			saveError = "L'entité de l'événement est requise pour enregistrer."
 			return
 		}
 		saving = true
 		saveError = null
 		try {
-			const res = await fetch("/events/new/save", {
+			const res = await fetch("/admin/events/new/save", {
 				method: "POST",
 				headers: { "content-type": "application/json" },
-				body: JSON.stringify(event)
+				body: JSON.stringify({ event })
 			})
 			const json = await res.json()
 			if (!res.ok) {
@@ -64,10 +53,10 @@
 		publishError = null
 		saving = true
 		try {
-			const res = await fetch("/events/new/publish", {
+			const res = await fetch("/admin/events/new/publish", {
 				method: "POST",
 				headers: { "content-type": "application/json" },
-				body: JSON.stringify(event)
+				body: JSON.stringify({ event })
 			})
 			const json = await res.json()
 			if (res.ok) {
@@ -84,12 +73,11 @@
 </script>
 
 <svelte:head>
-	<title>Créer un événement — FFD</title>
+	<title>Modifier l'événement — FFD</title>
 </svelte:head>
 
 <div class="bg-surface min-h-screen px-4 py-8 sm:px-6">
 	<div class="mx-auto max-w-3xl">
-		<!-- Header with back link, title, breadcrumb, and Enregistrer button -->
 		<div class="mb-8">
 			<a
 				href="/events"
@@ -106,8 +94,8 @@
 			</a>
 
 			<div class="flex items-center justify-between">
-				<h1 class="mb-6 text-2xl font-bold text-gray-900">Nouvel événement</h1>
-				<Button color="alternative" size="sm" pill onclick={saveDraft} disabled={saving}>
+				<h1 class="mb-6 text-2xl font-bold text-gray-900">Modifier l'événement</h1>
+				<Button color="alternative" size="sm" pill onclick={save} disabled={saving}>
 					{saving ? "Enregistrement..." : "Enregistrer"}
 				</Button>
 			</div>
@@ -119,7 +107,6 @@
 			<Breadcrumb {step} onStepClick={(s) => (step = s)} />
 		</div>
 
-		<!-- Step content -->
 		<div class="rounded-card border-border shadow-card border bg-white p-6">
 			{#if step === 1}
 				<div class="mb-5 flex items-center justify-between border-b border-gray-100 pb-4">
@@ -138,16 +125,18 @@
 					entities={data.entities}
 					onNext={() => (step = 2)}
 					onCancel={() => goto("/events")}
+					readonly={data.eventStatus === "started"}
 				/>
 			{:else if step === 2}
 				<TournamentStep
-					bind:tournaments={event.tournaments}
+					bind:tournaments
 					onPrev={() => (step = 1)}
 					onNext={() => (step = 3)}
 				/>
 			{:else}
 				<PublishStep
 					{event}
+					eventStatus={data.event.status}
 					onPrev={() => (step = 2)}
 					onPublish={publish}
 					publishError={publishError ?? undefined}

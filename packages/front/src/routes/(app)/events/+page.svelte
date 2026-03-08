@@ -1,26 +1,20 @@
 <script lang="ts">
-	import { Card, Badge, Button } from 'flowbite-svelte'
+	import { formatDate } from "$lib/date/utils.js"
+	import { Card, Badge, Button } from "flowbite-svelte"
 
 	const STATUS_LABELS = {
-		draft: 'Brouillon',
-		ready: 'Ouvert',
-		started: 'En cours',
-		finished: 'Terminé',
+		draft: "Brouillon",
+		ready: "Ouvert",
+		started: "En cours",
+		finished: "Terminé"
 	} as const
 
 	const STATUS_COLORS = {
-		draft: 'gray',
-		ready: 'green',
-		started: 'blue',
-		finished: 'indigo',
+		draft: "gray",
+		ready: "green",
+		started: "blue",
+		finished: "indigo"
 	} as const
-
-	function formatDate(date: Date | string | null | undefined): string {
-		if (!date) return ''
-		const d = date instanceof Date ? date : new Date(date + 'T00:00')
-		if (isNaN(d.getTime())) return ''
-		return d.toLocaleDateString('fr-FR', { day: '2-digit', month: '2-digit', year: 'numeric' })
-	}
 
 	let { data } = $props()
 </script>
@@ -29,9 +23,9 @@
 	<title>Mes événements — FFD</title>
 </svelte:head>
 
-<div class="flex items-center justify-between mb-6">
+<div class="mb-6 flex items-center justify-between">
 	<h1 class="text-2xl font-bold text-gray-900">Mes événements</h1>
-	<Button href="/events/new" color="blue" pill>+ Créer un événement</Button>
+	<Button href="/admin/events/new" color="blue" pill>+ Créer un événement</Button>
 </div>
 
 {#if data.events.length === 0}
@@ -39,30 +33,32 @@
 {:else}
 	<div class="grid grid-cols-1 gap-4 md:grid-cols-2 lg:grid-cols-3">
 		{#each data.events as event}
-			<Card class="hover:shadow-md transition-shadow">
-				<div class="flex items-start justify-between mb-2">
+			<Card class="transition-shadow hover:shadow-md">
+				<div class="mb-2 flex items-start justify-between">
 					<h2 class="font-semibold text-gray-900">{event.name}</h2>
 					<Badge color={STATUS_COLORS[event.status]}>{STATUS_LABELS[event.status]}</Badge>
 				</div>
 				{#if event.starts_at || event.ends_at}
 					<p class="text-sm text-gray-500">
-						{formatDate(event.starts_at)}{#if event.starts_at && event.ends_at} → {/if}{formatDate(event.ends_at)}
+						{formatDate(event.starts_at)}{#if event.starts_at && event.ends_at}
+							→
+						{/if}{formatDate(event.ends_at)}
 					</p>
 				{/if}
 				{#if event.location}
 					<p class="text-sm text-gray-500">{event.location}</p>
 				{/if}
-				<p class="text-sm text-gray-400 mt-1">{event.entity_name}</p>
-				<p class="text-xs text-gray-400 mt-2">
-					{event.tournament_count} tournoi{event.tournament_count !== 1 ? 's' : ''}
+				<p class="mt-1 text-sm text-gray-400">{event.entity_name}</p>
+				<p class="mt-2 text-xs text-gray-400">
+					{event.tournament_count} tournoi{event.tournament_count !== 1 ? "s" : ""}
 				</p>
-				{#if event.status !== 'finished'}
+				{#if event.status !== "finished"}
 					<div class="mt-3 border-t border-gray-100 pt-3">
 						<a
-							href="/events/{event.id}/edit"
+							href="/admin/events/{event.id}/edit"
 							class="text-sm font-medium text-blue-600 hover:text-blue-800"
 						>
-							{event.status === 'draft' ? 'Reprendre l\'édition →' : 'Modifier →'}
+							{event.status === "draft" ? "Reprendre l'édition →" : "Modifier →"}
 						</a>
 					</div>
 				{/if}
