@@ -33,12 +33,29 @@
 
   <!-- Nav items -->
   <nav class="flex-1 py-2">
-    <!-- Créer un événement -->
+    <!-- Accueil -->
     <a
-      href="/admin/events/new"
+      href="/admin"
       class="flex items-center gap-3 px-3 py-2 hover:bg-gray-700 rounded mx-1"
       class:justify-center={collapsed}
-      title={collapsed ? "Créer un événement" : undefined}
+      title={collapsed ? "Accueil" : undefined}
+    >
+      <!-- icône maison -->
+      <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true" class="shrink-0">
+        <path d="M3 9.5L10 3l7 6.5V19a1 1 0 0 1-1 1H4a1 1 0 0 1-1-1V9.5z" />
+        <path d="M8 20V13h4v7" />
+      </svg>
+      {#if !collapsed}
+        <span class="text-sm font-medium whitespace-nowrap">Accueil</span>
+      {/if}
+    </a>
+
+    <!-- Évènements -->
+    <a
+      href="/admin/events"
+      class="flex items-center gap-3 px-3 py-2 hover:bg-gray-700 rounded mx-1"
+      class:justify-center={collapsed}
+      title={collapsed ? "Évènements" : undefined}
     >
       <!-- icône cible/fléchette -->
       <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 20 20" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true" class="shrink-0">
@@ -47,16 +64,16 @@
         <circle cx="10" cy="10" r="1" fill="currentColor" stroke="none" />
       </svg>
       {#if !collapsed}
-        <span class="text-sm font-medium whitespace-nowrap">Créer un événement</span>
+        <span class="text-sm font-medium whitespace-nowrap">Évènements</span>
       {/if}
     </a>
 
-    <!-- Administration -->
+    <!-- Entités -->
     <a
-      href="/admin"
+      href="/admin/entities"
       class="flex items-center gap-3 px-3 py-2 hover:bg-gray-700 rounded mx-1"
       class:justify-center={collapsed}
-      title={collapsed ? "Administration" : undefined}
+      title={collapsed ? "Entités" : undefined}
     >
       <!-- icône bâtiment -->
       <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 20 20" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true" class="shrink-0">
@@ -65,7 +82,7 @@
         <rect x="8" y="11" width="4" height="7" />
       </svg>
       {#if !collapsed}
-        <span class="text-sm font-medium whitespace-nowrap">Administration</span>
+        <span class="text-sm font-medium whitespace-nowrap">Entités</span>
       {/if}
     </a>
   </nav>
@@ -98,7 +115,18 @@
   ></div>
   <nav class="md:hidden fixed top-12 left-0 z-20 bg-gray-900 text-white w-56 py-2">
     <a
-      href="/admin/events/new"
+      href="/admin"
+      onclick={toggleMobileMenu}
+      class="flex items-center gap-3 px-4 py-3 hover:bg-gray-700"
+    >
+      <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+        <path d="M3 9.5L10 3l7 6.5V19a1 1 0 0 1-1 1H4a1 1 0 0 1-1-1V9.5z" />
+        <path d="M8 20V13h4v7" />
+      </svg>
+      Accueil
+    </a>
+    <a
+      href="/admin/events"
       onclick={toggleMobileMenu}
       class="flex items-center gap-3 px-4 py-3 hover:bg-gray-700"
     >
@@ -107,10 +135,10 @@
         <circle cx="10" cy="10" r="4" />
         <circle cx="10" cy="10" r="1" fill="currentColor" stroke="none" />
       </svg>
-      Créer un événement
+      Évènements
     </a>
     <a
-      href="/admin"
+      href="/admin/entities"
       onclick={toggleMobileMenu}
       class="flex items-center gap-3 px-4 py-3 hover:bg-gray-700"
     >
@@ -119,7 +147,7 @@
         <path d="M6 7V5a4 4 0 0 1 8 0v2" />
         <rect x="8" y="11" width="4" height="7" />
       </svg>
-      Administration
+      Entités
     </a>
   </nav>
 {/if}
