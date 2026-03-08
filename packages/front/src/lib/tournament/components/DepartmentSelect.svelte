@@ -39,14 +39,20 @@
 
 	let open = $state(false)
 	let query = $state("")
+	let inputEl: HTMLInputElement | undefined = $state()
+	let dropdownStyle = $state("")
 
 	const filtered = $derived(
 		query.length === 0
 			? DEPARTMENTS
-			: DEPARTMENTS.filter((d) =>
-					d.toLowerCase().includes(query.toLowerCase())
-				)
+			: DEPARTMENTS.filter((d) => d.toLowerCase().includes(query.toLowerCase()))
 	)
+
+	function updatePosition() {
+		if (!inputEl) return
+		const r = inputEl.getBoundingClientRect()
+		dropdownStyle = `top:${r.bottom + window.scrollY + 4}px;left:${r.left + window.scrollX}px;width:${r.width}px`
+	}
 
 	function select(dept: string) {
 		value = dept
@@ -58,20 +64,24 @@
 		query = (e.target as HTMLInputElement).value
 		value = query
 		open = true
+		updatePosition()
 	}
 
 	function onFocus() {
 		open = true
+		updatePosition()
 	}
 
 	function onBlur() {
-		// Delay to allow click on dropdown item to fire first
 		setTimeout(() => { open = false }, 150)
 	}
 </script>
 
+<svelte:window onscroll={updatePosition} onresize={updatePosition} />
+
 <div class="relative">
 	<input
+		bind:this={inputEl}
 		{id}
 		type="text"
 		{placeholder}
@@ -82,19 +92,23 @@
 		autocomplete="off"
 		class="block w-full rounded-lg border border-gray-300 bg-gray-50 p-2.5 text-sm text-gray-900 focus:border-primary-500 focus:ring-primary-500 dark:border-gray-600 dark:bg-gray-700 dark:text-white dark:placeholder-gray-400 dark:focus:border-primary-500 dark:focus:ring-primary-500"
 	/>
-	{#if open && filtered.length > 0}
-		<ul class="absolute z-50 mt-1 max-h-52 w-full overflow-auto rounded-lg border border-gray-200 bg-white shadow-lg dark:border-gray-600 dark:bg-gray-700">
-			{#each filtered as dept}
-				<li>
-					<button
-						type="button"
-						class="flex w-full items-center px-3 py-2 text-left text-sm text-gray-800 hover:bg-primary-50 dark:text-gray-200 dark:hover:bg-gray-600"
-						onmousedown={() => select(dept)}
-					>
-						{dept}
-					</button>
-				</li>
-			{/each}
-		</ul>
-	{/if}
 </div>
+
+{#if open && filtered.length > 0}
+	<ul
+		style="position:fixed;{dropdownStyle};z-index:9999"
+		class="max-h-52 overflow-auto rounded-lg border border-gray-200 bg-white shadow-lg dark:border-gray-600 dark:bg-gray-700"
+	>
+		{#each filtered as dept}
+			<li>
+				<button
+					type="button"
+					class="flex w-full items-center px-3 py-2 text-left text-sm text-gray-800 hover:bg-primary-50 dark:text-gray-200 dark:hover:bg-gray-600"
+					onmousedown={() => select(dept)}
+				>
+					{dept}
+				</button>
+			</li>
+		{/each}
+	</ul>
+{/if}
