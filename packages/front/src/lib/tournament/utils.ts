@@ -1,4 +1,4 @@
-import type { BracketTier, DraftTournament } from "$lib/server/schemas/event-schemas.js"
+import type { BracketTier, Category, DraftTournament } from "$lib/server/schemas/event-schemas.js"
 import type { GroupPhase, EliminationPhase, PhaseType } from "$lib/server/schemas/event-schemas.js"
 import { gendUuidv7 } from "$lib/utils/uuid.js"
 
@@ -23,7 +23,8 @@ export function createBlankTournament(): DraftTournament {
 		id: gendUuidv7(),
 		name: "",
 		phases: [],
-		auto_referee: true
+		auto_referee: true,
+		check_in_required: false
 	}
 }
 
@@ -66,4 +67,8 @@ export const extractTimeFromDate = (date?: Date) => {
 	const hours = String(date.getHours()).padStart(2, "0")
 	const minutes = String(date.getMinutes()).padStart(2, "0")
 	return `${hours}:${minutes}`
+}
+
+export const isDoublesTournament = (category: Category): boolean => {
+	return ["double", "double_female", "double_mix"].includes(category)
 }

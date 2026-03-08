@@ -83,14 +83,16 @@ export const TournamentSchema = z.object({
 	category: CategorySchema,
 	start_at: z.coerce.date().nullable(),
 	phases: z.array(PhaseSchema).min(1),
-	auto_referee: z.boolean()
+	auto_referee: z.boolean(),
+	check_in_required: z.boolean()
 })
 export type Tournament = z.infer<typeof TournamentSchema>
 
 export const DraftTournamentSchema = TournamentSchema.partial().extend({
 	id: TournamentSchema.shape.id,
 	name: TournamentSchema.shape.name,
-	phases: z.array(PhaseSchema).default([])
+	phases: z.array(PhaseSchema).default([]),
+	check_in_required: z.boolean().default(false)
 })
 export type DraftTournament = z.infer<typeof DraftTournamentSchema>
 

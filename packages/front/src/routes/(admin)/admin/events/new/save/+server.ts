@@ -66,14 +66,15 @@ async function insertTournaments(
 	await tx`DELETE FROM tournament WHERE event_id = ${eventId}`
 	for (const t of tournaments) {
 		await tx`
-			INSERT INTO tournament (id, event_id, name, category, start_at, auto_referee)
+			INSERT INTO tournament (id, event_id, name, category, start_at, auto_referee, check_in_required)
 			VALUES (
 				${t.id},
 				${eventId},
 				${t.name},
 				${t.category ?? null},
 				${t.start_at ?? null},
-				${t.auto_referee ?? false}
+				${t.auto_referee ?? false},
+				${t.check_in_required ?? false}
 			)
 		`
 		await insertPhases(tx, t.id, t.phases)

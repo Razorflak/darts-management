@@ -64,7 +64,7 @@
 		<Select
 			bind:value={tournament.category}
 			onchange={(e) => {
-				updateCategory(e.target.value as Category)
+				updateCategory((e.target as HTMLSelectElement).value as Category)
 			}}
 		>
 			<option value="" disabled>Choisissez une catégorie</option>
@@ -101,6 +101,12 @@
 	<div class="flex items-center gap-3">
 		<Toggle id="auto-referee-{tournament.id}" bind:checked={tournament.auto_referee} />
 		<Label for="auto-referee-{tournament.id}">Assignation automatique des arbitres</Label>
+	</div>
+
+	<!-- Check-in requis -->
+	<div class="flex items-center gap-3">
+		<Toggle id="check-in-{tournament.id}" bind:checked={tournament.check_in_required} />
+		<Label for="check-in-{tournament.id}">Check-in requis avant le lancement</Label>
 	</div>
 
 	<!-- Phases -->

@@ -35,6 +35,7 @@ export const POST: RequestHandler = async ({ locals, params, request }) => {
 		WHERE t.id = ${tournamentId}
 		  AND e.id = ${eventId}
 		  AND e.status = 'ready'
+		  AND t.status IN ('ready', 'check-in')
 	`
 
 	if (!row) {
@@ -85,17 +86,23 @@ export const DELETE: RequestHandler = async ({ locals, params, request }) => {
 
 	// Delete registration found via team_member JOIN (handles both solo and doubles)
 	await sql`
-		DELETE FROM tournament_registration r
-		USING tournament t
-		JOIN event e ON e.id = t.event_id
-		JOIN team_member tm ON tm.team_id = r.team_id
-		WHERE r.tournament_id = ${tournamentId}
-		  AND tm.player_id = ${playerId}
-		  AND t.id = ${tournamentId}
-		  AND e.id = ${eventId}
-		  AND e.status = 'ready'
-	`
-
+        DELETE FROM tournament_registration r
+        WHERE r.tournament_id = ${tournamentId}
+          AND EXISTS (
+            SELECT 1 
+            FROM team_member tm 
+            WHERE tm.team_id = r.team_id 
+              AND tm.player_id = ${playerId}
+          )
+          AND EXISTS (
+            SELECT 1
+            FROM tournament t
+            JOIN event e ON e.id = t.event_id
+            WHERE t.id = r.tournament_id
+              AND e.status = 'ready'
+              AND t.status IN ('ready', 'check-in')
+          );
+`
 	// Idempotent: no error if registration didn't exist
 	return json({ ok: true })
 }

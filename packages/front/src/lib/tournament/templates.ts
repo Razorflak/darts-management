@@ -89,6 +89,7 @@ export const EVENT_TEMPLATES: EventTemplate[] = [
 					category: "double",
 					start_at: new Date(2026, 0, 1, 9, 0, 0, 0),
 					auto_referee: true,
+					check_in_required: false,
 					phases: [
 						{ ...doubleKOPhase, position: 0 },
 						{ ...elim3Tiers, position: 1 }
@@ -100,6 +101,7 @@ export const EVENT_TEMPLATES: EventTemplate[] = [
 					category: "male",
 					start_at: new Date(2026, 0, 1, 15, 0, 0, 0),
 					auto_referee: true,
+					check_in_required: false,
 					phases: [
 						{ ...doubleKOPhase, position: 0 },
 						{ ...elim3Tiers, position: 1 }
@@ -110,6 +112,7 @@ export const EVENT_TEMPLATES: EventTemplate[] = [
 					category: "female",
 					id: "<generated>",
 					auto_referee: true,
+					check_in_required: false,
 					start_at: new Date(2026, 0, 1, 15, 0, 0, 0),
 					phases: [
 						{ ...doubleKOPhase, position: 0 },
@@ -121,6 +124,7 @@ export const EVENT_TEMPLATES: EventTemplate[] = [
 					id: "<generated>",
 					category: "veteran",
 					auto_referee: true,
+					check_in_required: false,
 					start_at: new Date(2026, 0, 1, 15, 0, 0, 0),
 					phases: [
 						{ ...doubleKOPhase, position: 0 },
@@ -132,6 +136,7 @@ export const EVENT_TEMPLATES: EventTemplate[] = [
 					id: "<generated>",
 					category: "junior",
 					auto_referee: true,
+					check_in_required: false,
 					start_at: new Date(2026, 0, 1, 15, 0, 0, 0),
 					phases: [
 						{ ...doubleKOPhase, position: 0 },
@@ -158,6 +163,7 @@ export const EVENT_TEMPLATES: EventTemplate[] = [
 					name: "Double",
 					category: "double",
 					auto_referee: true,
+					check_in_required: false,
 					start_at: new Date(2026, 0, 1, 9, 0, 0, 0),
 					phases: [
 						{ ...doubleKOPhase, position: 0 },
@@ -169,6 +175,7 @@ export const EVENT_TEMPLATES: EventTemplate[] = [
 					name: "Double Féminin",
 					category: "double_female",
 					auto_referee: true,
+					check_in_required: false,
 					start_at: new Date(2026, 0, 1, 9, 0, 0, 0),
 					phases: [
 						{ ...doubleKOPhase, position: 0 },
@@ -180,6 +187,7 @@ export const EVENT_TEMPLATES: EventTemplate[] = [
 					name: "Simple Masculin",
 					category: "male",
 					auto_referee: true,
+					check_in_required: false,
 					start_at: new Date(2026, 0, 2, 15, 0, 0, 0),
 					phases: [
 						{
@@ -193,6 +201,7 @@ export const EVENT_TEMPLATES: EventTemplate[] = [
 					name: "Simple Féminin",
 					category: "female",
 					auto_referee: true,
+					check_in_required: false,
 					start_at: new Date(2026, 0, 2, 9, 0, 0, 0),
 					phases: [
 						{
@@ -206,6 +215,7 @@ export const EVENT_TEMPLATES: EventTemplate[] = [
 					name: "Simple Vétéran",
 					category: "veteran",
 					auto_referee: true,
+					check_in_required: false,
 					start_at: new Date(2026, 0, 2, 9, 0, 0, 0),
 					phases: [{ ...elim2Tiers, position: 0 }]
 				},
@@ -214,6 +224,7 @@ export const EVENT_TEMPLATES: EventTemplate[] = [
 					name: "Simple Junior",
 					category: "junior",
 					auto_referee: true,
+					check_in_required: false,
 					start_at: new Date(2026, 0, 2, 10, 0, 0, 0),
 					phases: [
 						{ ...classicPoolPhase, position: 0 },
