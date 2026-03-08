@@ -77,9 +77,9 @@ Plans:
 Plans:
 - [ ] 03-01-PLAN.md — Migrations 011 + 012: tables player et tournament_registration, colonne check_in_required
 - [ ] 03-02-PLAN.md — Zod schemas Phase 3 (event-schemas.ts) + auto-création profil joueur dans hooks.server.ts
-- [ ] 03-03-PLAN.md — Page publique /events/[id] + endpoint POST/DELETE /events/[id]/register (auto-inscription)
-- [ ] 03-04-PLAN.md — Section Tournois disponibles dashboard + page publique /tournaments/[id] roster
-- [ ] 03-05-PLAN.md — Interface admin /tournaments/[id]/admin: roster, check-in, recherche joueur, inscription admin
+- [ ] 03-03-PLAN.md — Page (app)/events/[id] + endpoint POST/DELETE /events/[id]/register (auto-inscription)
+- [ ] 03-04-PLAN.md — Migration 014 tournament.status + check_in_required wizard + page admin /admin/events/[id]
+- [ ] 03-05-PLAN.md — Roster admin (admin) /admin/events/[id]/tournaments/[tid]: check-in, player search, status buttons
 
 ### Phase 03.1: Teams and Doubles Registration (INSERTED)
 
@@ -112,7 +112,7 @@ Plans:
 **Requirements**: RESULT-01, RESULT-02, RESULT-03, RESULT-04
 **Success Criteria** (what must be TRUE):
   1. An admin tournoi can enter a score (sets/manches) for any match — the result is validated against the phase format before saving
-  2. An admin tournoi can record a forfeit or walkover for a match, and the present player advances as if they had won
+  2. An admin tournoi can record a forfait or walkover for a match, and the present player advances as if they had won
   3. After a result is saved, the winning player automatically appears in the next bracket slot (advances_to_match_id target) without manual intervention
   4. When all matches of a group phase are complete, qualifiers are seeded into the next phase's bracket automatically
 **Plans**: TBD
