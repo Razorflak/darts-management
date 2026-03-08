@@ -1,74 +1,77 @@
 <script lang="ts">
-	import { Modal, Button } from "flowbite-svelte"
-	import PlayerSearch from "$lib/tournament/components/PlayerSearch.svelte"
-	import type { PlayerSearchResult } from "$lib/server/schemas/event-schemas.js"
+import { Button, Modal } from "flowbite-svelte";
+import type { PlayerSearchResult } from "$lib/server/schemas/event-schemas.js";
+import PlayerSearch from "$lib/tournament/components/PlayerSearch.svelte";
 
-	let {
-		open = $bindable(false),
-		isDoubles,
-		baseUrl,
-		onRegistered
-	}: {
-		open: boolean
-		isDoubles: boolean
-		baseUrl: string
-		onRegistered: () => void
-	} = $props()
+let {
+	open = $bindable(false),
+	isDoubles,
+	baseUrl,
+	onRegistered,
+}: {
+	open: boolean;
+	isDoubles: boolean;
+	baseUrl: string;
+	onRegistered: () => void;
+} = $props();
 
-	let selectedPlayer = $state<PlayerSearchResult | null>(null)
-	let selectedPlayer1 = $state<PlayerSearchResult | null>(null)
-	let selectedPlayer2 = $state<PlayerSearchResult | null>(null)
-	let errorMsg = $state<string | null>(null)
+let selectedPlayer = $state<PlayerSearchResult | null>(null);
+let selectedPlayer1 = $state<PlayerSearchResult | null>(null);
+let selectedPlayer2 = $state<PlayerSearchResult | null>(null);
+let errorMsg = $state<string | null>(null);
 
-	function reset() {
-		selectedPlayer = null
-		selectedPlayer1 = null
-		selectedPlayer2 = null
-		errorMsg = null
+function reset() {
+	selectedPlayer = null;
+	selectedPlayer1 = null;
+	selectedPlayer2 = null;
+	errorMsg = null;
+}
+
+$effect(() => {
+	if (!open) reset();
+});
+
+function closeAndReset() {
+	open = false;
+}
+
+async function confirm() {
+	errorMsg = null;
+	let body: Record<string, unknown>;
+
+	if (isDoubles) {
+		if (!selectedPlayer1 || !selectedPlayer2) return;
+		body = {
+			mode: "doubles",
+			player1: { type: "existing", id: selectedPlayer1.id },
+			player2: { type: "existing", id: selectedPlayer2.id },
+		};
+	} else {
+		if (!selectedPlayer) return;
+		body = { mode: "existing", player_id: selectedPlayer.id };
 	}
 
-	$effect(() => {
-		if (!open) reset()
-	})
+	const res = await fetch(`${baseUrl}/register`, {
+		method: "POST",
+		headers: { "Content-Type": "application/json" },
+		body: JSON.stringify(body),
+	});
 
-	function closeAndReset() {
-		open = false
+	if (res.ok) {
+		open = false;
+		onRegistered();
+	} else {
+		const data = await res.json().catch(() => ({}));
+		errorMsg =
+			(data as { message?: string }).message ?? "Erreur lors de l'inscription";
 	}
+}
 
-	async function confirm() {
-		errorMsg = null
-		let body: Record<string, unknown>
-
-		if (isDoubles) {
-			if (!selectedPlayer1 || !selectedPlayer2) return
-			body = {
-				mode: "doubles",
-				player1: { type: "existing", id: selectedPlayer1.id },
-				player2: { type: "existing", id: selectedPlayer2.id }
-			}
-		} else {
-			if (!selectedPlayer) return
-			body = { mode: "existing", player_id: selectedPlayer.id }
-		}
-
-		const res = await fetch(`${baseUrl}/register`, {
-			method: "POST",
-			headers: { "Content-Type": "application/json" },
-			body: JSON.stringify(body)
-		})
-
-		if (res.ok) {
-			open = false
-			onRegistered()
-		} else {
-			const data = await res.json().catch(() => ({}))
-			errorMsg = (data as { message?: string }).message ?? "Erreur lors de l'inscription"
-		}
-	}
-
-	const canConfirm = $derived(
-		isDoubles ? selectedPlayer1 !== null && selectedPlayer2 !== null : selectedPlayer !== null
-	)
+const canConfirm = $derived(
+	isDoubles
+		? selectedPlayer1 !== null && selectedPlayer2 !== null
+		: selectedPlayer !== null,
+);
 </script>
 
 <Modal
