@@ -155,6 +155,7 @@ None yet.
 | 3 | Corrections admin — supprimer /events, vider dashboard, sidebar overlay | 2026-03-08 | 9a8702b | [3-corrections-admin-supprimer-events-dashb](./quick/3-corrections-admin-supprimer-events-dashb/) |
 | 4 | Créer /admin/events liste événements, /admin/entities liste entités, corriger sidebar admin | 2026-03-08 | 2598eb9 | [4-admin-cr-er-admin-events-liste-events-co](./quick/4-admin-cr-er-admin-events-liste-events-co/) |
 | 5 | Sidebar admin: lien rouge 'Quitter l'administration' en bas vers la page d'accueil | 2026-03-08 | 419e85f | [5-sidebar-admin-ajouter-lien-rouge-quitter](./quick/5-sidebar-admin-ajouter-lien-rouge-quitter/) |
+| 6 | Page roster tournoi : modal ajout joueur/équipe, filtre liste, bordures, suppression "Tout checker" | 2026-03-08 | 5f57924 | [6-modifier-page-checkin-tournois-ajout-jou](./quick/6-modifier-page-checkin-tournois-ajout-jou/) |
 
 ### Blockers/Concerns
 
@@ -169,5 +170,5 @@ None yet.
 ## Session Continuity
 
 Last session: 2026-03-08
-Stopped at: Completed 03-04 — migration 014 tournament.status, check_in_required in wizard+save+register, admin event detail page /admin/events/[id].
+Stopped at: Completed quick-6 — tournament roster UI refactor (modal add, doubles support, filter, borders, no bulk check-in).
 Resume file: None
