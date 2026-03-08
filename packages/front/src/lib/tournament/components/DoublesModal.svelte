@@ -48,34 +48,45 @@
 		submitting = true
 		error = null
 		try {
-			let body: Record<string, unknown>
+			let partnerId: string
+
 			if (selected) {
-				body = { tournament_id: tournamentId, partner_player_id: selected.id }
+				partnerId = selected.id
 			} else if (showCreateForm) {
-				body = {
-					tournament_id: tournamentId,
-					new_partner: {
+				// Étape 1 : créer le joueur
+				const createRes = await fetch("/players", {
+					method: "POST",
+					headers: { "Content-Type": "application/json" },
+					body: JSON.stringify({
 						first_name: newPartner.first_name,
 						last_name: newPartner.last_name,
 						department: newPartner.department || undefined
-					}
+					})
+				})
+				if (!createRes.ok) {
+					const data = await createRes.json().catch(() => ({}))
+					error = data.message ?? "Erreur lors de la création du joueur."
+					return
 				}
+				const { id } = await createRes.json()
+				partnerId = id
 			} else {
 				error = "Sélectionnez un partenaire ou créez un nouveau joueur."
-				submitting = false
 				return
 			}
-			const res = await fetch(`/events/${eventId}/register`, {
+
+			// Étape 2 : inscrire avec le partenaire
+			const regRes = await fetch(`/events/${eventId}/register`, {
 				method: "POST",
 				headers: { "Content-Type": "application/json" },
-				body: JSON.stringify(body)
+				body: JSON.stringify({ tournament_id: tournamentId, partner_player_id: partnerId })
 			})
-			if (res.ok) {
+			if (regRes.ok) {
 				onRegistered()
 				open = false
 				reset()
 			} else {
-				const data = await res.json().catch(() => ({}))
+				const data = await regRes.json().catch(() => ({}))
 				error = data.message ?? "Erreur lors de l'inscription."
 			}
 		} finally {
