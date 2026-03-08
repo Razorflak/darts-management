@@ -26,6 +26,7 @@
 	let newLast = $state("")
 	let newBirth = $state("")
 	let newLicence = $state("")
+	let newDepartment = $state("")
 
 	async function checkIn(registrationId: string, value: boolean) {
 		await fetch(`/tournaments/${data.tournament.id}/admin/checkin`, {
@@ -76,7 +77,8 @@
 				first_name: newFirst,
 				last_name: newLast,
 				birth_date: newBirth,
-				licence_no: newLicence || undefined
+				licence_no: newLicence || undefined,
+				department: newDepartment || undefined
 			})
 		})
 		if (res.ok) {
@@ -162,6 +164,9 @@
 				<span class="font-medium"
 					>{selectedPlayer.last_name} {selectedPlayer.first_name}</span
 				>
+				{#if selectedPlayer.department}
+					<span class="text-sm text-gray-500">({selectedPlayer.department})</span>
+				{/if}
 				{#if selectedPlayer.licence_no}
 					<span class="text-sm text-gray-500">#{selectedPlayer.licence_no}</span>
 				{/if}
@@ -187,6 +192,9 @@
 					<Input placeholder="Nom" bind:value={newLast} />
 					<Input type="date" placeholder="Date de naissance" bind:value={newBirth} />
 					<Input placeholder="Licence (optionnel)" bind:value={newLicence} />
+					<div class="col-span-2">
+						<Input placeholder="Département (ex: 31 - Haute-Garonne)" bind:value={newDepartment} />
+					</div>
 					<div class="col-span-2">
 						<Button color="blue" onclick={registerNew}>Créer et inscrire</Button>
 					</div>

@@ -60,6 +60,9 @@
 								>#{player.licence_no}</span
 							>
 						{/if}
+						{#if player.department}
+							<span class="text-gray-400 dark:text-gray-500 text-xs">({player.department})</span>
+						{/if}
 					</button>
 				</li>
 			{/each}
