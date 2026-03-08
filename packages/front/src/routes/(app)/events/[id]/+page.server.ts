@@ -2,12 +2,7 @@ import { error } from "@sveltejs/kit"
 import { sql } from "$lib/server/db"
 import type { PageServerLoad } from "./$types"
 import { z } from "zod"
-import {
-	EntitySchema,
-	EventSchema,
-	TournamentWithRegistrationSchema,
-	type TournamentWithRegistration
-} from "$lib/server/schemas/event-schemas.js"
+import { CategorySchema, EventSchema } from "$lib/server/schemas/event-schemas.js"
 
 // Event detail without the wizard tournaments array
 const EventDetailSchema = EventSchema.omit({ tournaments: true })
@@ -51,25 +46,41 @@ export const load: PageServerLoad = async ({ locals, params }) => {
 		}
 	})
 
+	// Used by public event page: tournament info + registration state for current visitor
+	const TournamentWithRegistrationSchema = z.object({
+		id: z.uuid(),
+		name: z.string(),
+		category: CategorySchema,
+		check_in_required: z.boolean(),
+		registration_count: z.number().int(),
+		is_registered: z.boolean(),
+		start_at: z.coerce.date(),
+		partner: z.string().nullable()
+	})
+	type TournamentWithRegistration = z.infer<typeof TournamentWithRegistrationSchema>
+
 	// Current player id (null when user has no player profile yet)
 	const currentPlayerId = locals.player?.id ?? null
 
 	// Fetch tournaments with registration state for current player
 	const tournamentRows = await sql<Record<string, unknown>[]>`
-		SELECT
+        SELECT
 			t.id, t.name, t.category, t.check_in_required,
-			COUNT(r.id)::int AS registration_count,
+			COUNT(r.id)::int AS registration_count,t.start_at,
 			EXISTS (
 				SELECT 1 FROM tournament_registration r_me
 				JOIN team_member tm ON tm.team_id = r_me.team_id
 				WHERE r_me.tournament_id = t.id AND tm.player_id = ${currentPlayerId}
-			) AS is_registered
+			) AS is_registered,
+			CONCAT(p2.first_name::text , ' ' , p2.last_name::text) as partner
 		FROM tournament t
 		LEFT JOIN tournament_registration r ON r.tournament_id = t.id
+		left join team on team.id = r.team_id
+		left join team_member tm on tm.team_id = team.id and tm.player_id != ${currentPlayerId}
+		left join player p2 on p2.id = tm.player_id
 		WHERE t.event_id = ${eventId}
-		GROUP BY t.id
-		ORDER BY t.name
-	`
+		GROUP BY t.id, p2.first_name, p2.last_name
+		ORDER BY t.name	`
 
 	const tournaments: TournamentWithRegistration[] = z
 		.array(TournamentWithRegistrationSchema)

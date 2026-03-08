@@ -9,7 +9,7 @@ import { z } from "zod"
 
 const authHandle: Handle = async ({ event, resolve }) => {
 	const sessionData = await auth.api.getSession({
-		headers: event.request.headers,
+		headers: event.request.headers
 	})
 	event.locals.user = sessionData?.user ?? null
 	event.locals.session = sessionData?.session ?? null
@@ -22,22 +22,21 @@ const authHandle: Handle = async ({ event, resolve }) => {
 	const userId = event.locals.user.id
 
 	// Look up existing player profile
-	const existing = z.array(PlayerSchema).parse(
-		await sql<Record<string, unknown>[]>`
-			SELECT id, user_id, first_name, last_name, birth_date::text, licence_no
-			FROM player
-			WHERE user_id = ${userId}
-			LIMIT 1
-		`
-	)
+	const rows = await sql<Record<string, unknown>[]>`
+		SELECT id, user_id, first_name, last_name, birth_date::text, licence_no, department
+		FROM player
+		WHERE user_id = ${userId}
+		LIMIT 1
+	`
+	const existing = rows.length > 0 ? PlayerSchema.parse(rows[0]) : null
 
-	if (existing.length > 0) {
-		event.locals.player = existing[0]
+	if (existing) {
+		event.locals.player = existing
 	} else {
 		// Auto-create player profile from user's name (best-effort split)
-		const parts = (event.locals.user.name ?? '').split(' ')
-		const firstName = parts[0] ?? ''
-		const lastName = parts.slice(1).join(' ') || firstName
+		const parts = (event.locals.user.name ?? "").split(" ")
+		const firstName = parts[0] ?? ""
+		const lastName = parts.slice(1).join(" ") || firstName
 
 		await sql<Record<string, unknown>[]>`
 			INSERT INTO player (user_id, first_name, last_name, birth_date)
