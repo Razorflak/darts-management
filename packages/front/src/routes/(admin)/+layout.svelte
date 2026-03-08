@@ -86,6 +86,26 @@
       {/if}
     </a>
   </nav>
+
+  <!-- Quitter l'administration -->
+  <div class="border-t border-gray-700 py-2">
+    <a
+      href="/"
+      class="flex items-center gap-3 px-3 py-2 hover:bg-red-900/40 rounded mx-1 text-red-400"
+      class:justify-center={collapsed}
+      title={collapsed ? "Quitter l'administration" : undefined}
+    >
+      <!-- icône flèche sortie -->
+      <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true" class="shrink-0">
+        <path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4" />
+        <polyline points="16 17 21 12 16 7" />
+        <line x1="21" y1="12" x2="9" y2="12" />
+      </svg>
+      {#if !collapsed}
+        <span class="text-sm font-medium whitespace-nowrap">Quitter l'administration</span>
+      {/if}
+    </a>
+  </div>
 </aside>
 
 <!-- Mobile header avec hamburger -->
@@ -149,6 +169,20 @@
       </svg>
       Entités
     </a>
+    <div class="border-t border-gray-700 mt-1 pt-1">
+      <a
+        href="/"
+        onclick={toggleMobileMenu}
+        class="flex items-center gap-3 px-4 py-3 hover:bg-red-900/40 text-red-400"
+      >
+        <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+          <path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4" />
+          <polyline points="16 17 21 12 16 7" />
+          <line x1="21" y1="12" x2="9" y2="12" />
+        </svg>
+        Quitter l'administration
+      </a>
+    </div>
   </nav>
 {/if}
 
