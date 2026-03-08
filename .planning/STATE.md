@@ -146,6 +146,7 @@ None yet.
 |---|-------------|------|--------|-----------|
 | 2 | Restructuration des routes : section Administration avec dashboard et menu de navigation latéral/mobile | 2026-03-08 | 25cdc7b | [2-restructuration-des-routes-section-admin](./quick/2-restructuration-des-routes-section-admin/) |
 | 3 | Corrections admin — supprimer /events, vider dashboard, sidebar overlay | 2026-03-08 | 9a8702b | [3-corrections-admin-supprimer-events-dashb](./quick/3-corrections-admin-supprimer-events-dashb/) |
+| 4 | Créer /admin/events liste événements, /admin/entities liste entités, corriger sidebar admin | 2026-03-08 | 2598eb9 | [4-admin-cr-er-admin-events-liste-events-co](./quick/4-admin-cr-er-admin-events-liste-events-co/) |
 
 ### Blockers/Concerns
 
@@ -160,5 +161,5 @@ None yet.
 ## Session Continuity
 
 Last session: 2026-03-08
-Stopped at: Completed quick-3 — removed (app)/events route, emptied admin dashboard, sidebar converted to overlay.
+Stopped at: Completed quick-4 — created /admin/events and /admin/entities list pages, corrected admin sidebar to Accueil/Évènements/Entités.
 Resume file: None
