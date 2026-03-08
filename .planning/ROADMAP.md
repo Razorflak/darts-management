@@ -86,7 +86,7 @@ Plans:
 **Goal:** Refactor du modèle d'inscription vers les équipes — toujours jouer en teams (team de 1 pour indiv, team de 2 pour doubles), modal de sélection de partenaire pour les catégories doubles, champ département sur le profil joueur
 **Requirements**: TEAM-01, TEAM-02, TEAM-03, TEAM-04
 **Depends on:** Phase 3
-**Plans:** 4/4 plans complete
+**Plans:** 4/5 plans executed
 
 Plans:
 - [ ] 03.1-01-PLAN.md — Migration DB 013 (tables team, team_member, department, refactor registration) + schemas Zod
