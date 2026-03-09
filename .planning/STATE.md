@@ -25,7 +25,7 @@ See: .planning/PROJECT.md (updated 2026-02-28)
 Phase: 03-player-registration — plan 05 complete (PHASE COMPLETE)
 Plan: 03-05 complete (admin roster page, check-in, status management, player add/remove)
 Status: 03-05 complete — admin roster at /admin/events/[id]/tournaments/[tid] with all management actions
-Last activity: 2026-03-08 - Completed 03-05: admin roster page + tournament status control
+Last activity: 2026-03-09 - Completed quick task 8: RegistrationModal — dropdown fix + MinimumPlayerCreationForm component
 
 Progress: [████░░░░░░] 57% (23/40 plans estimated)
 
@@ -157,6 +157,7 @@ None yet.
 | 5 | Sidebar admin: lien rouge 'Quitter l'administration' en bas vers la page d'accueil | 2026-03-08 | 419e85f | [5-sidebar-admin-ajouter-lien-rouge-quitter](./quick/5-sidebar-admin-ajouter-lien-rouge-quitter/) |
 | 6 | Page roster tournoi : modal ajout joueur/équipe, filtre liste, bordures, suppression "Tout checker" | 2026-03-08 | 5f57924 | [6-modifier-page-checkin-tournois-ajout-jou](./quick/6-modifier-page-checkin-tournois-ajout-jou/) |
 | 7 | Fix modal inscription tournoi — dédoublonnage joueurs, UX séquentielle doubles, composant RegistrationModal, reset fermeture | 2026-03-08 | 82fbbbb | [7-fix-modal-inscription-tournoi-d-doublonn](./quick/7-fix-modal-inscription-tournoi-d-doublonn/) |
+| 8 | Dans la modal RegistrationModal.svelte il manque le bouton pour créer un joueur et la liste est cachée derrière les bords de la modal | 2026-03-09 | e066685 | [8-dans-la-modal-registrationmodal-svelte-i](./quick/8-dans-la-modal-registrationmodal-svelte-i/) |
 
 ### Blockers/Concerns
 
