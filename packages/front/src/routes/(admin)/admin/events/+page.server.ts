@@ -6,13 +6,13 @@ import { z } from "zod"
 import { EventListItemSchema, type EventListItem } from "$lib/server/schemas/event-schemas.js"
 
 export const load: PageServerLoad = async ({ locals }) => {
-  if (!locals.user) redirect(302, "/login")
-  const roles = await getUserRoles(locals.user.id)
-  const entityIds = roles.map((r) => r.entityId)
+	if (!locals.user) redirect(302, "/login")
+	const roles = await getUserRoles(locals.user.id)
+	const entityIds = roles.map((r) => r.entityId)
 
-  const rawEvents =
-    entityIds.length > 0
-      ? await sql<Record<string, unknown>[]>`
+	const rawEvents =
+		entityIds.length > 0
+			? await sql<Record<string, unknown>[]>`
           SELECT e.id, e.name, e.status,
             e.starts_at::text AS starts_at,
             e.ends_at::text AS ends_at,
@@ -27,7 +27,7 @@ export const load: PageServerLoad = async ({ locals }) => {
             OR (e.entity_id = ANY(${entityIds}) AND e.status != 'draft')
           GROUP BY e.id, en.name
           ORDER BY e.starts_at DESC`
-      : await sql<Record<string, unknown>[]>`
+			: await sql<Record<string, unknown>[]>`
           SELECT e.id, e.name, e.status,
             e.starts_at::text AS starts_at,
             e.ends_at::text AS ends_at,
@@ -42,6 +42,6 @@ export const load: PageServerLoad = async ({ locals }) => {
           GROUP BY e.id, en.name
           ORDER BY e.starts_at DESC`
 
-  const events: EventListItem[] = z.array(EventListItemSchema).parse(rawEvents)
-  return { events }
+	const events: EventListItem[] = z.array(EventListItemSchema).parse(rawEvents)
+	return { events }
 }

@@ -18,6 +18,7 @@ export const load: PageServerLoad = async ({ locals, params }) => {
 		WHERE e.id = ${params.id}
 	`
 	if (eventRows.length === 0) error(404, "Événement introuvable")
+	console.log("JTA", "eventRows", eventRows)
 
 	const event = AdminEventDetailSchema.parse(eventRows[0])
 
