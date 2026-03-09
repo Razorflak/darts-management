@@ -156,6 +156,7 @@ None yet.
 | 4 | Créer /admin/events liste événements, /admin/entities liste entités, corriger sidebar admin | 2026-03-08 | 2598eb9 | [4-admin-cr-er-admin-events-liste-events-co](./quick/4-admin-cr-er-admin-events-liste-events-co/) |
 | 5 | Sidebar admin: lien rouge 'Quitter l'administration' en bas vers la page d'accueil | 2026-03-08 | 419e85f | [5-sidebar-admin-ajouter-lien-rouge-quitter](./quick/5-sidebar-admin-ajouter-lien-rouge-quitter/) |
 | 6 | Page roster tournoi : modal ajout joueur/équipe, filtre liste, bordures, suppression "Tout checker" | 2026-03-08 | 5f57924 | [6-modifier-page-checkin-tournois-ajout-jou](./quick/6-modifier-page-checkin-tournois-ajout-jou/) |
+| 7 | Fix modal inscription tournoi — dédoublonnage joueurs, UX séquentielle doubles, composant RegistrationModal, reset fermeture | 2026-03-08 | 82fbbbb | [7-fix-modal-inscription-tournoi-d-doublonn](./quick/7-fix-modal-inscription-tournoi-d-doublonn/) |
 
 ### Blockers/Concerns
 
@@ -169,6 +170,6 @@ None yet.
 
 ## Session Continuity
 
-Last session: 2026-03-08
-Stopped at: Completed quick-6 — tournament roster UI refactor (modal add, doubles support, filter, borders, no bulk check-in).
+Last session: 2026-03-09
+Stopped at: Completed quick-7 — RegistrationModal.svelte extracted, server-side player dedup (409/400), sequential doubles UX, reset-on-close.
 Resume file: None
