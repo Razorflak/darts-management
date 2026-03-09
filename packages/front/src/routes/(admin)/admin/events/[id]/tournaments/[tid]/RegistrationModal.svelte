@@ -15,16 +15,31 @@ let {
 	onRegistered: () => void;
 } = $props();
 
+const emptyNew = () => ({ first_name: "", last_name: "", birth_date: "", licence_no: "", department: "" })
+
 let selectedPlayer = $state<PlayerSearchResult | null>(null);
 let selectedPlayer1 = $state<PlayerSearchResult | null>(null);
 let selectedPlayer2 = $state<PlayerSearchResult | null>(null);
 let errorMsg = $state<string | null>(null);
+
+// Formulaire création — solo
+let showCreateSolo = $state(false);
+let newSolo = $state(emptyNew());
+
+// Formulaire création — doubles (un par slot)
+let showCreateP1 = $state(false);
+let newP1 = $state(emptyNew());
+let showCreateP2 = $state(false);
+let newP2 = $state(emptyNew());
 
 function reset() {
 	selectedPlayer = null;
 	selectedPlayer1 = null;
 	selectedPlayer2 = null;
 	errorMsg = null;
+	showCreateSolo = false; newSolo = emptyNew();
+	showCreateP1 = false; newP1 = emptyNew();
+	showCreateP2 = false; newP2 = emptyNew();
 }
 
 $effect(() => {
@@ -40,15 +55,42 @@ async function confirm() {
 	let body: Record<string, unknown>;
 
 	if (isDoubles) {
-		if (!selectedPlayer1 || !selectedPlayer2) return;
-		body = {
-			mode: "doubles",
-			player1: { type: "existing", id: selectedPlayer1.id },
-			player2: { type: "existing", id: selectedPlayer2.id },
-		};
+		// Validate slots
+		if (showCreateP1 && (!newP1.first_name || !newP1.last_name || !newP1.birth_date)) {
+			errorMsg = "Joueur 1 : Prénom, nom et date de naissance obligatoires";
+			return;
+		}
+		if (showCreateP2 && (!newP2.first_name || !newP2.last_name || !newP2.birth_date)) {
+			errorMsg = "Joueur 2 : Prénom, nom et date de naissance obligatoires";
+			return;
+		}
+		if (!showCreateP1 && !selectedPlayer1) return;
+		if (!showCreateP2 && !selectedPlayer2) return;
+
+		const player1 = showCreateP1
+			? { type: "new", ...newP1, licence_no: newP1.licence_no || undefined, department: newP1.department || undefined }
+			: { type: "existing", id: selectedPlayer1!.id };
+		const player2 = showCreateP2
+			? { type: "new", ...newP2, licence_no: newP2.licence_no || undefined, department: newP2.department || undefined }
+			: { type: "existing", id: selectedPlayer2!.id };
+
+		body = { mode: "doubles", player1, player2 };
 	} else {
-		if (!selectedPlayer) return;
-		body = { mode: "existing", player_id: selectedPlayer.id };
+		if (showCreateSolo) {
+			if (!newSolo.first_name || !newSolo.last_name || !newSolo.birth_date) {
+				errorMsg = "Prénom, nom et date de naissance obligatoires";
+				return;
+			}
+			body = {
+				mode: "new",
+				...newSolo,
+				licence_no: newSolo.licence_no || undefined,
+				department: newSolo.department || undefined,
+			};
+		} else {
+			if (!selectedPlayer) return;
+			body = { mode: "existing", player_id: selectedPlayer.id };
+		}
 	}
 
 	const res = await fetch(`${baseUrl}/register`, {
@@ -69,9 +111,11 @@ async function confirm() {
 
 const canConfirm = $derived(
 	isDoubles
-		? selectedPlayer1 !== null && selectedPlayer2 !== null
-		: selectedPlayer !== null,
+		? (selectedPlayer1 !== null || showCreateP1) && (selectedPlayer2 !== null || showCreateP2)
+		: selectedPlayer !== null || showCreateSolo,
 );
+
+const inputClass = "block w-full rounded-lg border border-gray-300 bg-gray-50 p-2.5 text-sm text-gray-900 focus:border-primary-500 focus:ring-primary-500 dark:border-gray-600 dark:bg-gray-700 dark:text-white dark:placeholder-gray-400 dark:focus:border-primary-500 dark:focus:ring-primary-500";
 </script>
 
 <Modal
@@ -97,7 +141,7 @@ const canConfirm = $derived(
 							Changer
 						</Button>
 					</div>
-				{:else}
+				{:else if !showCreateP1}
 					<PlayerSearch
 						tournamentId=""
 						searchUrl="{baseUrl}/players/search"
@@ -106,10 +150,32 @@ const canConfirm = $derived(
 						}}
 					/>
 				{/if}
+
+				<!-- Bouton toggle création — slot 1 -->
+				{#if !selectedPlayer1}
+					<div class="mt-3">
+						<button
+							type="button"
+							class="text-sm text-blue-600 hover:underline"
+							onclick={() => { showCreateP1 = !showCreateP1; selectedPlayer1 = null }}
+						>
+							{showCreateP1 ? "▲ Annuler la création" : "▼ Joueur non trouvé ? Créer un joueur"}
+						</button>
+						{#if showCreateP1}
+							<div class="mt-3 grid grid-cols-2 gap-3">
+								<input class={inputClass} placeholder="Prénom *" bind:value={newP1.first_name} />
+								<input class={inputClass} placeholder="Nom *" bind:value={newP1.last_name} />
+								<input class="col-span-2 {inputClass}" type="date" placeholder="Date de naissance *" bind:value={newP1.birth_date} />
+								<input class={inputClass} placeholder="N° licence" bind:value={newP1.licence_no} />
+								<input class={inputClass} placeholder="Département" bind:value={newP1.department} />
+							</div>
+						{/if}
+					</div>
+				{/if}
 			</div>
 
-			<!-- Player 2 — appears only after player 1 is selected -->
-			{#if selectedPlayer1}
+			<!-- Player 2 — appears only after player 1 is selected or create form shown -->
+			{#if selectedPlayer1 || showCreateP1}
 				<div>
 					<h3 class="mb-2 font-semibold text-gray-700">Joueur 2</h3>
 					{#if selectedPlayer2}
@@ -124,7 +190,7 @@ const canConfirm = $derived(
 								Changer
 							</Button>
 						</div>
-					{:else}
+					{:else if !showCreateP2}
 						<PlayerSearch
 							tournamentId=""
 							searchUrl="{baseUrl}/players/search"
@@ -133,18 +199,42 @@ const canConfirm = $derived(
 							}}
 						/>
 					{/if}
+
+					<!-- Bouton toggle création — slot 2 -->
+					{#if !selectedPlayer2}
+						<div class="mt-3">
+							<button
+								type="button"
+								class="text-sm text-blue-600 hover:underline"
+								onclick={() => { showCreateP2 = !showCreateP2; selectedPlayer2 = null }}
+							>
+								{showCreateP2 ? "▲ Annuler la création" : "▼ Joueur non trouvé ? Créer un joueur"}
+							</button>
+							{#if showCreateP2}
+								<div class="mt-3 grid grid-cols-2 gap-3">
+									<input class={inputClass} placeholder="Prénom *" bind:value={newP2.first_name} />
+									<input class={inputClass} placeholder="Nom *" bind:value={newP2.last_name} />
+									<input class="col-span-2 {inputClass}" type="date" placeholder="Date de naissance *" bind:value={newP2.birth_date} />
+									<input class={inputClass} placeholder="N° licence" bind:value={newP2.licence_no} />
+									<input class={inputClass} placeholder="Département" bind:value={newP2.department} />
+								</div>
+							{/if}
+						</div>
+					{/if}
 				</div>
 			{/if}
 		</div>
 	{:else}
 		<!-- Solo mode -->
-		<PlayerSearch
-			tournamentId=""
-			searchUrl="{baseUrl}/players/search"
-			onSelect={(p) => {
-				selectedPlayer = p
-			}}
-		/>
+		{#if !showCreateSolo}
+			<PlayerSearch
+				tournamentId=""
+				searchUrl="{baseUrl}/players/search"
+				onSelect={(p) => {
+					selectedPlayer = p
+				}}
+			/>
+		{/if}
 
 		{#if selectedPlayer}
 			<div class="mt-3 flex items-center gap-3 rounded bg-gray-50 p-2">
@@ -157,6 +247,26 @@ const canConfirm = $derived(
 				<Button size="xs" color="light" onclick={() => (selectedPlayer = null)}>Changer</Button>
 			</div>
 		{/if}
+
+		<!-- Bouton toggle création — solo -->
+		<div class="mt-3">
+			<button
+				type="button"
+				class="text-sm text-blue-600 hover:underline"
+				onclick={() => { showCreateSolo = !showCreateSolo; selectedPlayer = null }}
+			>
+				{showCreateSolo ? "▲ Annuler la création" : "▼ Joueur non trouvé ? Créer un joueur"}
+			</button>
+			{#if showCreateSolo}
+				<div class="mt-3 grid grid-cols-2 gap-3">
+					<input class={inputClass} placeholder="Prénom *" bind:value={newSolo.first_name} />
+					<input class={inputClass} placeholder="Nom *" bind:value={newSolo.last_name} />
+					<input class="col-span-2 {inputClass}" type="date" placeholder="Date de naissance *" bind:value={newSolo.birth_date} />
+					<input class={inputClass} placeholder="N° licence" bind:value={newSolo.licence_no} />
+					<input class={inputClass} placeholder="Département" bind:value={newSolo.department} />
+				</div>
+			{/if}
+		</div>
 	{/if}
 
 	{#if errorMsg}
