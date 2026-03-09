@@ -33,7 +33,7 @@ export const POST: RequestHandler = async ({ locals, request }) => {
 	const firstName = toPascalCase(raw.first_name)
 	const lastName = raw.last_name.trim().toUpperCase()
 	const department = raw.department?.trim() || null
-	const birthDate = raw.birth_date ?? "1900-01-01"
+	const birthDate = raw.birth_date ?? null
 
 	// Duplicate check (case-insensitive)
 	const [existing] = await sql<Record<string, unknown>[]>`

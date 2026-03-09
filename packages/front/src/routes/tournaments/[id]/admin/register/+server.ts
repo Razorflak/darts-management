@@ -14,7 +14,7 @@ const AdminRegisterSchema = z.discriminatedUnion("mode", [
 		mode: z.literal("new"),
 		first_name: z.string().min(1),
 		last_name: z.string().min(1),
-		birth_date: z.string().regex(/^\d{4}-\d{2}-\d{2}$/),
+		birth_date: z.string().regex(/^\d{4}-\d{2}-\d{2}$/).optional(),
 		licence_no: z.string().optional(),
 		department: z.string().optional()
 	})
@@ -51,7 +51,7 @@ export const POST: RequestHandler = async ({ request, locals, params }) => {
 			VALUES (
 				${body.first_name},
 				${body.last_name},
-				${body.birth_date},
+				${body.birth_date ?? null},
 				${body.licence_no ?? null},
 				${body.department ?? null}
 			)

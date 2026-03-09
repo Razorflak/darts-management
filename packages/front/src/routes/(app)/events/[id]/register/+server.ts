@@ -48,8 +48,8 @@ export const POST: RequestHandler = async ({ locals, params, request }) => {
 		teamId = await findOrCreateDoublesTeam(selfPlayerId, body.partner_player_id)
 	} else if (body.new_partner) {
 		const [newPlayer] = await sql<Record<string, unknown>[]>`
-			INSERT INTO player (first_name, last_name, birth_date, department)
-			VALUES (${body.new_partner.first_name}, ${body.new_partner.last_name}, '1900-01-01', ${body.new_partner.department})
+			INSERT INTO player (first_name, last_name, department)
+			VALUES (${body.new_partner.first_name}, ${body.new_partner.last_name}, ${body.new_partner.department})
 			RETURNING id
 		`
 		const newPlayerId = newPlayer.id as string

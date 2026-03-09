@@ -145,7 +145,7 @@ export const PlayerSchema = z.object({
 	user_id: z.string().nullable(),
 	first_name: z.string(),
 	last_name: z.string(),
-	birth_date: z.string(), // DATE returned as text from postgres
+	birth_date: z.string().nullable(), // DATE returned as text from postgres, nullable
 	licence_no: z.string().nullable(),
 	department: z.string().nullable()
 })
@@ -208,7 +208,7 @@ export const PlayerSearchResultSchema = z.object({
 	id: z.uuid(),
 	first_name: z.string(),
 	last_name: z.string(),
-	birth_date: z.string(), // DATE as text
+	birth_date: z.string().nullable(), // DATE as text, nullable
 	licence_no: z.string().nullable(),
 	department: z.string().nullable()
 })
@@ -233,7 +233,7 @@ export const AdminEventDetailSchema = z.object({
 	location: z.string(),
 	entity_name: z.string(),
 	entity_id: z.uuid(),
-	organizer_id: z.uuid().nullable()
+	organizer_id: z.string().nullable()
 })
 export type AdminEventDetail = z.infer<typeof AdminEventDetailSchema>
 

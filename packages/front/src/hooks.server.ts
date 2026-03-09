@@ -39,8 +39,8 @@ const authHandle: Handle = async ({ event, resolve }) => {
 		const lastName = parts.slice(1).join(" ") || firstName
 
 		await sql<Record<string, unknown>[]>`
-			INSERT INTO player (user_id, first_name, last_name, birth_date)
-			VALUES (${userId}, ${firstName}, ${lastName}, '1900-01-01')
+			INSERT INTO player (user_id, first_name, last_name)
+			VALUES (${userId}, ${firstName}, ${lastName})
 			ON CONFLICT DO NOTHING
 		`
 
