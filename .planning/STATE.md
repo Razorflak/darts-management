@@ -158,6 +158,7 @@ None yet.
 | 6 | Page roster tournoi : modal ajout joueur/équipe, filtre liste, bordures, suppression "Tout checker" | 2026-03-08 | 5f57924 | [6-modifier-page-checkin-tournois-ajout-jou](./quick/6-modifier-page-checkin-tournois-ajout-jou/) |
 | 7 | Fix modal inscription tournoi — dédoublonnage joueurs, UX séquentielle doubles, composant RegistrationModal, reset fermeture | 2026-03-08 | 82fbbbb | [7-fix-modal-inscription-tournoi-d-doublonn](./quick/7-fix-modal-inscription-tournoi-d-doublonn/) |
 | 8 | Dans la modal RegistrationModal.svelte il manque le bouton pour créer un joueur et la liste est cachée derrière les bords de la modal | 2026-03-09 | e066685 | [8-dans-la-modal-registrationmodal-svelte-i](./quick/8-dans-la-modal-registrationmodal-svelte-i/) |
+| 9 | Rendre birth_date nullable dans player — supprimer placeholder '1900-01-01', migration SQL + schemas Zod mis à jour | 2026-03-09 | 21e7578 | [9-dans-la-table-player-en-base-de-donn-es-](./quick/9-dans-la-table-player-en-base-de-donn-es-/) |
 
 ### Blockers/Concerns
 
@@ -172,5 +173,5 @@ None yet.
 ## Session Continuity
 
 Last session: 2026-03-09
-Stopped at: Completed quick-7 — RegistrationModal.svelte extracted, server-side player dedup (409/400), sequential doubles UX, reset-on-close.
+Stopped at: Completed quick-9 — player.birth_date nullable (migration 015), Zod schemas updated, '1900-01-01' placeholder eliminated from all server routes.
 Resume file: None
