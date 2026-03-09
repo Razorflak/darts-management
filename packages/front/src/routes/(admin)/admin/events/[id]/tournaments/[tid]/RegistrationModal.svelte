@@ -2,6 +2,7 @@
 import { Button, Modal } from "flowbite-svelte";
 import type { PlayerSearchResult } from "$lib/server/schemas/event-schemas.js";
 import PlayerSearch from "$lib/tournament/components/PlayerSearch.svelte";
+import MinimumPlayerCreationForm from "$lib/tournament/components/MinimumPlayerCreationForm.svelte";
 
 let {
 	open = $bindable(false),
@@ -15,7 +16,7 @@ let {
 	onRegistered: () => void;
 } = $props();
 
-const emptyNew = () => ({ first_name: "", last_name: "", birth_date: "", licence_no: "", department: "" })
+const emptyNew = () => ({ first_name: "", last_name: "", department: "" })
 
 let selectedPlayer = $state<PlayerSearchResult | null>(null);
 let selectedPlayer1 = $state<PlayerSearchResult | null>(null);
@@ -55,36 +56,34 @@ async function confirm() {
 	let body: Record<string, unknown>;
 
 	if (isDoubles) {
-		// Validate slots
-		if (showCreateP1 && (!newP1.first_name || !newP1.last_name || !newP1.birth_date)) {
-			errorMsg = "Joueur 1 : Prénom, nom et date de naissance obligatoires";
+		if (showCreateP1 && (!newP1.first_name || !newP1.last_name)) {
+			errorMsg = "Joueur 1 : Prénom et nom obligatoires";
 			return;
 		}
-		if (showCreateP2 && (!newP2.first_name || !newP2.last_name || !newP2.birth_date)) {
-			errorMsg = "Joueur 2 : Prénom, nom et date de naissance obligatoires";
+		if (showCreateP2 && (!newP2.first_name || !newP2.last_name)) {
+			errorMsg = "Joueur 2 : Prénom et nom obligatoires";
 			return;
 		}
 		if (!showCreateP1 && !selectedPlayer1) return;
 		if (!showCreateP2 && !selectedPlayer2) return;
 
 		const player1 = showCreateP1
-			? { type: "new", ...newP1, licence_no: newP1.licence_no || undefined, department: newP1.department || undefined }
+			? { type: "new", ...newP1, department: newP1.department || undefined }
 			: { type: "existing", id: selectedPlayer1!.id };
 		const player2 = showCreateP2
-			? { type: "new", ...newP2, licence_no: newP2.licence_no || undefined, department: newP2.department || undefined }
+			? { type: "new", ...newP2, department: newP2.department || undefined }
 			: { type: "existing", id: selectedPlayer2!.id };
 
 		body = { mode: "doubles", player1, player2 };
 	} else {
 		if (showCreateSolo) {
-			if (!newSolo.first_name || !newSolo.last_name || !newSolo.birth_date) {
-				errorMsg = "Prénom, nom et date de naissance obligatoires";
+			if (!newSolo.first_name || !newSolo.last_name) {
+				errorMsg = "Prénom et nom obligatoires";
 				return;
 			}
 			body = {
 				mode: "new",
 				...newSolo,
-				licence_no: newSolo.licence_no || undefined,
 				department: newSolo.department || undefined,
 			};
 		} else {
@@ -114,8 +113,6 @@ const canConfirm = $derived(
 		? (selectedPlayer1 !== null || showCreateP1) && (selectedPlayer2 !== null || showCreateP2)
 		: selectedPlayer !== null || showCreateSolo,
 );
-
-const inputClass = "block w-full rounded-lg border border-gray-300 bg-gray-50 p-2.5 text-sm text-gray-900 focus:border-primary-500 focus:ring-primary-500 dark:border-gray-600 dark:bg-gray-700 dark:text-white dark:placeholder-gray-400 dark:focus:border-primary-500 dark:focus:ring-primary-500";
 </script>
 
 <Modal
@@ -145,9 +142,7 @@ const inputClass = "block w-full rounded-lg border border-gray-300 bg-gray-50 p-
 					<PlayerSearch
 						tournamentId=""
 						searchUrl="{baseUrl}/players/search"
-						onSelect={(p) => {
-							selectedPlayer1 = p
-						}}
+						onSelect={(p) => { selectedPlayer1 = p }}
 					/>
 				{/if}
 
@@ -162,13 +157,11 @@ const inputClass = "block w-full rounded-lg border border-gray-300 bg-gray-50 p-
 							{showCreateP1 ? "▲ Annuler la création" : "▼ Joueur non trouvé ? Créer un joueur"}
 						</button>
 						{#if showCreateP1}
-							<div class="mt-3 grid grid-cols-2 gap-3">
-								<input class={inputClass} placeholder="Prénom *" bind:value={newP1.first_name} />
-								<input class={inputClass} placeholder="Nom *" bind:value={newP1.last_name} />
-								<input class="col-span-2 {inputClass}" type="date" placeholder="Date de naissance *" bind:value={newP1.birth_date} />
-								<input class={inputClass} placeholder="N° licence" bind:value={newP1.licence_no} />
-								<input class={inputClass} placeholder="Département" bind:value={newP1.department} />
-							</div>
+							<MinimumPlayerCreationForm
+								bind:first_name={newP1.first_name}
+								bind:last_name={newP1.last_name}
+								bind:department={newP1.department}
+							/>
 						{/if}
 					</div>
 				{/if}
@@ -194,9 +187,7 @@ const inputClass = "block w-full rounded-lg border border-gray-300 bg-gray-50 p-
 						<PlayerSearch
 							tournamentId=""
 							searchUrl="{baseUrl}/players/search"
-							onSelect={(p) => {
-								selectedPlayer2 = p
-							}}
+							onSelect={(p) => { selectedPlayer2 = p }}
 						/>
 					{/if}
 
@@ -211,13 +202,11 @@ const inputClass = "block w-full rounded-lg border border-gray-300 bg-gray-50 p-
 								{showCreateP2 ? "▲ Annuler la création" : "▼ Joueur non trouvé ? Créer un joueur"}
 							</button>
 							{#if showCreateP2}
-								<div class="mt-3 grid grid-cols-2 gap-3">
-									<input class={inputClass} placeholder="Prénom *" bind:value={newP2.first_name} />
-									<input class={inputClass} placeholder="Nom *" bind:value={newP2.last_name} />
-									<input class="col-span-2 {inputClass}" type="date" placeholder="Date de naissance *" bind:value={newP2.birth_date} />
-									<input class={inputClass} placeholder="N° licence" bind:value={newP2.licence_no} />
-									<input class={inputClass} placeholder="Département" bind:value={newP2.department} />
-								</div>
+								<MinimumPlayerCreationForm
+									bind:first_name={newP2.first_name}
+									bind:last_name={newP2.last_name}
+									bind:department={newP2.department}
+								/>
 							{/if}
 						</div>
 					{/if}
@@ -230,9 +219,7 @@ const inputClass = "block w-full rounded-lg border border-gray-300 bg-gray-50 p-
 			<PlayerSearch
 				tournamentId=""
 				searchUrl="{baseUrl}/players/search"
-				onSelect={(p) => {
-					selectedPlayer = p
-				}}
+				onSelect={(p) => { selectedPlayer = p }}
 			/>
 		{/if}
 
@@ -258,13 +245,11 @@ const inputClass = "block w-full rounded-lg border border-gray-300 bg-gray-50 p-
 				{showCreateSolo ? "▲ Annuler la création" : "▼ Joueur non trouvé ? Créer un joueur"}
 			</button>
 			{#if showCreateSolo}
-				<div class="mt-3 grid grid-cols-2 gap-3">
-					<input class={inputClass} placeholder="Prénom *" bind:value={newSolo.first_name} />
-					<input class={inputClass} placeholder="Nom *" bind:value={newSolo.last_name} />
-					<input class="col-span-2 {inputClass}" type="date" placeholder="Date de naissance *" bind:value={newSolo.birth_date} />
-					<input class={inputClass} placeholder="N° licence" bind:value={newSolo.licence_no} />
-					<input class={inputClass} placeholder="Département" bind:value={newSolo.department} />
-				</div>
+				<MinimumPlayerCreationForm
+					bind:first_name={newSolo.first_name}
+					bind:last_name={newSolo.last_name}
+					bind:department={newSolo.department}
+				/>
 			{/if}
 		</div>
 	{/if}
