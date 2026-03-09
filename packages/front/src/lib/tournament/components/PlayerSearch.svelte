@@ -1,5 +1,4 @@
 <script lang="ts">
-	import { Input } from "flowbite-svelte"
 	import type { PlayerSearchResult } from "$lib/server/schemas/event-schemas.js"
 
 	type Props = {
@@ -13,6 +12,14 @@
 	let results = $state<PlayerSearchResult[]>([])
 	let open = $state(false)
 	let timer: ReturnType<typeof setTimeout> | undefined
+	let inputEl: HTMLInputElement | undefined = $state()
+	let dropdownStyle = $state("")
+
+	function updatePosition() {
+		if (!inputEl) return
+		const r = inputEl.getBoundingClientRect()
+		dropdownStyle = `top:${r.bottom + window.scrollY + 4}px;left:${r.left + window.scrollX}px;width:${r.width}px`
+	}
 
 	$effect(() => {
 		clearTimeout(timer)
@@ -25,6 +32,7 @@
 			const url = searchUrl ?? `/tournaments/${tournamentId}/admin/players/search`
 			const res = await fetch(`${url}?q=${encodeURIComponent(query)}`)
 			results = await res.json()
+			updatePosition()
 			open = results.length > 0
 		}, 300)
 	})
@@ -37,15 +45,20 @@
 	}
 </script>
 
+<svelte:window onscroll={updatePosition} onresize={updatePosition} />
+
 <div class="relative">
-	<Input
+	<input
+		bind:this={inputEl}
 		type="text"
 		placeholder="Rechercher un joueur (nom, prénom, licence)..."
 		bind:value={query}
+		class="block w-full rounded-lg border border-gray-300 bg-gray-50 p-2.5 text-sm text-gray-900 focus:border-primary-500 focus:ring-primary-500 dark:border-gray-600 dark:bg-gray-700 dark:text-white dark:placeholder-gray-400 dark:focus:border-primary-500 dark:focus:ring-primary-500"
 	/>
 	{#if open}
 		<ul
-			class="absolute z-10 mt-1 max-h-60 w-full overflow-auto rounded-md border border-gray-200 bg-white shadow-lg dark:border-gray-600 dark:bg-gray-700"
+			style="position:fixed;{dropdownStyle};z-index:9999"
+			class="max-h-60 overflow-auto rounded-md border border-gray-200 bg-white shadow-lg dark:border-gray-600 dark:bg-gray-700"
 		>
 			{#each results as player}
 				<li>
