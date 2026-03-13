@@ -3,12 +3,12 @@ gsd_state_version: 1.0
 milestone: v1.0
 milestone_name: milestone
 status: unknown
-last_updated: "2026-03-08T20:32:43.116Z"
+last_updated: "2026-03-13T22:06:42.380Z"
 progress:
-  total_phases: 4
-  completed_phases: 4
-  total_plans: 23
-  completed_plans: 23
+  total_phases: 5
+  completed_phases: 3
+  total_plans: 27
+  completed_plans: 24
 ---
 
 # Project State
@@ -61,6 +61,7 @@ Progress: [████░░░░░░] 57% (23/40 plans estimated)
 | Phase 03.1-teams-and-doubles-registration P02 | 5 | 2 tasks | 3 files |
 | Phase 03-player-registration P04 | 12 | 3 tasks | 11 files |
 | Phase 03-player-registration P05 | 4 | 2 tasks | 9 files |
+| Phase 03.2-player-profile P01 | 2 | 2 tasks | 2 files |
 
 ## Accumulated Context
 
@@ -138,6 +139,8 @@ Progress: [████░░░░░░] 57% (23/40 plans estimated)
 - [03-04]: Registration allowed when t.status IN ('ready', 'check-in') AND e.status = 'ready'
 - [Phase 03-05]: PlayerSearch searchUrl is optional — falls back to legacy URL for backwards compatibility with existing admin pages
 - [Phase 03-05]: STATUS_TRANSITIONS/STATUS_PREV maps in page.svelte enable linear status transitions with forward+back buttons without server-side validation
+- [Phase 03.2-01]: [03.2-01]: hooks.server.ts player resolution is now lookup-only — users without a profile get locals.player = null, prerequisite for all Phase 03.2 gating logic
+- [Phase 03.2-01]: [03.2-01]: data.player propagated via (app)/+layout.server.ts return — no additional queries needed in child pages
 
 ### Roadmap Evolution
 
