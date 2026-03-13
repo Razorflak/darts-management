@@ -5,7 +5,6 @@ import { svelteKitHandler } from "better-auth/svelte-kit"
 import { building } from "$app/environment"
 import type { Handle } from "@sveltejs/kit"
 import { sequence } from "@sveltejs/kit/hooks"
-import { z } from "zod"
 
 const authHandle: Handle = async ({ event, resolve }) => {
 	const sessionData = await auth.api.getSession({
@@ -21,41 +20,14 @@ const authHandle: Handle = async ({ event, resolve }) => {
 
 	const userId = event.locals.user.id
 
-	// Look up existing player profile
+	// Look up existing player profile — lookup only, no auto-create
 	const rows = await sql<Record<string, unknown>[]>`
 		SELECT id, user_id, first_name, last_name, birth_date::text, licence_no, department
 		FROM player
 		WHERE user_id = ${userId}
 		LIMIT 1
 	`
-	const existing = rows.length > 0 ? PlayerSchema.parse(rows[0]) : null
-
-	if (existing) {
-		event.locals.player = existing
-	} else {
-		// Auto-create player profile from user's name (best-effort split)
-		const parts = (event.locals.user.name ?? "").split(" ")
-		const firstName = parts[0] ?? ""
-		const lastName = parts.slice(1).join(" ") || firstName
-
-		await sql<Record<string, unknown>[]>`
-			INSERT INTO player (user_id, first_name, last_name)
-			VALUES (${userId}, ${firstName}, ${lastName})
-			ON CONFLICT DO NOTHING
-		`
-
-		// Re-SELECT after insert (handles race condition: another request may have inserted first)
-		const created = z.array(PlayerSchema).parse(
-			await sql<Record<string, unknown>[]>`
-				SELECT id, user_id, first_name, last_name, birth_date::text, licence_no
-				FROM player
-				WHERE user_id = ${userId}
-				LIMIT 1
-			`
-		)
-
-		event.locals.player = created[0] ?? null
-	}
+	event.locals.player = rows.length > 0 ? PlayerSchema.parse(rows[0]) : null
 
 	return resolve(event)
 }
