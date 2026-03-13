@@ -95,6 +95,13 @@ Plans:
 - [ ] 03.1-03-PLAN.md — Endpoint partner/search + is_registered refactorisé + roster query json_agg + player search department
 - [ ] 03.1-04-PLAN.md — DoublesModal.svelte + events/[id]/+page.svelte branching + admin roster UI + unregister team_id
 
+### Phase 03.2: Player Profile (INSERTED)
+
+**Goal:** Un utilisateur connecté sans profil Player est bloqué à l'inscription et redirigé vers la création de profil — state global Player dans le layout app, pages /profile/create, /profile, /profile/edit, banner sur la page événement, tuile dashboard
+**Requirements**: PROFILE-01, PROFILE-02, PROFILE-03
+**Depends on:** Phase 03.1
+**Plans:** TBD
+
 ### Phase 4: Launch and Match Generation
 **Goal**: An admin tournoi can launch a tournament, locking configuration and generating every match for every phase atomically in one database transaction
 **Depends on**: Phase 3
@@ -140,6 +147,7 @@ Phases execute in numeric order: 1 → 2 → 3 → 4 → 5 → 6
 | 2. Wizard Persistence | 8/8 | Complete   | 2026-03-02 |
 | 3. Player Registration | 3/6 | In Progress|  |
 | 03.1. Teams and Doubles | 4/4 | Complete   | 2026-03-08 |
+| 03.2. Player Profile | 0/? | Not started | - |
 | 4. Launch and Match Generation | 0/? | Not started | - |
 | 5. Results and Advancement | 0/? | Not started | - |
 | 6. Views and Dashboard | 0/? | Not started | - |
