@@ -145,7 +145,9 @@ Progress: [████░░░░░░] 57% (23/40 plans estimated)
 
 ### Pending Todos
 
-None yet.
+| File | Title | Area |
+|------|-------|------|
+| [2026-03-13-convention-routes-api-dossier-api-slash-body-only.md](.planning/todos/pending/2026-03-13-convention-routes-api-dossier-api-slash-body-only.md) | Convention routes API — dossier api/ + body only (pas de path params) | api |
 
 ### Quick Tasks Completed
 
