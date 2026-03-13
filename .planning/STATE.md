@@ -3,7 +3,7 @@ gsd_state_version: 1.0
 milestone: v1.0
 milestone_name: milestone
 status: unknown
-last_updated: "2026-03-13T22:11:18.298Z"
+last_updated: "2026-03-13T22:11:43.506Z"
 progress:
   total_phases: 5
   completed_phases: 4
@@ -63,6 +63,7 @@ Progress: [████░░░░░░] 57% (23/40 plans estimated)
 | Phase 03-player-registration P05 | 4 | 2 tasks | 9 files |
 | Phase 03.2-player-profile P01 | 2 | 2 tasks | 2 files |
 | Phase 03.2-player-profile P03 | 3 | 2 tasks | 3 files |
+| Phase 03.2-player-profile P02 | 2 | 2 tasks | 8 files |
 
 ## Accumulated Context
 
@@ -143,6 +144,9 @@ Progress: [████░░░░░░] 57% (23/40 plans estimated)
 - [Phase 03.2-01]: [03.2-01]: hooks.server.ts player resolution is now lookup-only — users without a profile get locals.player = null, prerequisite for all Phase 03.2 gating logic
 - [Phase 03.2-01]: [03.2-01]: data.player propagated via (app)/+layout.server.ts return — no additional queries needed in child pages
 - [Phase 03.2-03]: disabled={!data.player} on S'inscrire buttons only — Se désinscrire intentionally enabled for already-registered users without profile
+- [Phase 03.2-02]: PlayerCreationForm renders fields-only (no form tag) — pages control form element to inject hidden inputs like redirectTo
+- [Phase 03.2-02]: licence_no guard in both load() and actions.default() — prevents bypass via direct POST to /profile/edit
+- [Phase 03.2-02]: CreateProfileSchema/UpdateProfileSchema in event-schemas.ts not request-schemas.ts — tightly coupled to Player domain type per Zod-first rule
 
 ### Roadmap Evolution
 
