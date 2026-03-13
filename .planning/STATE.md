@@ -3,12 +3,12 @@ gsd_state_version: 1.0
 milestone: v1.0
 milestone_name: milestone
 status: unknown
-last_updated: "2026-03-13T22:06:42.380Z"
+last_updated: "2026-03-13T22:11:18.298Z"
 progress:
   total_phases: 5
-  completed_phases: 3
+  completed_phases: 4
   total_plans: 27
-  completed_plans: 24
+  completed_plans: 26
 ---
 
 # Project State
@@ -62,6 +62,7 @@ Progress: [████░░░░░░] 57% (23/40 plans estimated)
 | Phase 03-player-registration P04 | 12 | 3 tasks | 11 files |
 | Phase 03-player-registration P05 | 4 | 2 tasks | 9 files |
 | Phase 03.2-player-profile P01 | 2 | 2 tasks | 2 files |
+| Phase 03.2-player-profile P03 | 3 | 2 tasks | 3 files |
 
 ## Accumulated Context
 
@@ -141,6 +142,7 @@ Progress: [████░░░░░░] 57% (23/40 plans estimated)
 - [Phase 03-05]: STATUS_TRANSITIONS/STATUS_PREV maps in page.svelte enable linear status transitions with forward+back buttons without server-side validation
 - [Phase 03.2-01]: [03.2-01]: hooks.server.ts player resolution is now lookup-only — users without a profile get locals.player = null, prerequisite for all Phase 03.2 gating logic
 - [Phase 03.2-01]: [03.2-01]: data.player propagated via (app)/+layout.server.ts return — no additional queries needed in child pages
+- [Phase 03.2-03]: disabled={!data.player} on S'inscrire buttons only — Se désinscrire intentionally enabled for already-registered users without profile
 
 ### Roadmap Evolution
 
