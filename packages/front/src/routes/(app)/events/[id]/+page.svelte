@@ -1,9 +1,11 @@
 <script lang="ts">
 	import { Badge, Button } from "flowbite-svelte"
+	import { page } from "$app/stores"
 	import { CATEGORY_LABELS } from "$lib/tournament/labels"
 	import DoublesModal from "$lib/tournament/components/DoublesModal.svelte"
 	import type { PageData } from "./$types"
 	import { isDoublesTournament } from "$lib/tournament/utils"
+	import { apiRoutes } from "$lib/fetch/api"
 
 	let { data }: { data: PageData } = $props()
 
@@ -19,7 +21,7 @@
 	}
 
 	async function registerSolo(tournamentId: string) {
-		const res = await fetch(`/events/${data.event.id}/register`, {
+		const res = await fetch(apiRoutes.TOURNAMENT_REGISTER.path, {
 			method: "POST",
 			headers: { "Content-Type": "application/json" },
 			body: JSON.stringify({ tournament_id: tournamentId })
@@ -34,7 +36,7 @@
 	}
 
 	async function unregister(tournamentId: string) {
-		const res = await fetch(`/events/${data.event.id}/register`, {
+		const res = await fetch(apiRoutes.TOURNAMENT_UNEREGISER.path, {
 			method: "DELETE",
 			headers: { "Content-Type": "application/json" },
 			body: JSON.stringify({ tournament_id: tournamentId })
@@ -85,6 +87,18 @@
 			</p>
 		{/if}
 	</div>
+
+	{#if data.user && !data.player}
+		<div class="mb-4 rounded-lg border border-red-200 bg-red-50 p-4">
+			<p class="text-sm text-red-700">
+				Vous devez compléter votre profil joueur pour vous inscrire à un tournoi.
+				<a
+					href="/profile/create?redirectTo={encodeURIComponent($page.url.pathname)}"
+					class="font-medium underline"
+				>Créer mon profil</a>
+			</p>
+		</div>
+	{/if}
 
 	<!-- Tournament list -->
 	<h2 class="mb-4 text-xl font-semibold text-gray-800 dark:text-white">Tournois</h2>
@@ -143,6 +157,7 @@
 								<Button
 									color="primary"
 									size="xs"
+									disabled={!data.player}
 									onclick={() => openDoublesModal(tournament.id)}
 								>
 									S'inscrire (doubles)
@@ -151,6 +166,7 @@
 								<Button
 									color="primary"
 									size="xs"
+									disabled={!data.player}
 									onclick={() => registerSolo(tournament.id)}
 								>
 									S'inscrire
