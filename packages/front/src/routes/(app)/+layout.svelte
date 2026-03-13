@@ -36,6 +36,8 @@
 					<div class="truncate text-gray-500">{data.user?.email}</div>
 				</div>
 				<DropdownDivider />
+				<DropdownItem href="/profile">Mon profil</DropdownItem>
+				<DropdownDivider />
 				<DropdownItem onclick={handleSignOut}>Se déconnecter</DropdownItem>
 			</Dropdown>
 			<NavHamburger onclick={toggle} />

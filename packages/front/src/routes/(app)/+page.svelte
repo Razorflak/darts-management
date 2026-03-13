@@ -59,6 +59,23 @@
 	</p>
 </div>
 
+{#if data.user && !data.player}
+  <div class="mb-6 rounded-xl border border-dashed border-orange-200 bg-orange-50/40 p-5">
+    <div class="mb-3 flex h-9 w-9 items-center justify-center rounded-lg bg-white shadow-sm ring-1 ring-orange-100">
+      <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="currentColor" class="h-5 w-5 text-orange-500">
+        <path fill-rule="evenodd" d="M7.5 6a4.5 4.5 0 1 1 9 0 4.5 4.5 0 0 1-9 0ZM3.751 20.105a8.25 8.25 0 0 1 16.498 0 .75.75 0 0 1-.437.695A18.683 18.683 0 0 1 12 22.5c-2.786 0-5.433-.608-7.812-1.7a.75.75 0 0 1-.437-.695Z" clip-rule="evenodd" />
+      </svg>
+    </div>
+    <h3 class="font-medium text-orange-700">Compléter mon profil joueur</h3>
+    <p class="mt-1 text-xs text-orange-600 leading-relaxed">
+      Pour participer aux évènements de la FFD, créez vous un profil de joueur.
+    </p>
+    <a href="/profile/create" class="mt-3 inline-block text-xs font-medium text-orange-700 underline">
+      Créer mon profil →
+    </a>
+  </div>
+{/if}
+
 <!-- Tournois disponibles -->
 <section class="mb-10">
 	<h2 class="mb-4 flex items-center gap-2 text-base font-semibold text-gray-800">
