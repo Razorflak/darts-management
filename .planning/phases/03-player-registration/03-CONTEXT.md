@@ -110,6 +110,7 @@ Les joueurs peuvent s'inscrire à un tournoi ouvert (self-service ou via un admi
 - Clic → `confirm()` de `$lib/confirm.svelte.js` : "Cette action passera tous les tournois de cette journée en statut check-in"
 - Validation → update statut de tous les tournois du jour vers `check-in` + redirect vers `/admin/events/[id]/checkin?date=YYYY-MM-DD`
 - Si certains tournois du jour sont déjà en `check-in` : on les ignore silencieusement, pas de message
+- Le bouton reste visible tant qu'au moins un tournoi de la journée est en statut `check-in`
 - Annulation → reste sur `/admin/events/[id]`
 
 #### Page `/admin/events/[id]/checkin?date=...`
@@ -126,7 +127,8 @@ Les joueurs peuvent s'inscrire à un tournoi ouvert (self-service ou via un admi
 - Dé-checker un tournoi individuel : via le bouton tournoi + `confirm()`
 - Après action : ligne mise à jour visuellement (état "Checké" si tous les tournois sont checkés)
 - Pas de navigation de date sur cet écran — l'admin revient sur `/admin/events/[id]` pour choisir un autre jour
-- Page non accessible si au moins un tournoi de la journée est en statut `started` ou `finished` — jauge et liste uniquement pertinentes en phase de check-in
+- La requête serveur ne retourne que les tournois du jour en statut `check-in` — les tournois `started`/`finished` sont silencieusement exclus
+- Si aucun tournoi `check-in` ce jour → page vide (ou message d'état neutre)
 
 #### Définition "joueur checké"
 
@@ -172,7 +174,7 @@ Un joueur est considéré **checké** si et seulement si `checked_in = true` pou
 - Les tournois doubles ne sont accessibles que si la section 2 est ouverte (2 joueurs requis) ; si section 2 refermée → doubles masqués
 - Recherche joueur : autocomplete sur tous les profils en DB (pas filtré sur les inscrits du jour), même comportement que le roster existant
 - À la validation : pour chaque tournoi coché → appel API registration + appel API check-in immédiat ; les joueurs arrivent inscrits ET checkés
-- Si l'API registration retourne une erreur : afficher l'erreur et attendre une action utilisateur (pas de continuation silencieuse)
+- Si l'API registration retourne une erreur : afficher l'erreur inline dans la modal (comme `RegistrationModal`) et attendre une action utilisateur
 - Après validation réussie : modal fermée + liste joueurs rafraîchie automatiquement
 
 #### Patterns existants à réutiliser
