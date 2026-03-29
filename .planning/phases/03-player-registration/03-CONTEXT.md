@@ -174,7 +174,7 @@ Un joueur est considéré **checké** si et seulement si `checked_in = true` pou
 - Les tournois doubles ne sont accessibles que si la section 2 est ouverte (2 joueurs requis) ; si section 2 refermée → doubles masqués
 - Recherche joueur : autocomplete sur tous les profils en DB (pas filtré sur les inscrits du jour), même comportement que le roster existant
 - À la validation : pour chaque tournoi coché → appel API registration + appel API check-in immédiat ; les joueurs arrivent inscrits ET checkés
-- Si l'API registration retourne une erreur : afficher l'erreur inline dans la modal (comme `RegistrationModal`) et attendre une action utilisateur
+- Validation transactionnelle côté client : si un appel register échoue (ex. le 3e sur 4), appeler unregister sur tous les tournois déjà inscrits dans cette session pour revenir à l'état initial, puis afficher l'erreur inline dans la modal
 - Après validation réussie : modal fermée + liste joueurs rafraîchie automatiquement
 
 #### Patterns existants à réutiliser
