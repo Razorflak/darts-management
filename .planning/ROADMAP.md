@@ -80,7 +80,7 @@ Plans:
 - [ ] 03-03-PLAN.md — Page (app)/events/[id] + endpoint POST/DELETE /events/[id]/register (auto-inscription)
 - [ ] 03-04-PLAN.md — Migration 014 tournament.status + check_in_required wizard + page admin /admin/events/[id]
 - [ ] 03-05-PLAN.md — Roster admin (admin) /admin/events/[id]/tournaments/[tid]: check-in, player search, status buttons
-- [ ] 03-06-PLAN.md — [gap] Zod-first cleanup: extend TournamentWithRegistrationSchema + add OpenEventSchema, remove local schema re-definitions
+- [ ] 03-06-PLAN.md — [gap] Check-in cross-tournois: page /admin/events/[id]/checkin, boutons jour, modal Inscription
 
 ### Phase 03.1: Teams and Doubles Registration (INSERTED)
 
