@@ -10,22 +10,29 @@ import {
 	TableHead,
 	TableHeadCell,
 } from "flowbite-svelte"
+import { invalidateAll } from "$app/navigation"
+import { confirm } from "$lib/confirm.svelte.js"
+import { apiRoutes } from "$lib/fetch/api"
 import type { RosterEntry } from "$lib/server/schemas/event-schemas.js"
 import type { PageData } from "./$types"
 import RegistrationModal from "./RegistrationModal.svelte"
-import { apiRoutes } from "$lib/fetch/api"
 
 let { data }: { data: PageData } = $props()
 
-const eventId = data.tournament.event_id
-const tournamentId = data.tournament.id
-const baseUrl = `/admin/events/${eventId}/tournaments/${tournamentId}`
+// Dériver les valeurs depuis data
+const eventId = $derived(data.tournament.event_id)
+const tournamentId = $derived(data.tournament.id)
+const baseUrl = $derived(`/admin/events/${eventId}/tournaments/${tournamentId}`)
 
 const DOUBLE_CATEGORIES = ["double", "double_female", "double_mix"]
-const isDoubles = DOUBLE_CATEGORIES.includes(data.tournament.category)
+const isDoubles = $derived(DOUBLE_CATEGORIES.includes(data.tournament.category))
 
+// svelte-ignore state_referenced_locally
 let roster = $state<RosterEntry[]>(data.roster)
-let tournamentStatus = $state(data.tournament.status)
+let tournamentStatus = $state<"ready" | "check-in" | "started" | "finished">(
+	// svelte-ignore state_referenced_locally
+	data.tournament.status,
+)
 
 // Filter
 let filterQuery = $state("")
@@ -78,10 +85,14 @@ async function changeStatus(newStatus: string) {
 	const res = await fetch(apiRoutes.TOURNAMENT_STATUS.path, {
 		method: "PATCH",
 		headers: { "Content-Type": "application/json" },
-		body: JSON.stringify({ status: newStatus }),
+		body: JSON.stringify({ status: newStatus, tournament_id: tournamentId }),
 	})
 	if (res.ok) {
-		tournamentStatus = newStatus
+		tournamentStatus = newStatus as
+			| "ready"
+			| "check-in"
+			| "started"
+			| "finished"
 	}
 }
 
@@ -99,13 +110,14 @@ async function checkIn(registrationId: string, value: boolean) {
 	if (entry) entry.checked_in = value
 }
 
-async function unregister(teamId: string) {
-	await fetch(`${baseUrl}/unregister`, {
+async function unregister(registrationId: string) {
+	if (!(await confirm("Confirmer le retrait de cette équipe ?"))) return
+	await fetch(apiRoutes.TOURNAMENT_UNEREGISER.path, {
 		method: "DELETE",
 		headers: { "Content-Type": "application/json" },
-		body: JSON.stringify({ team_id: teamId }),
+		body: JSON.stringify({ registration_id: registrationId }),
 	})
-	roster = roster.filter((e) => e.team_id !== teamId)
+	roster = roster.filter((e) => e.registration_id !== registrationId)
 }
 </script>
 
@@ -217,7 +229,7 @@ async function unregister(teamId: string) {
 							</TableBodyCell>
 						{/if}
 						<TableBodyCell>
-							<Button color="red" size="xs" onclick={() => unregister(entry.team_id)}>
+							<Button color="red" size="xs" onclick={() => unregister(entry.registration_id)}>
 								Retirer
 							</Button>
 						</TableBodyCell>
@@ -231,6 +243,6 @@ async function unregister(teamId: string) {
 <RegistrationModal
 	bind:open={showAddModal}
 	{isDoubles}
-	{baseUrl}
-	onRegistered={() => window.location.reload()}
+	{tournamentId}
+	onRegistered={async () => { await invalidateAll() }}
 />

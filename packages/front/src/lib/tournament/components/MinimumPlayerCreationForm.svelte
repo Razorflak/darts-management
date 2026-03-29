@@ -20,6 +20,6 @@ const inputClass =
 	<input class={inputClass} placeholder="Prénom *" bind:value={first_name} />
 	<input class={inputClass} placeholder="Nom *" bind:value={last_name} />
 	<div class="col-span-2">
-		<DepartmentSelect bind:value={department} placeholder="Département" />
+		<DepartmentSelect bind:value={department} placeholder="Département*" />
 	</div>
 </div>

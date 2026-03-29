@@ -1,5 +1,6 @@
 import { error, json } from "@sveltejs/kit"
 import { z } from "zod"
+import { errors, getJsonStringError } from "$lib/error"
 import { sql } from "$lib/server/db"
 import { findOrCreateTeam } from "$lib/server/teams.js"
 import { createNewPlayer, isNewPlayerAlreadyExist } from "../../players/+server"
@@ -66,8 +67,7 @@ export const POST: RequestHandler = async ({ request, locals, params }) => {
 	const { data, error: parseError } = RegistrationRequestSchema.safeParse(body)
 
 	if (parseError) {
-		console.log("JTA", parseError, body)
-		return error(400, "Requête invalide: " + parseError.message)
+		return error(400, getJsonStringError(errors.ERR_0002, parseError.message))
 	}
 	const { tournament_id, team } = data
 
