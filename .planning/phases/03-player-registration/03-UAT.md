@@ -23,9 +23,8 @@ result: pass
 
 ### 3. Auto-création du profil joueur
 expected: Lors de la première connexion d'un utilisateur, un profil joueur est automatiquement créé (visible dans la base ou via un formulaire de profil). Aucune action manuelle n'est nécessaire.
-result: issue
-reported: "Non, il doit créer son profil de joueur manuellement. et c'est le comportement voulu"
-severity: major
+result: skipped
+reason: "Comportement voulu : le joueur crée son profil manuellement via un formulaire dédié. L'auto-création n'est pas dans le scope."
 
 ### 4. Inscription à un tournoi (joueur)
 expected: Cliquer sur "S'inscrire" pour un tournoi inscrit le joueur immédiatement (mise à jour optimiste). Le bouton se transforme en "Inscrit · Se désinscrire" sans rechargement de page.
@@ -65,18 +64,9 @@ note: Une modal de confirmation s'affiche avant de retirer l'équipe — comport
 
 total: 11
 passed: 9
-issues: 1
+issues: 0
 pending: 0
-skipped: 1
+skipped: 2
 
 ## Gaps
 
-- truth: "Le joueur doit créer son profil manuellement via un formulaire dédié"
-  status: failed
-  reason: "User reported: Non, il doit créer son profil de joueur manuellement. et c'est le comportement voulu"
-  severity: major
-  test: 3
-  root_cause: ""
-  artifacts: []
-  missing: []
-  debug_session: ""
