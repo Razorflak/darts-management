@@ -92,7 +92,6 @@ Les joueurs peuvent s'inscrire à un tournoi ouvert (self-service ou via un admi
 <deferred>
 ## Deferred Ideas
 
-- **Check-in rapide cross-tournois** : feature pour checker d'un coup un joueur sur tous les tournois d'un événement (pratique le matin quand les gens arrivent). Phase 4 ou quick task.
 - **Fusion profil joueur / compte utilisateur** : réclamer un profil créé sans compte via numéro de licence + identité — validation auto. Hors scope phase 3.
 - **Recherche + filtre par entité** dans la liste des événements homepage — différé
 - **Capacité max de joueurs par tournoi** (liste d'attente) — différé
@@ -101,5 +100,31 @@ Les joueurs peuvent s'inscrire à un tournoi ouvert (self-service ou via un admi
 
 ---
 
+### Plan 06 — Check-in cross-tournois (ajouté 2026-03-30)
+
+#### Bouton par jour sur `/admin/events/[id]`
+
+- Un bouton "Check-in jour [date]" par journée de compétition de l'événement
+- Clic → `confirm()` de `$lib/confirm.svelte.js` : "Cette action passera tous les tournois de cette journée en statut check-in"
+- Validation → update statut de tous les tournois du jour vers `check-in` + redirect vers `/admin/events/[id]/checkin?date=YYYY-MM-DD`
+- Annulation → reste sur `/admin/events/[id]`
+
+#### Page `/admin/events/[id]/checkin?date=...`
+
+- Affiche tous les joueurs inscrits à au moins un tournoi ce jour
+- Par joueur : badges par tournoi + checkbox par tournoi (pré-cochées par défaut)
+- Bouton "Check-in" par joueur → checke les inscriptions des tournois dont la checkbox est cochée
+- Cas doubles : checker un joueur checke toute son équipe (les deux membres)
+- Après check-in : ligne marquée comme "Checké" (reste visible, état visuel distinct)
+- Dé-checker un joueur : possible via `confirm()`, décoche tous ses tournois de la journée
+- Pas de navigation de date sur cet écran — l'admin revient sur `/admin/events/[id]` pour choisir un autre jour
+
+#### Patterns existants à réutiliser
+
+- `confirm()` de `$lib/confirm.svelte.js` pour les confirmations (pas de modal custom)
+- Authz entity-level identique aux autres endpoints `(admin)`
+
+---
+
 *Phase: 03-player-registration*
-*Context gathered: 2026-03-08*
+*Context gathered: 2026-03-08 — mis à jour: 2026-03-30*
