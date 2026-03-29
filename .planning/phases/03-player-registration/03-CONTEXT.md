@@ -141,11 +141,40 @@ Un joueur est considéré **checké** si et seulement si `checked_in = true` pou
 
 - Checkbox "Afficher uniquement les joueurs non checkés", désactivée par défaut
 - Quand activée : masque les joueurs dont tous les tournois du jour sont à `checked_in = true`
+- Filtre et recherche par nom sont combinables simultanément
+- Mise à jour en temps réel : si le filtre est actif et qu'un joueur devient 100% checké, sa ligne disparaît immédiatement
+- Les joueurs sans compte (`user_id` null, créés par un admin) apparaissent normalement
+
+#### Modal d'inscription à la volée
+
+- Bouton fixe en haut de la page (pas lié à une ligne joueur) pour ouvrir la modal
+- Extraite dans un composant dédié (logique importante) — s'inspire de `RegistrationModal.svelte` mais reçoit en props tous les tournois de l'événement
+- Structure de la modal :
+  ```
+  [ Section 1 ]
+    Recherche joueur 1  +  ▼ Joueur non trouvé ? Créer un joueur
+    ☐ Simples A   ☐ Simples B   (tous les tournois simples de l'event)
+
+    [+ Ajouter un joueur]  ← ouvre la section 2
+
+  [ Section 2 ] (si ouverte)
+    Recherche joueur 2  +  ▼ Joueur non trouvé ? Créer un joueur
+    ☐ Simples A   ☐ Simples B
+
+  ──────────────────────────────────
+  ☐ Doubles X   ☐ Doubles Y   ← commun, visible uniquement si section 2 ouverte
+  ──────────────────────────────────
+
+  [ Valider ]
+  ```
+- Les tournois doubles ne sont accessibles que si la section 2 est ouverte (2 joueurs requis)
+- À la validation : appel à l'API registration pour chaque tournoi coché (l'API gère les doubles et la création de joueur)
 
 #### Patterns existants à réutiliser
 
 - `confirm()` de `$lib/confirm.svelte.js` pour les confirmations (pas de modal custom)
 - Authz entity-level identique aux autres endpoints `(admin)`
+- `RegistrationModal.svelte` comme référence pour la logique d'inscription
 
 ---
 
