@@ -119,6 +119,23 @@ Les joueurs peuvent s'inscrire à un tournoi ouvert (self-service ou via un admi
 - Dé-checker un joueur : possible via `confirm()`, décoche tous ses tournois de la journée
 - Pas de navigation de date sur cet écran — l'admin revient sur `/admin/events/[id]` pour choisir un autre jour
 
+#### Définition "joueur checké"
+
+Un joueur est considéré **checké** si et seulement si `checked_in = true` pour **tous** ses tournois de la journée.
+- Exemple : inscrit en simples + doubles → partenaire valide le doubles mais simples pas encore checké → joueur **non checké** dans la jauge et le filtre
+- La logique s'applique au niveau du joueur individuel, pas de l'équipe
+
+#### Jauge de progression
+
+- Barre horizontale en haut de la page indiquant le % de joueurs checkés (`nb_checkés / nb_total`)
+- Se met à jour après chaque action de check-in / dé-check-in
+
+#### Filtre liste joueurs
+
+- Checkbox au-dessus de la liste : "Afficher uniquement les joueurs non checkés"
+- Par défaut : tous les joueurs sont affichés
+- Quand activé : masque les joueurs dont tous les tournois de la journée sont checkés
+
 #### Patterns existants à réutiliser
 
 - `confirm()` de `$lib/confirm.svelte.js` pour les confirmations (pas de modal custom)
