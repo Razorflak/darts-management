@@ -1,36 +1,40 @@
 <script lang="ts">
-	import type { DraftEvent, Event, Entity } from "$lib/server/schemas/event-schemas.js"
+import type {
+	DraftEvent,
+	Event,
+	Entity,
+} from "$lib/server/schemas/event-schemas.js"
 
-	import { Button, Datepicker, Label, Select } from "flowbite-svelte"
+import { Button, Datepicker, Label, Select } from "flowbite-svelte"
 
-	interface Props {
-		event: DraftEvent | Event
-		entities: Entity[]
-		onNext: () => void
-		onCancel: () => void
-		readonly?: boolean
-	}
+interface Props {
+	event: DraftEvent | Event
+	entities: Entity[]
+	onNext: () => void
+	onCancel: () => void
+	readonly?: boolean
+}
 
-	let {
-		event: eventProp = $bindable(),
-		entities,
-		onNext,
-		onCancel,
-		readonly = false
-	}: Props = $props()
+let {
+	event: eventProp = $bindable(),
+	entities,
+	onNext,
+	onCancel,
+	readonly = false,
+}: Props = $props()
 
-	let event = $state(eventProp)
-	$effect(() => {
-		event = eventProp
-	})
-	$effect(() => {
-		eventProp = event
-	})
+let event = $state(eventProp)
+$effect(() => {
+	event = eventProp
+})
+$effect(() => {
+	eventProp = event
+})
 
-	function handleSubmit(e: SubmitEvent) {
-		e.preventDefault()
-		onNext()
-	}
+function handleSubmit(e: SubmitEvent) {
+	e.preventDefault()
+	onNext()
+}
 </script>
 
 {#if readonly}

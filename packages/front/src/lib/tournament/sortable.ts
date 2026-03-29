@@ -1,4 +1,4 @@
-import Sortable from 'sortablejs'
+import Sortable from "sortablejs"
 
 /**
  * Svelte action that wraps SortableJS.

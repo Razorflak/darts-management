@@ -17,7 +17,7 @@ const OpenEventRowSchema = z.object({
 	category: TournamentWithRegistrationSchema.shape.category,
 	check_in_required: z.boolean(),
 	registration_count: z.number().int(),
-	is_registered: z.boolean()
+	is_registered: z.boolean(),
 })
 type OpenEventRow = z.infer<typeof OpenEventRowSchema>
 
@@ -73,9 +73,9 @@ export const load: PageServerLoad = async ({ locals }) => {
 					starts_at: row.starts_at,
 					ends_at: row.ends_at,
 					location: row.location,
-					entity_name: row.entity_name
+					entity_name: row.entity_name,
 				},
-				tournaments: []
+				tournaments: [],
 			})
 		}
 		eventMap.get(row.event_id)!.tournaments.push(
@@ -85,8 +85,8 @@ export const load: PageServerLoad = async ({ locals }) => {
 				category: row.category,
 				check_in_required: row.check_in_required,
 				registration_count: row.registration_count,
-				is_registered: row.is_registered
-			})
+				is_registered: row.is_registered,
+			}),
 		)
 	}
 

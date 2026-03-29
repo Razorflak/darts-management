@@ -1,21 +1,30 @@
 <script lang="ts">
-  import { Badge, Button, Table, TableBody, TableBodyCell, TableBodyRow, TableHead, TableHeadCell } from "flowbite-svelte"
+import {
+	Badge,
+	Button,
+	Table,
+	TableBody,
+	TableBodyCell,
+	TableBodyRow,
+	TableHead,
+	TableHeadCell,
+} from "flowbite-svelte"
 
-  let { data } = $props()
+let { data } = $props()
 
-  const TYPE_LABELS: Record<string, string> = {
-    federation: "Fédération",
-    ligue: "Ligue",
-    comite: "Comité",
-    club: "Club",
-  }
+const TYPE_LABELS: Record<string, string> = {
+	federation: "Fédération",
+	ligue: "Ligue",
+	comite: "Comité",
+	club: "Club",
+}
 
-  const TYPE_COLORS: Record<string, "red" | "blue" | "green" | "yellow"> = {
-    federation: "red",
-    ligue: "blue",
-    comite: "green",
-    club: "yellow",
-  }
+const TYPE_COLORS: Record<string, "red" | "blue" | "green" | "yellow"> = {
+	federation: "red",
+	ligue: "blue",
+	comite: "green",
+	club: "yellow",
+}
 </script>
 
 <div class="flex items-center justify-between mb-6">

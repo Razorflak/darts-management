@@ -1,8 +1,11 @@
 import { error } from "@sveltejs/kit"
-import { sql } from "$lib/server/db"
-import type { PageServerLoad } from "./$types"
 import { z } from "zod"
-import { CategorySchema, EventSchema } from "$lib/server/schemas/event-schemas.js"
+import { sql } from "$lib/server/db"
+import {
+	CategorySchema,
+	EventSchema,
+} from "$lib/server/schemas/event-schemas.js"
+import type { PageServerLoad } from "./$types"
 
 // Event detail without the wizard tournaments array
 const EventDetailSchema = EventSchema.omit({ tournaments: true })
@@ -42,8 +45,8 @@ export const load: PageServerLoad = async ({ locals, params }) => {
 		entity: {
 			id: eventRow.entity_id,
 			name: eventRow.entity_name,
-			type: eventRow.entity_type
-		}
+			type: eventRow.entity_type,
+		},
 	})
 
 	// Used by public event page: tournament info + registration state for current visitor
@@ -55,32 +58,36 @@ export const load: PageServerLoad = async ({ locals, params }) => {
 		registration_count: z.number().int(),
 		is_registered: z.boolean(),
 		start_at: z.coerce.date(),
-		partner: z.string().nullable()
+		partner: z.string().nullable(),
+		registration_id: z.uuid().nullable(),
 	})
-	type TournamentWithRegistration = z.infer<typeof TournamentWithRegistrationSchema>
+	type TournamentWithRegistration = z.infer<
+		typeof TournamentWithRegistrationSchema
+	>
 
 	// Current player id (null when user has no player profile yet)
 	const currentPlayerId = locals.player?.id ?? null
 
 	// Fetch tournaments with registration state for current player
 	const tournamentRows = await sql<Record<string, unknown>[]>`
-        SELECT
-			t.id, t.name, t.category, t.check_in_required,
-			COUNT(r.id)::int AS registration_count,t.start_at,
-			EXISTS (
-				SELECT 1 FROM tournament_registration r_me
-				JOIN team_member tm ON tm.team_id = r_me.team_id
-				WHERE r_me.tournament_id = t.id AND tm.player_id = ${currentPlayerId}
-			) AS is_registered,
-			CONCAT(p2.first_name::text , ' ' , p2.last_name::text) as partner
-		FROM tournament t
-		LEFT JOIN tournament_registration r ON r.tournament_id = t.id
-		left join team on team.id = r.team_id
-		left join team_member tm on tm.team_id = team.id and tm.player_id != ${currentPlayerId}
-		left join player p2 on p2.id = tm.player_id
-		WHERE t.event_id = ${eventId}
-		GROUP BY t.id, p2.first_name, p2.last_name
-		ORDER BY t.name	`
+select t.id, t.name, t.category, t.check_in_required,
+		COUNT(r.id)::int AS registration_count,t.start_at,
+		COALESCE(rg.is_registered, false)  as is_registered,
+		rg.registration_id ,
+		rg.partner 
+	FROM tournament t
+	LEFT JOIN tournament_registration r ON r.tournament_id = t.id
+	left join (select r.id as registration_id, tournament_id, true as is_registered, CONCAT(p2.first_name::text , ' ' , p2.last_name::text) as partner
+	from tournament_registration r
+	left join team  on team.id = r.team_id
+	left join team_member tm on tm.team_id = team.id and tm.player_id = ${currentPlayerId}
+	left join team_member tm2 on tm.team_id = tm2.team_id and tm2.player_id != ${currentPlayerId}
+	left join player p2 on p2.id = tm2.player_id
+	where tm.player_id = ${currentPlayerId}) as rg on t.id = rg.tournament_id
+	where t.event_id = ${eventId}
+	GROUP BY t.id,rg.tournament_id, rg.is_registered, rg.partner , rg.registration_id  
+	order by t.id
+    `
 
 	const tournaments: TournamentWithRegistration[] = z
 		.array(TournamentWithRegistrationSchema)
@@ -89,6 +96,6 @@ export const load: PageServerLoad = async ({ locals, params }) => {
 	return {
 		event,
 		tournaments,
-		canRegister: event.status === "ready"
+		canRegister: event.status === "ready",
 	}
 }

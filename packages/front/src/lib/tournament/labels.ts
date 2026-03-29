@@ -1,4 +1,8 @@
-import type { BracketTier, Category, PhaseType } from "$lib/server/schemas/event-schemas"
+import type {
+	BracketTier,
+	Category,
+	PhaseType,
+} from "$lib/server/schemas/event-schemas"
 
 export const CATEGORY_LABELS: Record<Category, string> = {
 	male: "Masculin",
@@ -9,14 +13,14 @@ export const CATEGORY_LABELS: Record<Category, string> = {
 	mix: "Mixte",
 	double: "Double",
 	double_female: "Double Féminin",
-	double_mix: "Double Mixte"
+	double_mix: "Double Mixte",
 }
 
 export const PHASE_TYPE_LABELS: Record<PhaseType, string> = {
 	round_robin: "Poules Classique",
 	double_loss_groups: "Poules Double KO",
 	single_elimination: "Arbre Direct",
-	double_elimination: "Double Élimination"
+	double_elimination: "Double Élimination",
 }
 
 export const BRACKET_ROUND_LABELS: Record<BracketTier["round"], string> = {
@@ -31,5 +35,5 @@ export const BRACKET_ROUND_LABELS: Record<BracketTier["round"], string> = {
 	16: "jusqu'en 1/16",
 	8: "Quarts de finale",
 	4: "Demi-finales",
-	2: "Finale"
+	2: "Finale",
 }

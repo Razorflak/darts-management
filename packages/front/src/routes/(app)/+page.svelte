@@ -1,43 +1,55 @@
 <script lang="ts">
-	import { Badge, Button } from "flowbite-svelte"
-	import { CATEGORY_LABELS } from "$lib/tournament/labels"
-	import type { Category } from "$lib/server/schemas/event-schemas"
-	import type { PageData } from "./$types"
+import { Badge, Button } from "flowbite-svelte"
+import type { Category } from "$lib/server/schemas/event-schemas"
+import { CATEGORY_LABELS } from "$lib/tournament/labels"
+import type { PageData } from "./$types"
 
-	let { data }: { data: PageData } = $props()
+let { data }: { data: PageData } = $props()
 
-	let openEvents = $state(data.openEvents)
+let openEvents = $state(data.openEvents)
 
-	const registeredCount = $derived(
-		openEvents.reduce((acc, { tournaments }) => acc + tournaments.filter((t) => t.is_registered).length, 0)
-	)
+const registeredCount = $derived(
+	openEvents.reduce(
+		(acc, { tournaments }) =>
+			acc + tournaments.filter((t) => t.is_registered).length,
+		0,
+	),
+)
 
-	const totalTournaments = $derived(
-		openEvents.reduce((acc, { tournaments }) => acc + tournaments.length, 0)
-	)
+const totalTournaments = $derived(
+	openEvents.reduce((acc, { tournaments }) => acc + tournaments.length, 0),
+)
 
-	function formatDateRange(start: Date, end: Date): string {
-		const s = new Date(start)
-		const e = new Date(end)
-		if (s.toDateString() === e.toDateString()) {
-			return s.toLocaleDateString("fr-FR", { day: "numeric", month: "long", year: "numeric" })
-		}
-		const sStr = s.toLocaleDateString("fr-FR", { day: "numeric", month: "short" })
-		const eStr = e.toLocaleDateString("fr-FR", { day: "numeric", month: "short", year: "numeric" })
-		return `${sStr} – ${eStr}`
+function formatDateRange(start: Date, end: Date): string {
+	const s = new Date(start)
+	const e = new Date(end)
+	if (s.toDateString() === e.toDateString()) {
+		return s.toLocaleDateString("fr-FR", {
+			day: "numeric",
+			month: "long",
+			year: "numeric",
+		})
 	}
+	const sStr = s.toLocaleDateString("fr-FR", { day: "numeric", month: "short" })
+	const eStr = e.toLocaleDateString("fr-FR", {
+		day: "numeric",
+		month: "short",
+		year: "numeric",
+	})
+	return `${sStr} – ${eStr}`
+}
 
-	const CATEGORY_COLORS = {
-		male: "blue",
-		female: "pink",
-		junior: "yellow",
-		veteran: "purple",
-		open: "green",
-		mix: "indigo",
-		double: "blue",
-		double_female: "pink",
-		double_mix: "indigo",
-	} as const satisfies Record<Category, string>
+const CATEGORY_COLORS = {
+	male: "blue",
+	female: "pink",
+	junior: "yellow",
+	veteran: "purple",
+	open: "green",
+	mix: "indigo",
+	double: "blue",
+	double_female: "pink",
+	double_mix: "indigo",
+} as const satisfies Record<Category, string>
 </script>
 
 <svelte:head>

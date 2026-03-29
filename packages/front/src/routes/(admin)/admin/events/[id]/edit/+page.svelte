@@ -1,75 +1,79 @@
 <script lang="ts">
-	import Breadcrumb from "$lib/tournament/components/Breadcrumb.svelte"
-	import EventStep from "$lib/tournament/components/EventStep.svelte"
-	import TournamentStep from "$lib/tournament/components/TournamentStep.svelte"
-	import PublishStep from "$lib/tournament/components/PublishStep.svelte"
-	import TemplateModal from "$lib/tournament/components/TemplateModal.svelte"
-	import { Button } from "flowbite-svelte"
-	import { goto } from "$app/navigation"
-	import type { WizardStep } from "$lib/tournament/types.js"
-	import type { Event, DraftTournament, DraftEvent } from "$lib/server/schemas/event-schemas.js"
+import Breadcrumb from "$lib/tournament/components/Breadcrumb.svelte"
+import EventStep from "$lib/tournament/components/EventStep.svelte"
+import TournamentStep from "$lib/tournament/components/TournamentStep.svelte"
+import PublishStep from "$lib/tournament/components/PublishStep.svelte"
+import TemplateModal from "$lib/tournament/components/TemplateModal.svelte"
+import { Button } from "flowbite-svelte"
+import { goto } from "$app/navigation"
+import type { WizardStep } from "$lib/tournament/types.js"
+import type {
+	Event,
+	DraftTournament,
+	DraftEvent,
+} from "$lib/server/schemas/event-schemas.js"
 
-	let { data } = $props()
+let { data } = $props()
 
-	let step = $state<WizardStep>(1)
-	let saving = $state(false)
-	let saveError = $state<string | null>(null)
-	let publishError = $state<string | null>(null)
+let step = $state<WizardStep>(1)
+let saving = $state(false)
+let saveError = $state<string | null>(null)
+let publishError = $state<string | null>(null)
 
-	let event = $derived<Event | DraftEvent>(data.event)
-	let tournaments = $derived<DraftTournament[]>(event.tournaments ?? []) // Pre-populated from DB
+let event = $derived<Event | DraftEvent>(data.event)
+let tournaments = $derived<DraftTournament[]>(event.tournaments ?? []) // Pre-populated from DB
 
-	let templateModalOpen = $state(false)
+let templateModalOpen = $state(false)
 
-	function applyTemplate(newEvent: DraftEvent) {
-		event = newEvent
+function applyTemplate(newEvent: DraftEvent) {
+	event = newEvent
+}
+
+async function save() {
+	if (!event.name?.trim()) {
+		saveError = "Le nom de l'événement est requis pour enregistrer."
+		return
 	}
-
-	async function save() {
-		if (!event.name?.trim()) {
-			saveError = "Le nom de l'événement est requis pour enregistrer."
-			return
+	saving = true
+	saveError = null
+	try {
+		const res = await fetch("/admin/events/new/save", {
+			method: "POST",
+			headers: { "content-type": "application/json" },
+			body: JSON.stringify({ event }),
+		})
+		const json = await res.json()
+		if (!res.ok) {
+			saveError = json.error ?? "Erreur lors de la sauvegarde."
 		}
-		saving = true
-		saveError = null
-		try {
-			const res = await fetch("/admin/events/new/save", {
-				method: "POST",
-				headers: { "content-type": "application/json" },
-				body: JSON.stringify({ event })
-			})
-			const json = await res.json()
-			if (!res.ok) {
-				saveError = json.error ?? "Erreur lors de la sauvegarde."
-			}
-		} catch {
-			saveError = "Erreur réseau lors de la sauvegarde."
-		} finally {
-			saving = false
-		}
+	} catch {
+		saveError = "Erreur réseau lors de la sauvegarde."
+	} finally {
+		saving = false
 	}
+}
 
-	async function publish() {
-		publishError = null
-		saving = true
-		try {
-			const res = await fetch("/admin/events/new/publish", {
-				method: "POST",
-				headers: { "content-type": "application/json" },
-				body: JSON.stringify({ event })
-			})
-			const json = await res.json()
-			if (res.ok) {
-				await goto("/events")
-			} else {
-				publishError = json.error ?? "Erreur lors de la publication."
-			}
-		} catch {
-			publishError = "Erreur réseau lors de la publication."
-		} finally {
-			saving = false
+async function publish() {
+	publishError = null
+	saving = true
+	try {
+		const res = await fetch("/admin/events/new/publish", {
+			method: "POST",
+			headers: { "content-type": "application/json" },
+			body: JSON.stringify({ event }),
+		})
+		const json = await res.json()
+		if (res.ok) {
+			await goto("/events")
+		} else {
+			publishError = json.error ?? "Erreur lors de la publication."
 		}
+	} catch {
+		publishError = "Erreur réseau lors de la publication."
+	} finally {
+		saving = false
 	}
+}
 </script>
 
 <svelte:head>

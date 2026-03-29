@@ -1,5 +1,5 @@
-@import 'tailwindcss';
-@import '$lib/styles/theme.css';
+@import "tailwindcss";
+@import "$lib/styles/theme.css";
 
 /* Flowbite-Svelte : scan des classes Tailwind utilisées */
 @source "../../node_modules/flowbite-svelte/dist";

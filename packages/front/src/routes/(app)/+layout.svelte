@@ -1,24 +1,24 @@
 <script lang="ts">
-	import {
-		Navbar,
-		NavBrand,
-		NavHamburger,
-		NavUl,
-		NavLi,
-		Avatar,
-		Dropdown,
-		DropdownItem,
-		DropdownDivider,
-	} from "flowbite-svelte"
-	import { page } from "$app/stores"
-	import { authClient } from "$lib/auth-client"
+import {
+	Navbar,
+	NavBrand,
+	NavHamburger,
+	NavUl,
+	NavLi,
+	Avatar,
+	Dropdown,
+	DropdownItem,
+	DropdownDivider,
+} from "flowbite-svelte"
+import { page } from "$app/stores"
+import { authClient } from "$lib/auth-client"
 
-	let { children, data } = $props()
+let { children, data } = $props()
 
-	async function handleSignOut() {
-		await authClient.signOut()
-		window.location.href = "/login"
-	}
+async function handleSignOut() {
+	await authClient.signOut()
+	window.location.href = "/login"
+}
 </script>
 
 <Navbar>

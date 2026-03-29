@@ -1,112 +1,81 @@
 <script lang="ts">
-	import { Button, Input, Modal } from "flowbite-svelte"
-	import type { PartnerSearchResult } from "$lib/server/schemas/event-schemas.js"
-	import DepartmentSelect from "$lib/tournament/components/DepartmentSelect.svelte"
+import { Button, Input, Modal } from "flowbite-svelte"
+import { page } from "$app/state"
+import { apiRoutes } from "$lib/fetch/api"
+import type { PlayerSearchResult } from "$lib/server/schemas/event-schemas.js"
+import DepartmentSelect from "$lib/tournament/components/DepartmentSelect.svelte"
+import PlayerSearch from "$lib/tournament/components/PlayerSearch.svelte"
 
-	type Props = {
-		open: boolean
-		tournamentId: string
-		eventId: string
-		onClose: () => void
-		onRegistered: () => void
-	}
-	let { open = $bindable(), tournamentId, eventId, onClose, onRegistered }: Props = $props()
+type Props = {
+	open: boolean
+	tournamentId: string
+	eventId: string
+	onClose: () => void
+	onRegistered: () => void
+}
+let {
+	open = $bindable(),
+	tournamentId,
+	onClose,
+	onRegistered,
+}: Props = $props()
 
-	let query = $state("")
-	let results = $state<PartnerSearchResult[]>([])
-	let selected = $state<PartnerSearchResult | null>(null)
-	let showCreateForm = $state(false)
-	let newPartner = $state({ first_name: "", last_name: "", department: "" })
-	let submitting = $state(false)
-	let error = $state<string | null>(null)
-	let timer: ReturnType<typeof setTimeout>
+let selected = $state<PlayerSearchResult | null>(null)
+let showCreateForm = $state(false)
+let newPartner = $state({ first_name: "", last_name: "", department: "" })
+let submitting = $state(false)
+let error = $state<string | null>(null)
 
-	$effect(() => {
-		clearTimeout(timer)
-		if (query.length < 3) {
-			results = []
-			return
-		}
-		timer = setTimeout(async () => {
-			const res = await fetch(
-				`/tournaments/${tournamentId}/partner/search?q=${encodeURIComponent(query)}`
-			)
-			if (res.ok) {
-				results = await res.json()
-			}
-		}, 300)
-	})
+function selectPartner(p: PlayerSearchResult) {
+	selected = p
+	showCreateForm = false
+}
 
-	function selectPartner(p: PartnerSearchResult) {
-		selected = p
-		query = ""
-		results = []
-		showCreateForm = false
-	}
-
-	async function confirm() {
-		submitting = true
-		error = null
-		try {
-			let partnerId: string
-
-			if (selected) {
-				partnerId = selected.id
-			} else if (showCreateForm) {
-				// Étape 1 : créer le joueur
-				const createRes = await fetch("/players", {
-					method: "POST",
-					headers: { "Content-Type": "application/json" },
-					body: JSON.stringify({
-						first_name: newPartner.first_name,
-						last_name: newPartner.last_name,
-						department: newPartner.department || undefined
-					})
-				})
-				if (!createRes.ok) {
-					const data = await createRes.json().catch(() => ({}))
-					error = data.message ?? "Erreur lors de la création du joueur."
-					return
+async function confirm() {
+	submitting = true
+	error = null
+	try {
+		const parternInfo = selected
+			? { id: selected.id }
+			: {
+					first_name: newPartner.first_name,
+					last_name: newPartner.last_name,
+					department: newPartner.department,
 				}
-				const { id } = await createRes.json()
-				partnerId = id
-			} else {
-				error = "Sélectionnez un partenaire ou créez un nouveau joueur."
-				return
-			}
-
-			// Étape 2 : inscrire avec le partenaire
-			const regRes = await fetch(`/events/${eventId}/register`, {
-				method: "POST",
-				headers: { "Content-Type": "application/json" },
-				body: JSON.stringify({ tournament_id: tournamentId, partner_player_id: partnerId })
-			})
-			if (regRes.ok) {
-				onRegistered()
-				open = false
-				reset()
-			} else {
-				const data = await regRes.json().catch(() => ({}))
-				error = data.message ?? "Erreur lors de l'inscription."
-			}
-		} finally {
-			submitting = false
+		const currentPlayerId = page.data.player.id
+		// Étape 2 : inscrire avec le partenaire
+		const regRes = await fetch(apiRoutes.TOURNAMENT_REGISTER.path, {
+			method: "POST",
+			headers: { "Content-Type": "application/json" },
+			body: JSON.stringify({
+				tournament_id: tournamentId,
+				team: [{ id: currentPlayerId }, parternInfo],
+			}),
+		})
+		if (regRes.ok) {
+			onRegistered()
+			open = false
+			reset()
+		} else {
+			const data = await regRes.json().catch(() => ({}))
+			error = data.message ?? "Erreur lors de l'inscription."
 		}
-	}
-
-	function reset() {
-		query = ""
-		results = []
-		selected = null
-		showCreateForm = false
-		newPartner = { first_name: "", last_name: "", department: "" }
-		error = null
+	} finally {
 		submitting = false
 	}
+}
 
-	$effect(() => {
-		if (!open) reset()
-	})
+function reset() {
+	selected = null
+	showCreateForm = false
+	newPartner = { first_name: "", last_name: "", department: "" }
+	error = null
+	submitting = false
+}
+
+$effect(() => {
+	if (!open) reset()
+})
 </script>
 
 <Modal bind:open title="Inscription doubles — choisir un partenaire" size="md" outsideclose>
@@ -114,39 +83,10 @@
 		<!-- Partner search -->
 		{#if !selected}
 			<div>
-				<label class="mb-1 block text-sm font-medium text-gray-700 dark:text-gray-300">
+				<p class="mb-1 text-sm font-medium text-gray-700 dark:text-gray-300">
 					Rechercher un partenaire
-				</label>
-				<Input
-					type="text"
-					placeholder="Tapez au moins 3 caractères..."
-					bind:value={query}
-					disabled={showCreateForm}
-				/>
-				{#if results.length > 0}
-					<ul
-						class="mt-1 max-h-48 overflow-auto rounded-md border border-gray-200 bg-white shadow dark:border-gray-600 dark:bg-gray-700"
-					>
-						{#each results as player}
-							<li>
-								<button
-									type="button"
-									class="flex w-full items-center gap-2 px-4 py-2 text-left text-sm hover:bg-gray-100 dark:hover:bg-gray-600"
-									onclick={() => selectPartner(player)}
-								>
-									<span class="font-medium"
-										>{player.last_name} {player.first_name}</span
-									>
-									{#if player.department}
-										<span class="text-xs text-gray-400 dark:text-gray-500"
-											>({player.department})</span
-										>
-									{/if}
-								</button>
-							</li>
-						{/each}
-					</ul>
-				{/if}
+				</p>
+				<PlayerSearch mode="partner" onSelect={selectPartner} />
 			</div>
 		{:else}
 			<!-- Selected partner display -->
@@ -194,7 +134,10 @@
 					<Input placeholder="Prénom" bind:value={newPartner.first_name} />
 					<Input placeholder="Nom" bind:value={newPartner.last_name} />
 					<div class="col-span-2">
-						<DepartmentSelect bind:value={newPartner.department} placeholder="Département" />
+						<DepartmentSelect
+							bind:value={newPartner.department}
+							placeholder="Département"
+						/>
 					</div>
 				</div>
 			{/if}

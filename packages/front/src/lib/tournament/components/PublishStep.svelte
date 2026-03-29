@@ -1,39 +1,43 @@
 <script lang="ts">
-	import type {
-		DraftEvent,
-		Event,
-		EliminationPhase,
-		GroupPhase,
-		Phase
-	} from "$lib/server/schemas/event-schemas.js"
-	import { CATEGORY_LABELS, PHASE_TYPE_LABELS, BRACKET_ROUND_LABELS } from "../labels.js"
-	import { Badge, Button, Card } from "flowbite-svelte"
+import type {
+	DraftEvent,
+	Event,
+	EliminationPhase,
+	GroupPhase,
+	Phase,
+} from "$lib/server/schemas/event-schemas.js"
+import {
+	CATEGORY_LABELS,
+	PHASE_TYPE_LABELS,
+	BRACKET_ROUND_LABELS,
+} from "../labels.js"
+import { Badge, Button, Card } from "flowbite-svelte"
 
-	function isGroupPhase(p: Phase): p is GroupPhase {
-		return p.type === "round_robin" || p.type === "double_loss_groups"
-	}
-	function isEliminationPhase(p: Phase): p is EliminationPhase {
-		return p.type === "single_elimination" || p.type === "double_elimination"
-	}
+function isGroupPhase(p: Phase): p is GroupPhase {
+	return p.type === "round_robin" || p.type === "double_loss_groups"
+}
+function isEliminationPhase(p: Phase): p is EliminationPhase {
+	return p.type === "single_elimination" || p.type === "double_elimination"
+}
 
-	type Props = {
-		event: Event | DraftEvent
-		onPrev: () => void
-		onPublish: () => void
-		publishError?: string
-		eventStatus?: "draft" | "ready" | "started" | "finished"
-	}
+type Props = {
+	event: Event | DraftEvent
+	onPrev: () => void
+	onPublish: () => void
+	publishError?: string
+	eventStatus?: "draft" | "ready" | "started" | "finished"
+}
 
-	let { event, onPrev, onPublish, publishError, eventStatus }: Props = $props()
+let { event, onPrev, onPublish, publishError, eventStatus }: Props = $props()
 
-	function formatDate(date?: Date): string {
-		if (!date) return "—"
-		return date.toLocaleDateString("fr-FR", {
-			day: "2-digit",
-			month: "2-digit",
-			year: "numeric"
-		})
-	}
+function formatDate(date?: Date): string {
+	if (!date) return "—"
+	return date.toLocaleDateString("fr-FR", {
+		day: "2-digit",
+		month: "2-digit",
+		year: "numeric",
+	})
+}
 </script>
 
 <div class="space-y-6">

@@ -1,9 +1,13 @@
 <script lang="ts">
-  let { children, data } = $props()
-  let collapsed = $state(false)
-  let mobileOpen = $state(false)
-  function toggleCollapse() { collapsed = !collapsed }
-  function toggleMobileMenu() { mobileOpen = !mobileOpen }
+let { children, data } = $props()
+let collapsed = $state(false)
+let mobileOpen = $state(false)
+function toggleCollapse() {
+	collapsed = !collapsed
+}
+function toggleMobileMenu() {
+	mobileOpen = !mobileOpen
+}
 </script>
 
 <!-- Sidebar desktop : fixed overlay, hidden on mobile -->

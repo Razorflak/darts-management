@@ -9,7 +9,7 @@ import {
 	GroupPhaseSchema,
 	EliminationPhaseSchema,
 	type Tournament,
-	type Phase
+	type Phase,
 } from "$lib/server/schemas/event-schemas.js"
 
 // postgres.js TransactionSql uses Omit<Sql, ...> which strips call signatures in TypeScript.
@@ -21,14 +21,18 @@ const PublishPayloadSchema = EventSchema.omit({ status: true })
 
 const EventOwnerStatusSchema = z.object({
 	organizer_id: z.string(),
-	status: z.string()
+	status: z.string(),
 })
 
 function isGroupPhase(p: Phase): p is z.infer<typeof GroupPhaseSchema> {
 	return p.type === "round_robin" || p.type === "double_loss_groups"
 }
 
-async function insertPhases(tx: TxSql, tournamentId: string, phases: Phase[]): Promise<void> {
+async function insertPhases(
+	tx: TxSql,
+	tournamentId: string,
+	phases: Phase[],
+): Promise<void> {
 	await tx`DELETE FROM phase WHERE tournament_id = ${tournamentId}`
 	for (let i = 0; i < phases.length; i++) {
 		const p = phases[i]
@@ -64,7 +68,7 @@ async function insertPhases(tx: TxSql, tournamentId: string, phases: Phase[]): P
 async function insertTournaments(
 	tx: TxSql,
 	eventId: string,
-	tournaments: Tournament[]
+	tournaments: Tournament[],
 ): Promise<void> {
 	await tx`DELETE FROM tournament WHERE event_id = ${eventId}`
 	for (const t of tournaments) {
@@ -88,7 +92,8 @@ export const POST: RequestHandler = async ({ request, locals }) => {
 	const body = await request.json()
 
 	const parsed = PublishPayloadSchema.safeParse(body.event)
-	if (!parsed.success) return json({ error: "Données invalides" }, { status: 400 })
+	if (!parsed.success)
+		return json({ error: "Données invalides" }, { status: 400 })
 	const event = parsed.data
 
 	// Authz: user must have an organisable role on the selected entity
@@ -98,15 +103,18 @@ export const POST: RequestHandler = async ({ request, locals }) => {
 		"adminClub",
 		"adminComite",
 		"adminLigue",
-		"adminFederal"
+		"adminFederal",
 	]
 	const hasRole = roles.some(
-		(r) => r.entityId === event.entity.id && organisableRoles.includes(r.role)
+		(r) => r.entityId === event.entity.id && organisableRoles.includes(r.role),
 	)
 	if (!hasRole) {
 		return json(
-			{ error: "Vous n'avez pas les droits organisateur sur l'entité sélectionnée." },
-			{ status: 403 }
+			{
+				error:
+					"Vous n'avez pas les droits organisateur sur l'entité sélectionnée.",
+			},
+			{ status: 403 },
 		)
 	}
 
@@ -115,7 +123,9 @@ export const POST: RequestHandler = async ({ request, locals }) => {
 			const tx = rawTx as unknown as TxSql
 			const existing = z
 				.array(EventOwnerStatusSchema)
-				.parse(await tx`SELECT organizer_id, status FROM event WHERE id = ${event.id}`)
+				.parse(
+					await tx`SELECT organizer_id, status FROM event WHERE id = ${event.id}`,
+				)
 			if (existing.length > 0 && existing[0].organizer_id !== locals.user!.id) {
 				throw new Error("Forbidden")
 			}
@@ -158,7 +168,8 @@ export const POST: RequestHandler = async ({ request, locals }) => {
 		if (err instanceof Error && err.message === "Forbidden") {
 			return json({ error: "Accès refusé." }, { status: 403 })
 		}
-		const message = err instanceof Error ? err.message : "Erreur base de données."
+		const message =
+			err instanceof Error ? err.message : "Erreur base de données."
 		return json({ error: message }, { status: 500 })
 	}
 }

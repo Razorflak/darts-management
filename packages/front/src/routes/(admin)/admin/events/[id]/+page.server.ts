@@ -2,7 +2,10 @@ import { error } from "@sveltejs/kit"
 import { z } from "zod"
 import { getUserRoles } from "$lib/server/authz"
 import { sql } from "$lib/server/db"
-import { AdminEventDetailSchema, AdminTournamentSchema } from "$lib/server/schemas/event-schemas.js"
+import {
+	AdminEventDetailSchema,
+	AdminTournamentSchema,
+} from "$lib/server/schemas/event-schemas.js"
 import type { PageServerLoad } from "./$types"
 
 export const load: PageServerLoad = async ({ locals, params }) => {
@@ -33,8 +36,8 @@ export const load: PageServerLoad = async ({ locals, params }) => {
 				"adminComite",
 				"adminLigue",
 				"adminFederal",
-				"organisateur"
-			].includes(r.role)
+				"organisateur",
+			].includes(r.role),
 	)
 	const isOrganizer = event.organizer_id === locals.user!.id
 	if (!hasAccess && !isOrganizer) error(403, "Accès refusé")
@@ -52,7 +55,7 @@ export const load: PageServerLoad = async ({ locals, params }) => {
 	`
 
 	const TournamentListSchema = AdminTournamentSchema.extend({
-		registration_count: z.number().int()
+		registration_count: z.number().int(),
 	})
 	const tournaments = z.array(TournamentListSchema).parse(tournamentRows)
 

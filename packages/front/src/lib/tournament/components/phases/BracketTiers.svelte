@@ -1,54 +1,54 @@
 <script lang="ts">
-	import type { BracketTier } from "$lib/server/schemas/event-schemas.js"
-	import { BRACKET_ROUND_LABELS } from "../../labels.js"
-	import { sortable } from "../../sortable.js"
-	import { createBracketTier } from "../../utils.js"
-	import { Input } from "flowbite-svelte"
+import type { BracketTier } from "$lib/server/schemas/event-schemas.js"
+import { BRACKET_ROUND_LABELS } from "../../labels.js"
+import { sortable } from "../../sortable.js"
+import { createBracketTier } from "../../utils.js"
+import { Input } from "flowbite-svelte"
 
-	interface Props {
-		tiers: BracketTier[]
-	}
+interface Props {
+	tiers: BracketTier[]
+}
 
-	const BRACKET_ROUNDS: BracketTier["round"][] = [
-		"4096",
-		"2048",
-		"1024",
-		"512",
-		"256",
-		"128",
-		"64",
-		"32",
-		"16",
-		"8",
-		"4",
-		"2"
-	]
+const BRACKET_ROUNDS: BracketTier["round"][] = [
+	"4096",
+	"2048",
+	"1024",
+	"512",
+	"256",
+	"128",
+	"64",
+	"32",
+	"16",
+	"8",
+	"4",
+	"2",
+]
 
-	let { tiers = $bindable() }: Props = $props()
+let { tiers = $bindable() }: Props = $props()
 
-	const availableRounds = $derived(
-		BRACKET_ROUNDS.filter((r) => !tiers.some((t) => t.round === r))
-	)
+const availableRounds = $derived(
+	BRACKET_ROUNDS.filter((r) => !tiers.some((t) => t.round === r)),
+)
 
-	let addOpen = $state(false)
+let addOpen = $state(false)
 
-	function addTier(round: BracketTier["round"]) {
-		tiers = [...tiers, createBracketTier(round)]
-		// stay open so multiple tiers can be added in one session
-	}
+function addTier(round: BracketTier["round"]) {
+	tiers = [...tiers, createBracketTier(round)]
+	// stay open so multiple tiers can be added in one session
+}
 
-	function removeTier(round: BracketTier["round"]) {
-		tiers = tiers.filter((t) => t.round !== round)
-	}
+function removeTier(round: BracketTier["round"]) {
+	tiers = tiers.filter((t) => t.round !== round)
+}
 
-	function onSortEnd(evt: { oldIndex?: number; newIndex?: number }) {
-		if (evt.oldIndex === undefined || evt.newIndex === undefined) return
-		if (evt.oldIndex === evt.newIndex) return
-		const next = [...tiers]
-		const [moved] = next.splice(evt.oldIndex, 1)
-		next.splice(evt.newIndex, 0, moved)
-		tiers = next
-	}
+function onSortEnd(evt: { oldIndex?: number; newIndex?: number }) {
+	if (evt.oldIndex === undefined || evt.newIndex === undefined) return
+	if (evt.oldIndex === evt.newIndex) return
+	const next = [...tiers]
+	const [moved] = next.splice(evt.oldIndex, 1)
+	next.splice(evt.newIndex, 0, moved)
+	tiers = next
+}
 </script>
 
 <div class="space-y-2">

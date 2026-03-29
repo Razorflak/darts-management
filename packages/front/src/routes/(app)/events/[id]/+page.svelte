@@ -1,66 +1,64 @@
 <script lang="ts">
-	import { Badge, Button } from "flowbite-svelte"
-	import { page } from "$app/stores"
-	import { CATEGORY_LABELS } from "$lib/tournament/labels"
-	import DoublesModal from "$lib/tournament/components/DoublesModal.svelte"
-	import type { PageData } from "./$types"
-	import { isDoublesTournament } from "$lib/tournament/utils"
-	import { apiRoutes } from "$lib/fetch/api"
+import { Badge, Button } from "flowbite-svelte"
+import { invalidateAll } from "$app/navigation"
+import { page } from "$app/state"
+import { apiRoutes } from "$lib/fetch/api"
+import DoublesModal from "$lib/tournament/components/DoublesModal.svelte"
+import { CATEGORY_LABELS } from "$lib/tournament/labels"
+import { isDoublesTournament } from "$lib/tournament/utils"
+import type { PageData } from "./$types"
 
-	let { data }: { data: PageData } = $props()
+let { data }: { data: PageData } = $props()
 
-	let tournaments = $state(data.tournaments)
+let tournaments = $derived(data.tournaments)
 
-	let doublesModal = $state<{ open: boolean; tournamentId: string }>({
-		open: false,
-		tournamentId: ""
+let doublesModal = $state<{ open: boolean; tournamentId: string }>({
+	open: false,
+	tournamentId: "",
+})
+
+function openDoublesModal(tournamentId: string) {
+	doublesModal = { open: true, tournamentId }
+}
+
+async function registerSolo(tournamentId: string) {
+	if (!data.player?.id) return
+	const res = await fetch(apiRoutes.TOURNAMENT_REGISTER.path, {
+		method: "POST",
+		headers: { "Content-Type": "application/json" },
+		body: JSON.stringify({
+			tournament_id: tournamentId,
+			team: [{ id: data.player.id }],
+		}),
 	})
-
-	function openDoublesModal(tournamentId: string) {
-		doublesModal = { open: true, tournamentId }
+	if (res.ok) {
+		await invalidateAll()
 	}
+}
 
-	async function registerSolo(tournamentId: string) {
-		const res = await fetch(apiRoutes.TOURNAMENT_REGISTER.path, {
-			method: "POST",
-			headers: { "Content-Type": "application/json" },
-			body: JSON.stringify({ tournament_id: tournamentId })
-		})
-		if (res.ok) {
-			const t = tournaments.find((t) => t.id === tournamentId)
-			if (t) {
-				t.is_registered = true
-				t.registration_count++
-			}
-		}
+async function unregister(registrationId: string | null) {
+	if (!registrationId) return
+	const res = await fetch(apiRoutes.TOURNAMENT_UNEREGISER.path, {
+		method: "DELETE",
+		headers: { "Content-Type": "application/json" },
+		body: JSON.stringify({ registration_id: registrationId }),
+	})
+	if (res.ok) {
+		await invalidateAll()
 	}
+}
 
-	async function unregister(tournamentId: string) {
-		const res = await fetch(apiRoutes.TOURNAMENT_UNEREGISER.path, {
-			method: "DELETE",
-			headers: { "Content-Type": "application/json" },
-			body: JSON.stringify({ tournament_id: tournamentId })
-		})
-		if (res.ok) {
-			const t = tournaments.find((t) => t.id === tournamentId)
-			if (t) {
-				t.is_registered = false
-				t.registration_count--
-			}
-		}
-	}
+function statusColor(status: string) {
+	if (status === "ready") return "green"
+	if (status === "started") return "yellow"
+	return "gray"
+}
 
-	function statusColor(status: string) {
-		if (status === "ready") return "green"
-		if (status === "started") return "yellow"
-		return "gray"
-	}
-
-	function statusLabel(status: string) {
-		if (status === "ready") return "Ouvert"
-		if (status === "started") return "En cours"
-		return "Terminé"
-	}
+function statusLabel(status: string) {
+	if (status === "ready") return "Ouvert"
+	if (status === "started") return "En cours"
+	return "Terminé"
+}
 </script>
 
 <div>
@@ -93,7 +91,7 @@
 			<p class="text-sm text-red-700">
 				Vous devez compléter votre profil joueur pour vous inscrire à un tournoi.
 				<a
-					href="/profile/create?redirectTo={encodeURIComponent($page.url.pathname)}"
+					href="/profile/create?redirectTo={encodeURIComponent(page.url.pathname)}"
 					class="font-medium underline"
 				>Créer mon profil</a>
 			</p>
@@ -106,7 +104,7 @@
 	{#if tournaments.length === 0}
 		<p class="text-gray-500 dark:text-gray-400">Aucun tournoi disponible pour cet événement.</p>
 	{:else}
-		<div class="flex flex-wrap gap-3 [&>*]:min-w-100">
+		<div class="flex flex-wrap gap-3 *:min-w-100">
 			{#each tournaments as tournament (tournament.id)}
 				<div
 					class="flex items-center gap-4 rounded-xl border border-gray-200 bg-white px-4 py-3 shadow-[0_1px_3px_0_rgb(0_0_0/0.06)]"
@@ -149,7 +147,7 @@
 								<Button
 									color="red"
 									size="xs"
-									onclick={() => unregister(tournament.id)}
+									onclick={() => unregister(tournament.registration_id)}
 								>
 									Se désinscrire
 								</Button>
@@ -187,12 +185,8 @@
 	tournamentId={doublesModal.tournamentId}
 	eventId={data.event.id}
 	onClose={() => (doublesModal.open = false)}
-	onRegistered={() => {
-		const t = tournaments.find((t) => t.id === doublesModal.tournamentId)
-		if (t) {
-			t.is_registered = true
-			t.registration_count++
-		}
+	onRegistered={async () => {
+        await invalidateAll()
 		doublesModal.open = false
 	}}
 />

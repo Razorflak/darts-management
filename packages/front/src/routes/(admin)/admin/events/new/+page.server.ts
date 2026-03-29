@@ -14,9 +14,11 @@ export const load: PageServerLoad = async ({ locals }) => {
 		"adminClub",
 		"adminComite",
 		"adminLigue",
-		"adminFederal"
+		"adminFederal",
 	]
-	const entityIds = roles.filter((r) => organisableRoles.includes(r.role)).map((r) => r.entityId)
+	const entityIds = roles
+		.filter((r) => organisableRoles.includes(r.role))
+		.map((r) => r.entityId)
 
 	if (entityIds.length === 0) return { entities: [] }
 
@@ -25,7 +27,7 @@ export const load: PageServerLoad = async ({ locals }) => {
 			SELECT id, name, type FROM entity
 			WHERE id = ANY(${entityIds})
 			ORDER BY name
-		`
+		`,
 	)
 	return { entities }
 }

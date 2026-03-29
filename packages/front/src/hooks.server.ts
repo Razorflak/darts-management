@@ -8,7 +8,7 @@ import { sequence } from "@sveltejs/kit/hooks"
 
 const authHandle: Handle = async ({ event, resolve }) => {
 	const sessionData = await auth.api.getSession({
-		headers: event.request.headers
+		headers: event.request.headers,
 	})
 	event.locals.user = sessionData?.user ?? null
 	event.locals.session = sessionData?.session ?? null

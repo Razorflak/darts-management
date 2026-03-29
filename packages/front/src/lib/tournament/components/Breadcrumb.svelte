@@ -1,18 +1,18 @@
 <script lang="ts">
-	import type { WizardStep } from '../types.js'
+import type { WizardStep } from "../types.js"
 
-	interface Props {
-		step: WizardStep
-		onStepClick?: (step: WizardStep) => void
-	}
+interface Props {
+	step: WizardStep
+	onStepClick?: (step: WizardStep) => void
+}
 
-	let { step, onStepClick }: Props = $props()
+let { step, onStepClick }: Props = $props()
 
-	const steps: { label: string; step: WizardStep }[] = [
-		{ label: 'Événement', step: 1 },
-		{ label: 'Tournois & Phases', step: 2 },
-		{ label: 'Publication', step: 3 },
-	]
+const steps: { label: string; step: WizardStep }[] = [
+	{ label: "Événement", step: 1 },
+	{ label: "Tournois & Phases", step: 2 },
+	{ label: "Publication", step: 3 },
+]
 </script>
 
 <nav class="w-full" aria-label="Étapes de création">

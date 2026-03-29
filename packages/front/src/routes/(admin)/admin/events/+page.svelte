@@ -1,22 +1,22 @@
 <script lang="ts">
-	import { Badge, Button, Card } from "flowbite-svelte"
-	import { formatDate } from "$lib/date/utils.js"
+import { Badge, Button, Card } from "flowbite-svelte"
+import { formatDate } from "$lib/date/utils.js"
 
-	let { data } = $props()
+let { data } = $props()
 
-	const STATUS_LABELS: Record<string, string> = {
-		draft: "Brouillon",
-		ready: "Publié",
-		started: "En cours",
-		finished: "Terminé"
-	}
+const STATUS_LABELS: Record<string, string> = {
+	draft: "Brouillon",
+	ready: "Publié",
+	started: "En cours",
+	finished: "Terminé",
+}
 
-	const STATUS_COLORS: Record<string, "gray" | "green" | "blue" | "indigo"> = {
-		draft: "gray",
-		ready: "green",
-		started: "blue",
-		finished: "indigo"
-	}
+const STATUS_COLORS: Record<string, "gray" | "green" | "blue" | "indigo"> = {
+	draft: "gray",
+	ready: "green",
+	started: "blue",
+	finished: "indigo",
+}
 </script>
 
 <div class="mb-6 flex items-center justify-between">

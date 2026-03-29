@@ -1,14 +1,18 @@
 <script lang="ts">
-	import { Button, Card } from "flowbite-svelte"
-	import type { PageData } from "./$types"
+import { Button, Card } from "flowbite-svelte"
+import type { PageData } from "./$types"
 
-	let { data }: { data: PageData } = $props()
+let { data }: { data: PageData } = $props()
 
-	function formatBirthDate(dateStr: string | null): string {
-		if (!dateStr) return "Non renseignée"
-		const d = new Date(dateStr)
-		return d.toLocaleDateString("fr-FR", { day: "numeric", month: "long", year: "numeric" })
-	}
+function formatBirthDate(dateStr: string | null): string {
+	if (!dateStr) return "Non renseignée"
+	const d = new Date(dateStr)
+	return d.toLocaleDateString("fr-FR", {
+		day: "numeric",
+		month: "long",
+		year: "numeric",
+	})
+}
 </script>
 
 <svelte:head>

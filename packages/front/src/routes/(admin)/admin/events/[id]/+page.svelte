@@ -1,36 +1,37 @@
 <script lang="ts">
-	import {
-		Badge,
-		Button,
-		Table,
-		TableBody,
-		TableBodyCell,
-		TableBodyRow,
-		TableHead,
-		TableHeadCell
-	} from "flowbite-svelte"
-	import { CATEGORY_LABELS } from "$lib/tournament/labels"
-	import type { PageData } from "./$types"
+import {
+	Badge,
+	Button,
+	Table,
+	TableBody,
+	TableBodyCell,
+	TableBodyRow,
+	TableHead,
+	TableHeadCell,
+} from "flowbite-svelte"
+import { CATEGORY_LABELS } from "$lib/tournament/labels"
+import type { PageData } from "./$types"
 
-	let { data }: { data: PageData } = $props()
+let { data }: { data: PageData } = $props()
 
-	const STATUS_LABELS: Record<string, string> = {
-		ready: "Ouvert",
-		"check-in": "Check-in",
-		started: "Lancé",
-		finished: "Terminé"
-	}
-	const STATUS_COLORS: Record<string, "green" | "yellow" | "blue" | "gray"> = {
-		ready: "green",
-		"check-in": "yellow",
-		started: "blue",
-		finished: "gray"
-	}
-	const EVENT_STATUS_COLORS: Record<string, "gray" | "green" | "yellow" | "red"> = {
+const STATUS_LABELS: Record<string, string> = {
+	ready: "Ouvert",
+	"check-in": "Check-in",
+	started: "Lancé",
+	finished: "Terminé",
+}
+const STATUS_COLORS: Record<string, "green" | "yellow" | "blue" | "gray"> = {
+	ready: "green",
+	"check-in": "yellow",
+	started: "blue",
+	finished: "gray",
+}
+const EVENT_STATUS_COLORS: Record<string, "gray" | "green" | "yellow" | "red"> =
+	{
 		draft: "gray",
 		ready: "green",
 		started: "yellow",
-		finished: "red"
+		finished: "red",
 	}
 </script>
 

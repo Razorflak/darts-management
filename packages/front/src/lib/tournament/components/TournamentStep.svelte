@@ -1,27 +1,34 @@
 <script lang="ts">
-	import { Button } from "flowbite-svelte"
-	import TournamentTabs from "./TournamentTabs.svelte"
-	import TournamentForm from "./TournamentForm.svelte"
-	import type { DraftTournament, Tournament } from "$lib/server/schemas/event-schemas"
+import { Button } from "flowbite-svelte"
+import TournamentTabs from "./TournamentTabs.svelte"
+import TournamentForm from "./TournamentForm.svelte"
+import type {
+	DraftTournament,
+	Tournament,
+} from "$lib/server/schemas/event-schemas"
 
-	interface Props {
-		tournaments: (Tournament | DraftTournament)[]
-		onPrev: () => void
-		onNext: () => void
-	}
+interface Props {
+	tournaments: (Tournament | DraftTournament)[]
+	onPrev: () => void
+	onNext: () => void
+}
 
-	let { tournaments: tournamentProps = $bindable(), onPrev, onNext }: Props = $props()
+let {
+	tournaments: tournamentProps = $bindable(),
+	onPrev,
+	onNext,
+}: Props = $props()
 
-	let tournaments = $state(tournamentProps)
+let tournaments = $state(tournamentProps)
 
-	let activeId = $derived(tournaments[0]?.id ?? "")
+let activeId = $derived(tournaments[0]?.id ?? "")
 
-	let activeTournament = $derived(tournaments.find((t) => t.id === activeId))
-	const activeIndex = $derived(tournaments.findIndex((t) => t.id === activeId))
+let activeTournament = $derived(tournaments.find((t) => t.id === activeId))
+const activeIndex = $derived(tournaments.findIndex((t) => t.id === activeId))
 
-	function updateTournament(updated: Tournament | DraftTournament) {
-		tournaments = tournaments.map((t) => (t.id === updated.id ? updated : t))
-	}
+function updateTournament(updated: Tournament | DraftTournament) {
+	tournaments = tournaments.map((t) => (t.id === updated.id ? updated : t))
+}
 </script>
 
 <div class="space-y-5">

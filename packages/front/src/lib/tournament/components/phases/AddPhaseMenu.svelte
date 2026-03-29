@@ -1,21 +1,26 @@
 <script lang="ts">
-	import type { PhaseType } from '$lib/server/schemas/event-schemas.js'
-	import { PHASE_TYPE_LABELS } from '../../labels.js'
+import type { PhaseType } from "$lib/server/schemas/event-schemas.js"
+import { PHASE_TYPE_LABELS } from "../../labels.js"
 
-	interface Props {
-		onAdd: (type: PhaseType) => void
-	}
+interface Props {
+	onAdd: (type: PhaseType) => void
+}
 
-	let { onAdd }: Props = $props()
+let { onAdd }: Props = $props()
 
-	const phaseTypes: PhaseType[] = ['round_robin', 'double_loss_groups', 'single_elimination', 'double_elimination']
+const phaseTypes: PhaseType[] = [
+	"round_robin",
+	"double_loss_groups",
+	"single_elimination",
+	"double_elimination",
+]
 
-	let open = $state(false)
+let open = $state(false)
 
-	function handleAdd(type: PhaseType) {
-		onAdd(type)
-		open = false
-	}
+function handleAdd(type: PhaseType) {
+	onAdd(type)
+	open = false
+}
 </script>
 
 <div class="relative inline-block">

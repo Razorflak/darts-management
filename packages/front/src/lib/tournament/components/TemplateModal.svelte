@@ -1,79 +1,81 @@
 <script lang="ts">
-	import { EVENT_TEMPLATES } from "../templates.js"
-	import { Button, Datepicker, Modal } from "flowbite-svelte"
-	import type { DraftEvent } from "$lib/server/schemas/event-schemas.js"
-	import { gendUuidv7 } from "$lib/utils/uuid.js"
+import { EVENT_TEMPLATES } from "../templates.js"
+import { Button, Datepicker, Modal } from "flowbite-svelte"
+import type { DraftEvent } from "$lib/server/schemas/event-schemas.js"
+import { gendUuidv7 } from "$lib/utils/uuid.js"
 
-	interface Props {
-		open: boolean
-		onApply: (event: DraftEvent) => void
-	}
+interface Props {
+	open: boolean
+	onApply: (event: DraftEvent) => void
+}
 
-	let { open = $bindable(false), onApply }: Props = $props()
+let { open = $bindable(false), onApply }: Props = $props()
 
-	let selectedId = $state<string | null>(null)
-	let startDateObj = $state<Date | undefined>(undefined)
+let selectedId = $state<string | null>(null)
+let startDateObj = $state<Date | undefined>(undefined)
 
-	let selectedTemplate = $derived(EVENT_TEMPLATES.find((t) => t.id === selectedId) ?? null)
+let selectedTemplate = $derived(
+	EVENT_TEMPLATES.find((t) => t.id === selectedId) ?? null,
+)
 
-	function addDays(date: Date, days: number): Date {
-		const d = new Date(date)
-		d.setDate(d.getDate() + days)
-		return d
-	}
+function addDays(date: Date, days: number): Date {
+	const d = new Date(date)
+	d.setDate(d.getDate() + days)
+	return d
+}
 
-	function setTimeToDate(templateDate: Date, eventDate: Date): Date {
-		const result = new Date(eventDate)
-		// Ajouter le décalage de jours (templateDate day - 1)
-		const dayOffset = templateDate.getDate() - 1
-		result.setDate(result.getDate() + dayOffset)
+function setTimeToDate(templateDate: Date, eventDate: Date): Date {
+	const result = new Date(eventDate)
+	// Ajouter le décalage de jours (templateDate day - 1)
+	const dayOffset = templateDate.getDate() - 1
+	result.setDate(result.getDate() + dayOffset)
 
-		// Appliquer l'heure du template
-		result.setHours(
-			templateDate.getHours(),
-			templateDate.getMinutes(),
-			templateDate.getSeconds(),
-			templateDate.getMilliseconds()
-		)
-		return result
-	}
+	// Appliquer l'heure du template
+	result.setHours(
+		templateDate.getHours(),
+		templateDate.getMinutes(),
+		templateDate.getSeconds(),
+		templateDate.getMilliseconds(),
+	)
+	return result
+}
 
-	function apply() {
-		if (!selectedTemplate || !startDateObj) return
+function apply() {
+	if (!selectedTemplate || !startDateObj) return
 
-		const startDate = startDateObj
-		const endDate = new Date(startDateObj)
-		endDate.setDate(startDateObj.getDate() + selectedTemplate.durationDays - 1)
-		const draftEvent = selectedTemplate.event
+	const startDate = startDateObj
+	const endDate = new Date(startDateObj)
+	endDate.setDate(startDateObj.getDate() + selectedTemplate.durationDays - 1)
+	const draftEvent = selectedTemplate.event
 
-		// Création de tous les id
-		draftEvent.id = gendUuidv7()
-		draftEvent.tournaments?.forEach((t) => {
-			const tournamentId = gendUuidv7()
-			t.id = tournamentId
-			t.start_at = t.start_at ? setTimeToDate(startDate, t.start_at) : startDate
-			t.phases?.forEach((p) => {
-				p.id = gendUuidv7()
-				p.tournament_id = tournamentId
-			})
+	// Création de tous les id
+	draftEvent.id = gendUuidv7()
+	draftEvent.tournaments?.forEach((t) => {
+		const tournamentId = gendUuidv7()
+		t.id = tournamentId
+		t.start_at = t.start_at ? setTimeToDate(startDate, t.start_at) : startDate
+		t.phases?.forEach((p) => {
+			p.id = gendUuidv7()
+			p.tournament_id = tournamentId
 		})
-
-		// Reglages des dates
-		draftEvent.starts_at = startDate
-		draftEvent.ends_at = endDate
-		draftEvent.registration_opens_at = addDays(startDate, -7) // Ouvre les inscriptions 7 jours avant le début de l'événement
-
-		onApply(draftEvent)
-		open = false
-	}
-
-	// Reset selection when modal closes
-	$effect(() => {
-		if (!open) {
-			selectedId = null
-			startDateObj = undefined
-		}
 	})
+
+	// Reglages des dates
+	draftEvent.starts_at = startDate
+	draftEvent.ends_at = endDate
+	draftEvent.registration_opens_at = addDays(startDate, -7) // Ouvre les inscriptions 7 jours avant le début de l'événement
+
+	onApply(draftEvent)
+	open = false
+}
+
+// Reset selection when modal closes
+$effect(() => {
+	if (!open) {
+		selectedId = null
+		startDateObj = undefined
+	}
+})
 </script>
 
 <Modal bind:open title="Créer à partir d'un template" size="lg" outsideclose>

@@ -1,10 +1,52 @@
 <script lang="ts">
-	import { enhance } from "$app/forms"
-	import { Card } from "flowbite-svelte"
-	import PlayerCreationForm from "$lib/tournament/components/PlayerCreationForm.svelte"
-	import type { PageData, ActionData } from "./$types"
+import { goto } from "$app/navigation"
+import { Card } from "flowbite-svelte"
+import PlayerCreationForm from "$lib/tournament/components/PlayerCreationForm.svelte"
+import type { PageData } from "./$types"
 
-	let { data, form }: { data: PageData; form: ActionData } = $props()
+let { data }: { data: PageData } = $props()
+
+let formError = $state<string | null>(null)
+let submitting = $state(false)
+
+async function handleSubmit(event: SubmitEvent) {
+	event.preventDefault()
+	formError = null
+	submitting = true
+
+	const fd = new FormData(event.currentTarget as HTMLFormElement)
+	const body = {
+		user_id: data.user.id,
+		first_name: ((fd.get("first_name") as string) ?? "").trim(),
+		last_name: ((fd.get("last_name") as string) ?? "").trim(),
+		department: ((fd.get("department") as string) ?? "").trim(),
+		birth_date: ((fd.get("birth_date") as string) ?? "").trim() || null,
+		licence_no: ((fd.get("licence_no") as string) ?? "").trim() || null,
+	}
+
+	try {
+		const res = await fetch("/api/players/create-player-profile", {
+			method: "POST",
+			headers: { "Content-Type": "application/json" },
+			body: JSON.stringify(body),
+		})
+
+		if (res.ok) {
+			goto(data.redirectTo)
+		} else {
+			try {
+				const text = await res.json()
+				formError = text.message
+			} catch {
+				formError = "Une erreur est survenue."
+			}
+		}
+	} catch {
+		formError = "Impossible de contacter le serveur."
+	} finally {
+		submitting = false
+	}
+}
 </script>
 
 <svelte:head>
@@ -12,7 +54,7 @@
 </svelte:head>
 
 <div class="mx-auto max-w-lg">
-	<p class="mb-1 text-xs font-semibold uppercase tracking-widest text-primary-500">Profil</p>
+	<p class="text-primary-500 mb-1 text-xs font-semibold tracking-widest uppercase">Profil</p>
 	<h1 class="mb-6 text-3xl font-bold text-gray-900">Compléter mon profil</h1>
 
 	<Card class="w-full">
@@ -20,9 +62,12 @@
 			Un profil joueur est requis avant de vous inscrire à un tournoi.
 		</p>
 
-		<form method="POST" use:enhance class="flex flex-col gap-0">
-			<input type="hidden" name="redirectTo" value={data.redirectTo} />
-			<PlayerCreationForm showLicence={true} submitLabel="Créer mon profil" {form} values={form?.values} />
+		<form onsubmit={handleSubmit} class="flex flex-col gap-0">
+			<PlayerCreationForm
+				showLicence={true}
+				submitLabel={submitting ? "Création…" : "Créer mon profil"}
+				form={formError ? { error: formError } : null}
+			/>
 		</form>
 	</Card>
 </div>

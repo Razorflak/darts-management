@@ -1,31 +1,31 @@
 <script lang="ts">
-	import type { DraftTournament } from "$lib/server/schemas/event-schemas.js"
-	import { CATEGORY_LABELS } from "../labels.js"
-	import { createBlankTournament } from "../utils.js"
-	import { Button } from "flowbite-svelte"
+import type { DraftTournament } from "$lib/server/schemas/event-schemas.js"
+import { CATEGORY_LABELS } from "../labels.js"
+import { createBlankTournament } from "../utils.js"
+import { Button } from "flowbite-svelte"
 
-	interface Props {
-		tournaments: DraftTournament[]
-		activeId: string
-		onSelect: (id: string) => void
+interface Props {
+	tournaments: DraftTournament[]
+	activeId: string
+	onSelect: (id: string) => void
+}
+
+let { tournaments = $bindable(), activeId, onSelect }: Props = $props()
+
+function addTournament() {
+	const t = createBlankTournament()
+	tournaments = [...tournaments, t]
+	onSelect(t.id)
+}
+
+function removeTournament(id: string) {
+	const idx = tournaments.findIndex((t) => t.id === id)
+	tournaments = tournaments.filter((t) => t.id !== id)
+	if (activeId === id && tournaments.length > 0) {
+		const next = tournaments[Math.max(0, idx - 1)]
+		if (next) onSelect(next.id)
 	}
-
-	let { tournaments = $bindable(), activeId, onSelect }: Props = $props()
-
-	function addTournament() {
-		const t = createBlankTournament()
-		tournaments = [...tournaments, t]
-		onSelect(t.id)
-	}
-
-	function removeTournament(id: string) {
-		const idx = tournaments.findIndex((t) => t.id === id)
-		tournaments = tournaments.filter((t) => t.id !== id)
-		if (activeId === id && tournaments.length > 0) {
-			const next = tournaments[Math.max(0, idx - 1)]
-			if (next) onSelect(next.id)
-		}
-	}
+}
 </script>
 
 <div class="flex flex-wrap items-center gap-2 overflow-x-auto pb-1">

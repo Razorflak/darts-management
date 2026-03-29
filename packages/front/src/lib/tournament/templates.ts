@@ -5,7 +5,7 @@ import type {
 	Event,
 	GroupPhase,
 	Phase,
-	Tournament
+	Tournament,
 } from "$lib/server/schemas/event-schemas.js"
 
 // ── Template-specific types (no IDs — generated on apply) ──────────────────
@@ -17,7 +17,7 @@ const doubleKOPhase: Omit<GroupPhase, "position"> = {
 	tournament_id: "<generated>",
 	type: "double_loss_groups",
 	players_per_group: 8,
-	qualifiers_per_group: 4
+	qualifiers_per_group: 4,
 }
 
 const classicPoolPhase: Omit<GroupPhase, "position"> = {
@@ -25,7 +25,7 @@ const classicPoolPhase: Omit<GroupPhase, "position"> = {
 	id: "<generated>",
 	type: "round_robin",
 	players_per_group: 8,
-	qualifiers_per_group: 4
+	qualifiers_per_group: 4,
 }
 
 /** Arbre direct : 1/4 (3m) · 1/2 (4m) · Finale (5m) */
@@ -37,8 +37,8 @@ const elim3Tiers: Omit<EliminationPhase, "position"> = {
 	tiers: [
 		{ round: "8", legs: 3 },
 		{ round: "4", legs: 4 },
-		{ round: "2", legs: 5 }
-	]
+		{ round: "2", legs: 5 },
+	],
 }
 
 /** Arbre direct : 1/4 (3m) · Finale (4m) */
@@ -49,8 +49,8 @@ const elim2Tiers: Omit<EliminationPhase, "position"> = {
 	qualifiers_count: 0,
 	tiers: [
 		{ round: "8", legs: 3 },
-		{ round: "2", legs: 4 }
-	]
+		{ round: "2", legs: 4 },
+	],
 }
 
 export type TournamentTemplate = {
@@ -93,8 +93,8 @@ export const EVENT_TEMPLATES: EventTemplate[] = [
 					check_in_required: false,
 					phases: [
 						{ ...doubleKOPhase, position: 0 },
-						{ ...elim3Tiers, position: 1 }
-					]
+						{ ...elim3Tiers, position: 1 },
+					],
 				},
 				{
 					name: "Simple Masculin",
@@ -105,8 +105,8 @@ export const EVENT_TEMPLATES: EventTemplate[] = [
 					check_in_required: false,
 					phases: [
 						{ ...doubleKOPhase, position: 0 },
-						{ ...elim3Tiers, position: 1 }
-					]
+						{ ...elim3Tiers, position: 1 },
+					],
 				},
 				{
 					name: "Simple Féminin",
@@ -117,8 +117,8 @@ export const EVENT_TEMPLATES: EventTemplate[] = [
 					start_at: new Date(2026, 0, 1, 15, 0, 0, 0),
 					phases: [
 						{ ...doubleKOPhase, position: 0 },
-						{ ...elim3Tiers, position: 1 }
-					]
+						{ ...elim3Tiers, position: 1 },
+					],
 				},
 				{
 					name: "Simple Vétéran",
@@ -129,8 +129,8 @@ export const EVENT_TEMPLATES: EventTemplate[] = [
 					start_at: new Date(2026, 0, 1, 15, 0, 0, 0),
 					phases: [
 						{ ...doubleKOPhase, position: 0 },
-						{ ...elim3Tiers, position: 1 }
-					]
+						{ ...elim3Tiers, position: 1 },
+					],
 				},
 				{
 					name: "Simple Junior",
@@ -141,11 +141,11 @@ export const EVENT_TEMPLATES: EventTemplate[] = [
 					start_at: new Date(2026, 0, 1, 15, 0, 0, 0),
 					phases: [
 						{ ...doubleKOPhase, position: 0 },
-						{ ...elim3Tiers, position: 1 }
-					]
-				}
-			]
-		}
+						{ ...elim3Tiers, position: 1 },
+					],
+				},
+			],
+		},
 	},
 	{
 		id: "2",
@@ -168,8 +168,8 @@ export const EVENT_TEMPLATES: EventTemplate[] = [
 					start_at: new Date(2026, 0, 1, 9, 0, 0, 0),
 					phases: [
 						{ ...doubleKOPhase, position: 0 },
-						{ ...elim3Tiers, position: 1 }
-					]
+						{ ...elim3Tiers, position: 1 },
+					],
 				},
 				{
 					id: "<generated>",
@@ -180,8 +180,8 @@ export const EVENT_TEMPLATES: EventTemplate[] = [
 					start_at: new Date(2026, 0, 1, 9, 0, 0, 0),
 					phases: [
 						{ ...doubleKOPhase, position: 0 },
-						{ ...elim3Tiers, position: 1 }
-					]
+						{ ...elim3Tiers, position: 1 },
+					],
 				},
 				{
 					id: "<generated>",
@@ -193,9 +193,9 @@ export const EVENT_TEMPLATES: EventTemplate[] = [
 					phases: [
 						{
 							...elim3Tiers,
-							position: 0
-						}
-					]
+							position: 0,
+						},
+					],
 				},
 				{
 					id: "<generated>",
@@ -207,9 +207,9 @@ export const EVENT_TEMPLATES: EventTemplate[] = [
 					phases: [
 						{
 							...elim2Tiers,
-							position: 0
-						}
-					]
+							position: 0,
+						},
+					],
 				},
 				{
 					id: "<generated>",
@@ -218,7 +218,7 @@ export const EVENT_TEMPLATES: EventTemplate[] = [
 					auto_referee: true,
 					check_in_required: false,
 					start_at: new Date(2026, 0, 2, 9, 0, 0, 0),
-					phases: [{ ...elim2Tiers, position: 0 }]
+					phases: [{ ...elim2Tiers, position: 0 }],
 				},
 				{
 					id: "<generated>",
@@ -229,10 +229,10 @@ export const EVENT_TEMPLATES: EventTemplate[] = [
 					start_at: new Date(2026, 0, 2, 10, 0, 0, 0),
 					phases: [
 						{ ...classicPoolPhase, position: 0 },
-						{ ...elim2Tiers, position: 1 }
-					]
-				}
-			]
-		}
-	}
+						{ ...elim2Tiers, position: 1 },
+					],
+				},
+			],
+		},
+	},
 ]

@@ -1,39 +1,39 @@
 <script lang="ts">
-	import { sortable } from "../../sortable.js"
-	import { createGroupPhase, createEliminationPhase } from "../../utils.js"
-	import PhaseCard from "./PhaseCard.svelte"
-	import AddPhaseMenu from "./AddPhaseMenu.svelte"
-	import type { Phase, PhaseType } from "$lib/server/schemas/event-schemas.js"
+import { sortable } from "../../sortable.js"
+import { createGroupPhase, createEliminationPhase } from "../../utils.js"
+import PhaseCard from "./PhaseCard.svelte"
+import AddPhaseMenu from "./AddPhaseMenu.svelte"
+import type { Phase, PhaseType } from "$lib/server/schemas/event-schemas.js"
 
-	interface Props {
-		phases: Phase[]
-		tournament_id: string
-	}
+interface Props {
+	phases: Phase[]
+	tournament_id: string
+}
 
-	let { phases = $bindable(), tournament_id }: Props = $props()
+let { phases = $bindable(), tournament_id }: Props = $props()
 
-	const lastPhaseId = $derived(phases[phases.length - 1]?.id ?? null)
+const lastPhaseId = $derived(phases[phases.length - 1]?.id ?? null)
 
-	function addPhase(type: PhaseType) {
-		const phase =
-			type === "round_robin" || type === "double_loss_groups"
-				? createGroupPhase(type, tournament_id, phases.length + 1)
-				: createEliminationPhase(type, tournament_id, phases.length + 1)
-		phases = [...phases, phase]
-	}
+function addPhase(type: PhaseType) {
+	const phase =
+		type === "round_robin" || type === "double_loss_groups"
+			? createGroupPhase(type, tournament_id, phases.length + 1)
+			: createEliminationPhase(type, tournament_id, phases.length + 1)
+	phases = [...phases, phase]
+}
 
-	function deletePhase(id: string) {
-		phases = phases.filter((p) => p.id !== id)
-	}
+function deletePhase(id: string) {
+	phases = phases.filter((p) => p.id !== id)
+}
 
-	function onSortEnd(evt: { oldIndex?: number; newIndex?: number }) {
-		if (evt.oldIndex === undefined || evt.newIndex === undefined) return
-		if (evt.oldIndex === evt.newIndex) return
-		const next = [...phases]
-		const [moved] = next.splice(evt.oldIndex, 1)
-		next.splice(evt.newIndex, 0, moved)
-		phases = next
-	}
+function onSortEnd(evt: { oldIndex?: number; newIndex?: number }) {
+	if (evt.oldIndex === undefined || evt.newIndex === undefined) return
+	if (evt.oldIndex === evt.newIndex) return
+	const next = [...phases]
+	const [moved] = next.splice(evt.oldIndex, 1)
+	next.splice(evt.newIndex, 0, moved)
+	phases = next
+}
 </script>
 
 <div class="space-y-3">

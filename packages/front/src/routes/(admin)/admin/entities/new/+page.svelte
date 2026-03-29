@@ -1,42 +1,45 @@
 <script lang="ts">
-  import { enhance } from "$app/forms"
-  import { Card, Label, Input, Select, Button, Alert } from "flowbite-svelte"
-  import { InfoCircleSolid } from "flowbite-svelte-icons"
+import { enhance } from "$app/forms"
+import { Card, Label, Input, Select, Button, Alert } from "flowbite-svelte"
+import { InfoCircleSolid } from "flowbite-svelte-icons"
 
-  let { data, form } = $props()
+let { data, form } = $props()
 
-  const PARENT_TYPE: Record<string, string | null> = {
-    federation: null,
-    ligue: "federation",
-    comite: "ligue",
-    club: "comite",
-  }
+const PARENT_TYPE: Record<string, string | null> = {
+	federation: null,
+	ligue: "federation",
+	comite: "ligue",
+	club: "comite",
+}
 
-  // selectedType drives the parent selector reactivity.
-  // Initialized from form (server action repopulation) or empty string.
-  let selectedType = $state("")
-  $effect.pre(() => {
-    if (form?.type) selectedType = form.type
-  })
+// selectedType drives the parent selector reactivity.
+// Initialized from form (server action repopulation) or empty string.
+let selectedType = $state("")
+$effect.pre(() => {
+	if (form?.type) selectedType = form.type
+})
 
-  const requiredParentType = $derived(
-    selectedType ? PARENT_TYPE[selectedType] : null
-  )
+const requiredParentType = $derived(
+	selectedType ? PARENT_TYPE[selectedType] : null,
+)
 
-  const parentOptions = $derived(
-    requiredParentType
-      ? data.allEntities
-          .filter((e: { type: string }) => e.type === requiredParentType)
-          .map((e: { id: string; name: string }) => ({ value: e.id, name: e.name }))
-      : []
-  )
+const parentOptions = $derived(
+	requiredParentType
+		? data.allEntities
+				.filter((e: { type: string }) => e.type === requiredParentType)
+				.map((e: { id: string; name: string }) => ({
+					value: e.id,
+					name: e.name,
+				}))
+		: [],
+)
 
-  const typeOptions = [
-    { value: "federation", name: "Fédération" },
-    { value: "ligue", name: "Ligue" },
-    { value: "comite", name: "Comité" },
-    { value: "club", name: "Club" },
-  ]
+const typeOptions = [
+	{ value: "federation", name: "Fédération" },
+	{ value: "ligue", name: "Ligue" },
+	{ value: "comite", name: "Comité" },
+	{ value: "club", name: "Club" },
+]
 </script>
 
 <svelte:head>

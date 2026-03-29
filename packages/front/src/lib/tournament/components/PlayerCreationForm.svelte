@@ -1,26 +1,26 @@
 <script lang="ts">
-	import { Alert, Button, Input, Label } from "flowbite-svelte"
-	import { InfoCircleSolid } from "flowbite-svelte-icons"
-	import DepartmentSelect from "./DepartmentSelect.svelte"
+import { Alert, Button, Input, Label } from "flowbite-svelte"
+import { InfoCircleSolid } from "flowbite-svelte-icons"
+import DepartmentSelect from "./DepartmentSelect.svelte"
 
-	type Values = {
-		first_name?: string | null
-		last_name?: string | null
-		department?: string | null
-		birth_date?: string | null
-		licence_no?: string | null
-	}
+type Values = {
+	first_name?: string | null
+	last_name?: string | null
+	department?: string | null
+	birth_date?: string | null
+	licence_no?: string | null
+}
 
-	type Props = {
-		values?: Values
-		submitLabel: string
-		showLicence?: boolean
-		form?: { error?: string; values?: Values } | null
-	}
+type Props = {
+	values?: Values
+	submitLabel: string
+	showLicence?: boolean
+	form?: { error?: string; values?: Values } | null
+}
 
-	let { values = {}, submitLabel, showLicence = true, form }: Props = $props()
+let { values = {}, submitLabel, showLicence = true, form }: Props = $props()
 
-	let department = $state(values?.department ?? "")
+let department = $state(values?.department ?? "")
 </script>
 
 {#if form?.error}

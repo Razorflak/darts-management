@@ -1,121 +1,127 @@
 <script lang="ts">
-	import type { DraftTournament, Tournament } from "$lib/server/schemas/event-schemas"
-	import { untrack } from "svelte"
-	import { extractTimeFromDate } from "../utils"
+import type {
+	DraftTournament,
+	Tournament,
+} from "$lib/server/schemas/event-schemas"
+import { untrack } from "svelte"
+import { extractTimeFromDate } from "../utils"
 
-	interface Props {
-		tournament?: Tournament | DraftTournament
-		value: string
-		id?: string
-		"aria-label"?: string
-		class?: string
-		disabled?: boolean
+interface Props {
+	tournament?: Tournament | DraftTournament
+	value: string
+	id?: string
+	"aria-label"?: string
+	class?: string
+	disabled?: boolean
+}
+
+let {
+	value = $bindable(""),
+	tournament = $bindable(),
+	id,
+	"aria-label": ariaLabel,
+	class: klass = "",
+	disabled = false,
+}: Props = $props()
+
+function parse(v: string): [string, string] {
+	if (v && /^\d{1,2}:\d{1,2}$/.test(v)) {
+		const [h, m] = v.split(":")
+		return [(h ?? "").padStart(2, "0"), (m ?? "").padStart(2, "0")]
 	}
+	return ["00", "00"]
+}
+let internalChange = false
 
-	let {
-		value = $bindable(""),
-		tournament = $bindable(),
-		id,
-		"aria-label": ariaLabel,
-		class: klass = "",
-		disabled = false
-	}: Props = $props()
+$effect(() => {
+	tournament
+	untrack(() => {
+		const [hhT, mmT] = tournament?.start_at
+			? extractTimeFromDate(tournament?.start_at).split(":")
+			: ["00", "00"]
 
-	function parse(v: string): [string, string] {
-		if (v && /^\d{1,2}:\d{1,2}$/.test(v)) {
-			const [h, m] = v.split(":")
-			return [(h ?? "").padStart(2, "0"), (m ?? "").padStart(2, "0")]
-		}
-		return ["00", "00"]
-	}
-	let internalChange = false
-
-	$effect(() => {
-		tournament
-		untrack(() => {
-			const [hhT, mmT] = tournament?.start_at
-				? extractTimeFromDate(tournament?.start_at).split(":")
-				: ["00", "00"]
-
-			hh = hhT
-			mm = mmT
-		})
+		hh = hhT
+		mm = mmT
 	})
+})
 
-	const [initH, initM] = parse(value)
-	let hh = $state(initH)
-	let mm = $state(initM)
+const [initH, initM] = parse(value)
+let hh = $state(initH)
+let mm = $state(initM)
 
-	let hhRef = $state<HTMLInputElement | null>(null)
-	let mmRef = $state<HTMLInputElement | null>(null)
+let hhRef = $state<HTMLInputElement | null>(null)
+let mmRef = $state<HTMLInputElement | null>(null)
 
-	function commit() {
-		internalChange = true
-		value = `${hh.padStart(2, "0")}:${mm.padStart(2, "0")}`
+function commit() {
+	internalChange = true
+	value = `${hh.padStart(2, "0")}:${mm.padStart(2, "0")}`
+}
+
+function onHoursKeydown(e: KeyboardEvent) {
+	if (
+		e.key === "Backspace" ||
+		e.key === "Delete" ||
+		e.key === "Tab" ||
+		e.key.startsWith("Arrow") ||
+		e.ctrlKey ||
+		e.metaKey
+	)
+		return
+	if (!/^\d$/.test(e.key)) e.preventDefault()
+}
+
+function onHoursInput(e: Event) {
+	const input = e.currentTarget as HTMLInputElement
+	let v = input.value.replace(/\D/g, "").slice(0, 2)
+	if (v.length === 2 && parseInt(v) > 23) v = "23"
+	hh = v
+	input.value = v
+	commit()
+	if (v.length === 2) {
+		mmRef?.focus()
+		mmRef?.select()
 	}
+}
 
-	function onHoursKeydown(e: KeyboardEvent) {
-		if (
-			e.key === "Backspace" ||
-			e.key === "Delete" ||
-			e.key === "Tab" ||
-			e.key.startsWith("Arrow") ||
-			e.ctrlKey ||
-			e.metaKey
-		)
-			return
-		if (!/^\d$/.test(e.key)) e.preventDefault()
-	}
+function onHoursBlur() {
+	hh = hh.padStart(2, "0") || "00"
+	commit()
+}
 
-	function onHoursInput(e: Event) {
-		const input = e.currentTarget as HTMLInputElement
-		let v = input.value.replace(/\D/g, "").slice(0, 2)
-		if (v.length === 2 && parseInt(v) > 23) v = "23"
-		hh = v
-		input.value = v
-		commit()
-		if (v.length === 2) {
-			mmRef?.focus()
-			mmRef?.select()
-		}
+function onMinutesKeydown(e: KeyboardEvent) {
+	if (
+		e.key === "Backspace" &&
+		(e.currentTarget as HTMLInputElement).value === ""
+	) {
+		hhRef?.focus()
+		hhRef?.select()
+		return
 	}
+	if (
+		e.key === "Backspace" ||
+		e.key === "Delete" ||
+		e.key === "Tab" ||
+		e.key.startsWith("Arrow") ||
+		e.ctrlKey ||
+		e.metaKey
+	)
+		return
+	if (!/^\d$/.test(e.key)) e.preventDefault()
+}
 
-	function onHoursBlur() {
-		hh = hh.padStart(2, "0") || "00"
-		commit()
-	}
+function onMinutesInput(e: Event) {
+	const input = e.currentTarget as HTMLInputElement
+	let v = input.value.replace(/\D/g, "").slice(0, 2)
+	if (v.length === 2 && parseInt(v) > 59) v = "59"
+	mm = v
+	input.value = v
+	commit()
+}
 
-	function onMinutesKeydown(e: KeyboardEvent) {
-		if (e.key === "Backspace" && (e.currentTarget as HTMLInputElement).value === "") {
-			hhRef?.focus()
-			hhRef?.select()
-			return
-		}
-		if (
-			e.key === "Backspace" ||
-			e.key === "Delete" ||
-			e.key === "Tab" ||
-			e.key.startsWith("Arrow") ||
-			e.ctrlKey ||
-			e.metaKey
-		)
-			return
-		if (!/^\d$/.test(e.key)) e.preventDefault()
-	}
-
-	function onMinutesInput(e: Event) {
-		const input = e.currentTarget as HTMLInputElement
-		let v = input.value.replace(/\D/g, "").slice(0, 2)
-		if (v.length === 2 && parseInt(v) > 59) v = "59"
-		mm = v
-		input.value = v
-		commit()
-	}
-
-	function onMinutesBlur() {
-		mm = mm.padStart(2, "0") || "00"
-		commit()
-	}
+function onMinutesBlur() {
+	mm = mm.padStart(2, "0") || "00"
+	commit()
+}
 </script>
 
 <div

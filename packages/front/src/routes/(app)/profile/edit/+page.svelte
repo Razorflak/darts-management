@@ -1,10 +1,10 @@
 <script lang="ts">
-	import { enhance } from "$app/forms"
-	import { Card } from "flowbite-svelte"
-	import PlayerCreationForm from "$lib/tournament/components/PlayerCreationForm.svelte"
-	import type { PageData, ActionData } from "./$types"
+import { enhance } from "$app/forms"
+import { Card } from "flowbite-svelte"
+import PlayerCreationForm from "$lib/tournament/components/PlayerCreationForm.svelte"
+import type { PageData, ActionData } from "./$types"
 
-	let { data, form }: { data: PageData; form: ActionData } = $props()
+let { data, form }: { data: PageData; form: ActionData } = $props()
 </script>
 
 <svelte:head>

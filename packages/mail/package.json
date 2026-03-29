@@ -1,0 +1,11 @@
+{
+  "name": "@darts-management/mail",
+  "version": "0.0.1",
+  "private": true,
+  "scripts": {
+    "dev": "maildev --smtp 1025 --web 1080"
+  },
+  "devDependencies": {
+    "maildev": "^2.2.1"
+  }
+}

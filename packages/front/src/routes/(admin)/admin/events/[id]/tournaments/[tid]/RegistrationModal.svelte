@@ -1,8 +1,8 @@
 <script lang="ts">
-import { Button, Modal } from "flowbite-svelte";
-import type { PlayerSearchResult } from "$lib/server/schemas/event-schemas.js";
-import PlayerSearch from "$lib/tournament/components/PlayerSearch.svelte";
-import MinimumPlayerCreationForm from "$lib/tournament/components/MinimumPlayerCreationForm.svelte";
+import { Button, Modal } from "flowbite-svelte"
+import type { PlayerSearchResult } from "$lib/server/schemas/event-schemas.js"
+import PlayerSearch from "$lib/tournament/components/PlayerSearch.svelte"
+import MinimumPlayerCreationForm from "$lib/tournament/components/MinimumPlayerCreationForm.svelte"
 
 let {
 	open = $bindable(false),
@@ -10,85 +10,88 @@ let {
 	baseUrl,
 	onRegistered,
 }: {
-	open: boolean;
-	isDoubles: boolean;
-	baseUrl: string;
-	onRegistered: () => void;
-} = $props();
+	open: boolean
+	isDoubles: boolean
+	baseUrl: string
+	onRegistered: () => void
+} = $props()
 
 const emptyNew = () => ({ first_name: "", last_name: "", department: "" })
 
-let selectedPlayer = $state<PlayerSearchResult | null>(null);
-let selectedPlayer1 = $state<PlayerSearchResult | null>(null);
-let selectedPlayer2 = $state<PlayerSearchResult | null>(null);
-let errorMsg = $state<string | null>(null);
+let selectedPlayer = $state<PlayerSearchResult | null>(null)
+let selectedPlayer1 = $state<PlayerSearchResult | null>(null)
+let selectedPlayer2 = $state<PlayerSearchResult | null>(null)
+let errorMsg = $state<string | null>(null)
 
 // Formulaire création — solo
-let showCreateSolo = $state(false);
-let newSolo = $state(emptyNew());
+let showCreateSolo = $state(false)
+let newSolo = $state(emptyNew())
 
 // Formulaire création — doubles (un par slot)
-let showCreateP1 = $state(false);
-let newP1 = $state(emptyNew());
-let showCreateP2 = $state(false);
-let newP2 = $state(emptyNew());
+let showCreateP1 = $state(false)
+let newP1 = $state(emptyNew())
+let showCreateP2 = $state(false)
+let newP2 = $state(emptyNew())
 
 function reset() {
-	selectedPlayer = null;
-	selectedPlayer1 = null;
-	selectedPlayer2 = null;
-	errorMsg = null;
-	showCreateSolo = false; newSolo = emptyNew();
-	showCreateP1 = false; newP1 = emptyNew();
-	showCreateP2 = false; newP2 = emptyNew();
+	selectedPlayer = null
+	selectedPlayer1 = null
+	selectedPlayer2 = null
+	errorMsg = null
+	showCreateSolo = false
+	newSolo = emptyNew()
+	showCreateP1 = false
+	newP1 = emptyNew()
+	showCreateP2 = false
+	newP2 = emptyNew()
 }
 
 $effect(() => {
-	if (!open) reset();
-});
+	if (!open) reset()
+})
 
 function closeAndReset() {
-	open = false;
+	open = false
 }
 
 async function confirm() {
-	errorMsg = null;
-	let body: Record<string, unknown>;
+	errorMsg = null
+	let body: Record<string, unknown>
 
 	if (isDoubles) {
 		if (showCreateP1 && (!newP1.first_name || !newP1.last_name)) {
-			errorMsg = "Joueur 1 : Prénom et nom obligatoires";
-			return;
+			errorMsg = "Joueur 1 : Prénom et nom obligatoires"
+			return
 		}
 		if (showCreateP2 && (!newP2.first_name || !newP2.last_name)) {
-			errorMsg = "Joueur 2 : Prénom et nom obligatoires";
-			return;
+			errorMsg = "Joueur 2 : Prénom et nom obligatoires"
+			return
 		}
-		if (!showCreateP1 && !selectedPlayer1) return;
-		if (!showCreateP2 && !selectedPlayer2) return;
+		if (!showCreateP1 && !selectedPlayer1) return
+		if (!showCreateP2 && !selectedPlayer2) return
 
 		const player1 = showCreateP1
 			? { type: "new", ...newP1, department: newP1.department || undefined }
-			: { type: "existing", id: selectedPlayer1!.id };
+			: { type: "existing", id: selectedPlayer1!.id }
 		const player2 = showCreateP2
 			? { type: "new", ...newP2, department: newP2.department || undefined }
-			: { type: "existing", id: selectedPlayer2!.id };
+			: { type: "existing", id: selectedPlayer2!.id }
 
-		body = { mode: "doubles", player1, player2 };
+		body = { mode: "doubles", player1, player2 }
 	} else {
 		if (showCreateSolo) {
 			if (!newSolo.first_name || !newSolo.last_name) {
-				errorMsg = "Prénom et nom obligatoires";
-				return;
+				errorMsg = "Prénom et nom obligatoires"
+				return
 			}
 			body = {
 				mode: "new",
 				...newSolo,
 				department: newSolo.department || undefined,
-			};
+			}
 		} else {
-			if (!selectedPlayer) return;
-			body = { mode: "existing", player_id: selectedPlayer.id };
+			if (!selectedPlayer) return
+			body = { mode: "existing", player_id: selectedPlayer.id }
 		}
 	}
 
@@ -96,23 +99,24 @@ async function confirm() {
 		method: "POST",
 		headers: { "Content-Type": "application/json" },
 		body: JSON.stringify(body),
-	});
+	})
 
 	if (res.ok) {
-		open = false;
-		onRegistered();
+		open = false
+		onRegistered()
 	} else {
-		const data = await res.json().catch(() => ({}));
+		const data = await res.json().catch(() => ({}))
 		errorMsg =
-			(data as { message?: string }).message ?? "Erreur lors de l'inscription";
+			(data as { message?: string }).message ?? "Erreur lors de l'inscription"
 	}
 }
 
 const canConfirm = $derived(
 	isDoubles
-		? (selectedPlayer1 !== null || showCreateP1) && (selectedPlayer2 !== null || showCreateP2)
+		? (selectedPlayer1 !== null || showCreateP1) &&
+				(selectedPlayer2 !== null || showCreateP2)
 		: selectedPlayer !== null || showCreateSolo,
-);
+)
 </script>
 
 <Modal

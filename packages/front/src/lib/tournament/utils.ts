@@ -4,7 +4,7 @@ import type {
 	DraftTournament,
 	EliminationPhase,
 	GroupPhase,
-	PhaseType
+	PhaseType,
 } from "$lib/server/schemas/event-schemas.js"
 import { gendUuidv7 } from "$lib/utils/uuid.js"
 
@@ -30,14 +30,14 @@ export function createBlankTournament(): DraftTournament {
 		name: "",
 		phases: [],
 		auto_referee: true,
-		check_in_required: false
+		check_in_required: false,
 	}
 }
 
 export function createGroupPhase(
 	type: GroupPhase["type"],
 	tournament_id: string,
-	position: number
+	position: number,
 ): GroupPhase {
 	return {
 		id: gendUuidv7(),
@@ -45,14 +45,14 @@ export function createGroupPhase(
 		players_per_group: 4,
 		tournament_id,
 		position,
-		qualifiers_per_group: 2
+		qualifiers_per_group: 2,
 	}
 }
 
 export function createEliminationPhase(
 	type: EliminationPhase["type"],
 	tournament_id: string,
-	position: number
+	position: number,
 ): EliminationPhase {
 	return {
 		id: gendUuidv7(),
@@ -60,7 +60,7 @@ export function createEliminationPhase(
 		tiers: [],
 		tournament_id,
 		position,
-		qualifiers_count: 1
+		qualifiers_count: 1,
 	}
 }
 

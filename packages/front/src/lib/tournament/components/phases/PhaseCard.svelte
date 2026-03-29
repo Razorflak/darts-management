@@ -1,25 +1,29 @@
 <script lang="ts">
-	import { PHASE_TYPE_LABELS } from "../../labels.js"
-	import { Badge, Button, Input, Label } from "flowbite-svelte"
-	import BracketTiers from "./BracketTiers.svelte"
-	import type { EliminationPhase, GroupPhase, Phase } from "$lib/server/schemas/event-schemas.js"
+import { PHASE_TYPE_LABELS } from "../../labels.js"
+import { Badge, Button, Input, Label } from "flowbite-svelte"
+import BracketTiers from "./BracketTiers.svelte"
+import type {
+	EliminationPhase,
+	GroupPhase,
+	Phase,
+} from "$lib/server/schemas/event-schemas.js"
 
-	interface Props {
-		phase: Phase
-		isLast: boolean
-		onDelete: () => void
-	}
+interface Props {
+	phase: Phase
+	isLast: boolean
+	onDelete: () => void
+}
 
-	let { phase = $bindable(), isLast, onDelete }: Props = $props()
+let { phase = $bindable(), isLast, onDelete }: Props = $props()
 
-	let expanded = $state(true)
+let expanded = $state(true)
 
-	function isGroupPhase(p: Phase): p is GroupPhase {
-		return p.type === "round_robin" || p.type === "double_loss_groups"
-	}
-	function isEliminationPhase(p: Phase): p is EliminationPhase {
-		return p.type === "single_elimination" || p.type === "double_elimination"
-	}
+function isGroupPhase(p: Phase): p is GroupPhase {
+	return p.type === "round_robin" || p.type === "double_loss_groups"
+}
+function isEliminationPhase(p: Phase): p is EliminationPhase {
+	return p.type === "single_elimination" || p.type === "double_elimination"
+}
 </script>
 
 <div class="rounded-lg border border-gray-200 bg-white shadow-sm">

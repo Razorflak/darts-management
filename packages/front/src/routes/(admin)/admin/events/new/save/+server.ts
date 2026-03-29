@@ -9,7 +9,7 @@ import {
 	type DraftTournament,
 	type EliminationPhaseSchema,
 	type GroupPhaseSchema,
-	type Phase
+	type Phase,
 } from "$lib/server/schemas/event-schemas.js"
 import type { RequestHandler } from "./$types"
 
@@ -18,14 +18,18 @@ import type { RequestHandler } from "./$types"
 type TxSql = postgres.Sql
 
 const EventOwnerSchema = z.object({
-	organizer_id: z.string()
+	organizer_id: z.string(),
 })
 
 function isGroupPhase(p: Phase): p is z.infer<typeof GroupPhaseSchema> {
 	return p.type === "round_robin" || p.type === "double_loss_groups"
 }
 
-async function insertPhases(tx: TxSql, tournamentId: string, phases: Phase[]): Promise<void> {
+async function insertPhases(
+	tx: TxSql,
+	tournamentId: string,
+	phases: Phase[],
+): Promise<void> {
 	await tx`DELETE FROM phase WHERE tournament_id = ${tournamentId}`
 	for (let i = 0; i < phases.length; i++) {
 		const p = phases[i]
@@ -61,7 +65,7 @@ async function insertPhases(tx: TxSql, tournamentId: string, phases: Phase[]): P
 async function insertTournaments(
 	tx: TxSql,
 	eventId: string,
-	tournaments: DraftTournament[]
+	tournaments: DraftTournament[],
 ): Promise<void> {
 	await tx`DELETE FROM tournament WHERE event_id = ${eventId}`
 	for (const t of tournaments) {
@@ -86,7 +90,8 @@ export const POST: RequestHandler = async ({ request, locals }) => {
 
 	const body = (await request.json()) as { event: DraftEvent }
 	const parsed = DraftEventSchema.safeParse(body.event)
-	if (!parsed.success) return json({ error: "Données invalides." }, { status: 400 })
+	if (!parsed.success)
+		return json({ error: "Données invalides." }, { status: 400 })
 	const event = parsed.data
 
 	// Authz: user must have an organisable role on the selected entity
@@ -96,12 +101,15 @@ export const POST: RequestHandler = async ({ request, locals }) => {
 		"adminClub",
 		"adminComite",
 		"adminLigue",
-		"adminFederal"
+		"adminFederal",
 	]
 	// Si pas d'entité selectionnée, pas besoin de check si il a des droits
 	const hasRole =
 		!event.entity ||
-		roles.some((r) => r.entityId === event.entity?.id && organisableRoles.includes(r.role))
+		roles.some(
+			(r) =>
+				r.entityId === event.entity?.id && organisableRoles.includes(r.role),
+		)
 	if (!hasRole) {
 		return json({ error: "Accès refusé." }, { status: 403 })
 	}
@@ -151,7 +159,8 @@ export const POST: RequestHandler = async ({ request, locals }) => {
 		if (err instanceof Error && err.message === "Forbidden") {
 			return json({ error: "Accès refusé." }, { status: 403 })
 		}
-		const message = err instanceof Error ? err.message : "Erreur base de données."
+		const message =
+			err instanceof Error ? err.message : "Erreur base de données."
 		return json({ error: message }, { status: 500 })
 	}
 }

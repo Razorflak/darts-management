@@ -2,7 +2,10 @@ import { error } from "@sveltejs/kit"
 import { z } from "zod"
 import { sql } from "$lib/server/db"
 import { getUserRoles } from "$lib/server/authz"
-import { AdminTournamentSchema, RosterEntrySchema } from "$lib/server/schemas/event-schemas.js"
+import {
+	AdminTournamentSchema,
+	RosterEntrySchema,
+} from "$lib/server/schemas/event-schemas.js"
 import type { PageServerLoad } from "./$types"
 
 export const load: PageServerLoad = async ({ locals, params }) => {
@@ -19,9 +22,13 @@ export const load: PageServerLoad = async ({ locals, params }) => {
 	const hasAccess = roles.some(
 		(r) =>
 			r.entityId === entityId &&
-			["adminTournoi", "adminClub", "adminComite", "adminLigue", "adminFederal"].includes(
-				r.role
-			)
+			[
+				"adminTournoi",
+				"adminClub",
+				"adminComite",
+				"adminLigue",
+				"adminFederal",
+			].includes(r.role),
 	)
 	if (!hasAccess) error(403, "Accès refusé")
 

@@ -2,7 +2,11 @@ import { redirect } from "@sveltejs/kit"
 import { z } from "zod"
 import { getUserRoles } from "$lib/server/authz"
 import { sql } from "$lib/server/db"
-import { type DraftEvent, DraftEventSchema, EntitySchema } from "$lib/server/schemas/event-schemas"
+import {
+	type DraftEvent,
+	DraftEventSchema,
+	EntitySchema,
+} from "$lib/server/schemas/event-schemas"
 import type { PageServerLoad } from "./$types"
 
 export const load: PageServerLoad = async ({ locals, params }) => {
@@ -54,9 +58,11 @@ export const load: PageServerLoad = async ({ locals, params }) => {
 		"adminClub",
 		"adminComite",
 		"adminLigue",
-		"adminFederal"
+		"adminFederal",
 	]
-	const entityIds = roles.filter((r) => organisableRoles.includes(r.role)).map((r) => r.entityId)
+	const entityIds = roles
+		.filter((r) => organisableRoles.includes(r.role))
+		.map((r) => r.entityId)
 	const entityRows =
 		entityIds.length > 0
 			? await sql<Record<string, unknown>[]>`
@@ -80,7 +86,8 @@ export const load: PageServerLoad = async ({ locals, params }) => {
 			players_per_group: p.players_per_group ?? undefined,
 			qualifiers_per_group: p.qualifiers_per_group ?? undefined,
 			qualifiers_count: p.qualifiers_count ?? undefined,
-			tiers: typeof p.tiers === "string" ? JSON.parse(p.tiers) : (p.tiers ?? [])
+			tiers:
+				typeof p.tiers === "string" ? JSON.parse(p.tiers) : (p.tiers ?? []),
 		})
 	}
 
@@ -96,7 +103,7 @@ export const load: PageServerLoad = async ({ locals, params }) => {
 		entity: {
 			id: eventRow.entity_id,
 			name: eventRow.entity_name,
-			type: eventRow.entity_type
+			type: eventRow.entity_type,
 		},
 		tournaments: tournamentRows.map((t) => ({
 			id: t.id,
@@ -105,8 +112,8 @@ export const load: PageServerLoad = async ({ locals, params }) => {
 			start_at: t.start_at ?? null,
 			auto_referee: t.auto_referee,
 			check_in_required: t.check_in_required ?? false,
-			phases: phasesByTournament[t.id as string] ?? []
-		}))
+			phases: phasesByTournament[t.id as string] ?? [],
+		})),
 	}
 
 	const event: DraftEvent = DraftEventSchema.parse(raw)
@@ -114,6 +121,6 @@ export const load: PageServerLoad = async ({ locals, params }) => {
 	return {
 		event,
 		entities,
-		eventStatus: eventRow.status as "draft" | "ready" | "started"
+		eventStatus: eventRow.status as "draft" | "ready" | "started",
 	}
 }

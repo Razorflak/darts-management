@@ -1,20 +1,25 @@
 {
-	"$schema": "https://biomejs.dev/schemas/1.9.4/schema.json",
+	"root": false,
+	"$schema": "https://biomejs.dev/schemas/2.4.9/schema.json",
 	"vcs": {
 		"enabled": false,
 		"clientKind": "git",
 		"useIgnoreFile": false
 	},
 	"files": {
-		"ignoreUnknown": false,
-		"ignore": []
+		"ignoreUnknown": false
 	},
 	"formatter": {
 		"enabled": true,
 		"indentStyle": "tab"
 	},
-	"organizeImports": {
-		"enabled": true
+	"assist": {
+		"enabled": true,
+		"actions": {
+			"source": {
+				"organizeImports": "on"
+			}
+		}
 	},
 	"linter": {
 		"enabled": true,
@@ -23,6 +28,18 @@
 			"a11y": {
 				"useGenericFontNames": "off"
 			}
+		}
+	},
+	"css": {
+		"parser": {
+			"tailwindDirectives": true
+		},
+		"formatter": {
+			"indentStyle": "tab",
+			"quoteStyle": "double"
+		},
+		"linter": {
+			"enabled": true
 		}
 	},
 	"javascript": {

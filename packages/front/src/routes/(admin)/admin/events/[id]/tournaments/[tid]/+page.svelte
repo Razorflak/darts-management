@@ -9,25 +9,26 @@ import {
 	TableBodyRow,
 	TableHead,
 	TableHeadCell,
-} from "flowbite-svelte";
-import type { RosterEntry } from "$lib/server/schemas/event-schemas.js";
-import type { PageData } from "./$types";
-import RegistrationModal from "./RegistrationModal.svelte";
+} from "flowbite-svelte"
+import type { RosterEntry } from "$lib/server/schemas/event-schemas.js"
+import type { PageData } from "./$types"
+import RegistrationModal from "./RegistrationModal.svelte"
+import { apiRoutes } from "$lib/fetch/api"
 
-let { data }: { data: PageData } = $props();
+let { data }: { data: PageData } = $props()
 
-const eventId = data.tournament.event_id;
-const tournamentId = data.tournament.id;
-const baseUrl = `/admin/events/${eventId}/tournaments/${tournamentId}`;
+const eventId = data.tournament.event_id
+const tournamentId = data.tournament.id
+const baseUrl = `/admin/events/${eventId}/tournaments/${tournamentId}`
 
-const DOUBLE_CATEGORIES = ["double", "double_female", "double_mix"];
-const isDoubles = DOUBLE_CATEGORIES.includes(data.tournament.category);
+const DOUBLE_CATEGORIES = ["double", "double_female", "double_mix"]
+const isDoubles = DOUBLE_CATEGORIES.includes(data.tournament.category)
 
-let roster = $state<RosterEntry[]>(data.roster);
-let tournamentStatus = $state(data.tournament.status);
+let roster = $state<RosterEntry[]>(data.roster)
+let tournamentStatus = $state(data.tournament.status)
 
 // Filter
-let filterQuery = $state("");
+let filterQuery = $state("")
 let filteredRoster = $derived(
 	filterQuery.trim().length === 0
 		? roster
@@ -42,10 +43,10 @@ let filteredRoster = $derived(
 							.includes(filterQuery.toLowerCase()),
 				),
 			),
-);
+)
 
 // Modal state
-let showAddModal = $state(false);
+let showAddModal = $state(false)
 
 // Status management
 const STATUS_TRANSITIONS: Record<string, string | null> = {
@@ -53,48 +54,49 @@ const STATUS_TRANSITIONS: Record<string, string | null> = {
 	"check-in": "started",
 	started: "finished",
 	finished: null,
-};
+}
 const STATUS_PREV: Record<string, string | null> = {
 	ready: null,
 	"check-in": "ready",
 	started: "check-in",
 	finished: "started",
-};
+}
 const STATUS_LABELS: Record<string, string> = {
 	ready: "Ouvert",
 	"check-in": "Check-in",
 	started: "Lancé",
 	finished: "Terminé",
-};
+}
 const STATUS_COLORS: Record<string, "green" | "yellow" | "blue" | "gray"> = {
 	ready: "green",
 	"check-in": "yellow",
 	started: "blue",
 	finished: "gray",
-};
+}
 
 async function changeStatus(newStatus: string) {
-	const res = await fetch(`${baseUrl}/status`, {
+	const res = await fetch(apiRoutes.TOURNAMENT_STATUS.path, {
 		method: "PATCH",
 		headers: { "Content-Type": "application/json" },
 		body: JSON.stringify({ status: newStatus }),
-	});
+	})
 	if (res.ok) {
-		tournamentStatus = newStatus;
+		tournamentStatus = newStatus
 	}
 }
 
 async function checkIn(registrationId: string, value: boolean) {
-	await fetch(`${baseUrl}/checkin`, {
+	await fetch(apiRoutes.TOURNAMENT_CHECKIN.path, {
 		method: "POST",
 		headers: { "Content-Type": "application/json" },
 		body: JSON.stringify({
+			tournament_id: tournamentId,
 			registration_id: registrationId,
 			checked_in: value,
 		}),
-	});
-	const entry = roster.find((e) => e.registration_id === registrationId);
-	if (entry) entry.checked_in = value;
+	})
+	const entry = roster.find((e) => e.registration_id === registrationId)
+	if (entry) entry.checked_in = value
 }
 
 async function unregister(teamId: string) {
@@ -102,8 +104,8 @@ async function unregister(teamId: string) {
 		method: "DELETE",
 		headers: { "Content-Type": "application/json" },
 		body: JSON.stringify({ team_id: teamId }),
-	});
-	roster = roster.filter((e) => e.team_id !== teamId);
+	})
+	roster = roster.filter((e) => e.team_id !== teamId)
 }
 </script>
 

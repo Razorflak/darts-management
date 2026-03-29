@@ -34,13 +34,15 @@
 	--color-border-strong: oklch(82% 0.02 264);
 
 	/* ─── Typographie ─── */
-	--font-sans: 'Inter', system-ui, sans-serif;
+	--font-sans: "Inter", system-ui, sans-serif;
 
 	/* ─── Rayons ─── */
 	--radius-card: 0.75rem;
 	--radius-pill: 9999px;
 
 	/* ─── Ombres ─── */
-	--shadow-card: 0 1px 3px 0 rgb(0 0 0 / 0.08), 0 1px 2px -1px rgb(0 0 0 / 0.06);
-	--shadow-card-hover: 0 4px 6px -1px rgb(0 0 0 / 0.1), 0 2px 4px -2px rgb(0 0 0 / 0.06);
+	--shadow-card:
+		0 1px 3px 0 rgb(0 0 0 / 0.08), 0 1px 2px -1px rgb(0 0 0 / 0.06);
+	--shadow-card-hover:
+		0 4px 6px -1px rgb(0 0 0 / 0.1), 0 2px 4px -2px rgb(0 0 0 / 0.06);
 }

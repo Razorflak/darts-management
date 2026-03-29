@@ -1,6 +1,6 @@
-import { z } from 'zod'
+import { z } from "zod"
 
-const EntityTypeSchema = z.enum(['federation', 'ligue', 'comite', 'club'])
+const EntityTypeSchema = z.enum(["federation", "ligue", "comite", "club"])
 
 // ------------------------------------------------------------------
 // Simple entity row (admin/entities/new/+page.server.ts)

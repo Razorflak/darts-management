@@ -1,58 +1,60 @@
 <script lang="ts">
-	import { Datepicker, Label, Select, Toggle } from "flowbite-svelte"
-	import { untrack } from "svelte"
-	import type {
-		Category,
-		DraftTournament,
-		Tournament
-	} from "$lib/server/schemas/event-schemas.js"
-	import { CATEGORY_LABELS } from "../labels.js"
-	import { extractTimeFromDate } from "../utils.js"
-	import PhasesBuilder from "./phases/PhasesBuilder.svelte"
-	import TimeInput from "./TimeInput.svelte"
+import { Datepicker, Label, Select, Toggle } from "flowbite-svelte"
+import { untrack } from "svelte"
+import type {
+	Category,
+	DraftTournament,
+	Tournament,
+} from "$lib/server/schemas/event-schemas.js"
+import { CATEGORY_LABELS } from "../labels.js"
+import { extractTimeFromDate } from "../utils.js"
+import PhasesBuilder from "./phases/PhasesBuilder.svelte"
+import TimeInput from "./TimeInput.svelte"
 
-	interface Props {
-		tournament: Tournament | DraftTournament
-		onUpdate?: (updatedTournament: Tournament | DraftTournament) => void
+interface Props {
+	tournament: Tournament | DraftTournament
+	onUpdate?: (updatedTournament: Tournament | DraftTournament) => void
+}
+
+let { tournament = $bindable(), onUpdate }: Props = $props()
+
+let startDateObj = $derived<Date | undefined>(tournament.start_at ?? undefined)
+
+let startTime = $state<string>(
+	extractTimeFromDate(tournament.start_at ?? undefined),
+)
+
+function updateCategory(newCategory: Category) {
+	tournament.category = newCategory
+	if (onUpdate) {
+		onUpdate(tournament)
 	}
+}
 
-	let { tournament = $bindable(), onUpdate }: Props = $props()
-
-	let startDateObj = $derived<Date | undefined>(tournament.start_at ?? undefined)
-
-	let startTime = $state<string>(extractTimeFromDate(tournament.start_at ?? undefined))
-
-	function updateCategory(newCategory: Category) {
-		tournament.category = newCategory
-		if (onUpdate) {
-			onUpdate(tournament)
-		}
-	}
-
-	$effect(() => {
-		startTime
-		untrack(() => {
-			if (startTime) {
-				const [hours, minutes] = startTime.split(":").map(Number)
-				if (startDateObj) {
-					startDateObj.setHours(hours, minutes)
-					tournament.start_at = startDateObj
-				}
+$effect(() => {
+	startTime
+	untrack(() => {
+		if (startTime) {
+			const [hours, minutes] = startTime.split(":").map(Number)
+			if (startDateObj) {
+				startDateObj.setHours(hours, minutes)
+				tournament.start_at = startDateObj
 			}
-		})
+		}
 	})
+})
 
-	const categories: Category[] = [
-		"male",
-		"female",
-		"junior",
-		"veteran",
-		"open",
-		"mix",
-		"double",
-		"double_female",
-		"double_mix"
-	]
+const categories: Category[] = [
+	"male",
+	"female",
+	"junior",
+	"veteran",
+	"open",
+	"mix",
+	"double",
+	"double_female",
+	"double_mix",
+]
 </script>
 
 <div class="space-y-6">

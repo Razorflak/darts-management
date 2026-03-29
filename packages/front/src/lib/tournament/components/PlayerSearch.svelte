@@ -1,48 +1,51 @@
 <script lang="ts">
-	import type { PlayerSearchResult } from "$lib/server/schemas/event-schemas.js"
+import { apiRoutes } from "$lib/fetch/api"
+import type { PlayerSearchResult } from "$lib/server/schemas/event-schemas.js"
 
-	type Props = {
-		tournamentId: string
-		searchUrl?: string
-		onSelect: (player: PlayerSearchResult) => void
-	}
-	let { tournamentId, searchUrl, onSelect }: Props = $props()
+type Props = {
+	mode: "all" | "partner"
+	onSelect: (player: PlayerSearchResult) => void
+}
+let { onSelect, mode }: Props = $props()
 
-	let query = $state("")
-	let results = $state<PlayerSearchResult[]>([])
-	let open = $state(false)
-	let timer: ReturnType<typeof setTimeout> | undefined
-	let inputEl: HTMLInputElement | undefined = $state()
-	let dropdownStyle = $state("")
+let query = $state("")
+let results = $state<PlayerSearchResult[]>([])
+let open = $state(false)
+let timer: ReturnType<typeof setTimeout> | undefined
+let inputEl: HTMLInputElement | undefined = $state()
+let dropdownStyle = $state("")
 
-	function updatePosition() {
-		if (!inputEl) return
-		const r = inputEl.getBoundingClientRect()
-		dropdownStyle = `top:${r.bottom + window.scrollY + 4}px;left:${r.left + window.scrollX}px;width:${r.width}px`
-	}
+function updatePosition() {
+	if (!inputEl) return
+	const r = inputEl.getBoundingClientRect()
+	dropdownStyle = `top:${r.bottom + window.scrollY + 4}px;left:${r.left + window.scrollX}px;width:${r.width}px`
+}
 
-	$effect(() => {
-		clearTimeout(timer)
-		if (query.length < 2) {
-			results = []
-			open = false
-			return
-		}
-		timer = setTimeout(async () => {
-			const url = searchUrl ?? `/tournaments/${tournamentId}/admin/players/search`
-			const res = await fetch(`${url}?q=${encodeURIComponent(query)}`)
-			results = await res.json()
-			updatePosition()
-			open = results.length > 0
-		}, 300)
-	})
-
-	function selectPlayer(player: PlayerSearchResult) {
-		onSelect(player)
-		query = ""
+$effect(() => {
+	clearTimeout(timer)
+	if (query.length < 2) {
 		results = []
 		open = false
+		return
 	}
+	timer = setTimeout(async () => {
+		const url =
+			mode === "all"
+				? apiRoutes.PLAYERS_SEARCH.path
+				: apiRoutes.PLAYERS_PARTER_SEARCH.path
+		const res = await fetch(`${url}?q=${encodeURIComponent(query)}`)
+		results = await res.json()
+		updatePosition()
+		open = results.length > 0
+	}, 300)
+})
+
+function selectPlayer(player: PlayerSearchResult) {
+	onSelect(player)
+	query = ""
+	results = []
+	open = false
+}
 </script>
 
 <svelte:window onscroll={updatePosition} onresize={updatePosition} />
@@ -53,7 +56,7 @@
 		type="text"
 		placeholder="Rechercher un joueur (nom, prénom, licence)..."
 		bind:value={query}
-		class="block w-full rounded-lg border border-gray-300 bg-gray-50 p-2.5 text-sm text-gray-900 focus:border-primary-500 focus:ring-primary-500 dark:border-gray-600 dark:bg-gray-700 dark:text-white dark:placeholder-gray-400 dark:focus:border-primary-500 dark:focus:ring-primary-500"
+		class="focus:border-primary-500 focus:ring-primary-500 dark:focus:border-primary-500 dark:focus:ring-primary-500 block w-full rounded-lg border border-gray-300 bg-gray-50 p-2.5 text-sm text-gray-900 dark:border-gray-600 dark:bg-gray-700 dark:text-white dark:placeholder-gray-400"
 	/>
 	{#if open}
 		<ul
