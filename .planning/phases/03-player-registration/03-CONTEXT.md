@@ -105,6 +105,7 @@ Les joueurs peuvent s'inscrire à un tournoi ouvert (self-service ou via un admi
 #### Bouton par jour sur `/admin/events/[id]`
 
 - Un bouton "Check-in [date]" par journée de compétition — une journée = ensemble des tournois ayant le même `start_at::date`
+- Seuls les tournois avec un `start_at` renseigné comptent — un tournoi sans date n'apparaît pas et ne génère pas de bouton
 - Clic → `confirm()` de `$lib/confirm.svelte.js` : "Cette action passera tous les tournois de cette journée en statut check-in"
 - Validation → update statut de tous les tournois du jour vers `check-in` + redirect vers `/admin/events/[id]/checkin?date=YYYY-MM-DD`
 - Si certains tournois du jour sont déjà en `check-in` : on les ignore silencieusement, pas de message
@@ -116,11 +117,12 @@ Les joueurs peuvent s'inscrire à un tournoi ouvert (self-service ou via un admi
 - Affiche tous les joueurs inscrits à au moins un tournoi ce jour, triés par ordre alphabétique
 - Champ de recherche en temps réel par nom au-dessus de la liste, avec bouton croix pour vider
 - Par joueur :
-  - Bouton **"Check-in tous"** à droite du nom — grand, vert — checke toutes ses inscriptions du jour
+  - Bouton **"Check-in tous"** à droite du nom — grand, vert — checke uniquement les inscriptions non-checkées du jour ; grisé/désactivé si le joueur est déjà 100% checké
   - Boutons **par tournoi** — petits, bleus — pour checker ou déchercker un tournoi individuel
   - Pas de checkboxes
-- Cas doubles : checker un joueur (bouton tournoi ou tous) checke toute son équipe (les deux membres)
-- Dé-checker un tournoi : via le bouton tournoi individuel + `confirm()`
+- Cas doubles : checker OU déchercker un joueur (bouton tournoi ou "tous") affecte les deux membres de l'équipe
+- Mise à jour en temps réel par `tournament_registration.id` — la ligne du partenaire se met à jour instantanément dans la liste
+- Dé-checker un tournoi individuel : via le bouton tournoi + `confirm()`
 - Après action : ligne mise à jour visuellement (état "Checké" si tous les tournois sont checkés)
 - Pas de navigation de date sur cet écran — l'admin revient sur `/admin/events/[id]` pour choisir un autre jour
 
