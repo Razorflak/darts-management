@@ -167,8 +167,10 @@ Un joueur est considéré **checké** si et seulement si `checked_in = true` pou
 
   [ Valider ]
   ```
-- Les tournois doubles ne sont accessibles que si la section 2 est ouverte (2 joueurs requis)
-- À la validation : appel à l'API registration pour chaque tournoi coché (l'API gère les doubles et la création de joueur)
+- Les tournois doubles ne sont accessibles que si la section 2 est ouverte (2 joueurs requis) ; si section 2 refermée → doubles masqués
+- Recherche joueur : autocomplete sur tous les profils en DB (pas filtré sur les inscrits du jour), même comportement que le roster existant
+- À la validation : pour chaque tournoi coché → appel API registration + appel API check-in immédiat ; les joueurs arrivent inscrits ET checkés
+- Après validation : modal fermée + liste joueurs rafraîchie automatiquement
 
 #### Patterns existants à réutiliser
 
