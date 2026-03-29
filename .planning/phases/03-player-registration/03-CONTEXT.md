@@ -104,37 +104,41 @@ Les joueurs peuvent s'inscrire à un tournoi ouvert (self-service ou via un admi
 
 #### Bouton par jour sur `/admin/events/[id]`
 
-- Un bouton "Check-in jour [date]" par journée de compétition de l'événement
+- Un bouton "Check-in [date]" par journée de compétition — une journée = ensemble des tournois ayant le même `start_at::date`
 - Clic → `confirm()` de `$lib/confirm.svelte.js` : "Cette action passera tous les tournois de cette journée en statut check-in"
 - Validation → update statut de tous les tournois du jour vers `check-in` + redirect vers `/admin/events/[id]/checkin?date=YYYY-MM-DD`
+- Si certains tournois du jour sont déjà en `check-in` : on les ignore silencieusement, pas de message
 - Annulation → reste sur `/admin/events/[id]`
 
 #### Page `/admin/events/[id]/checkin?date=...`
 
-- Affiche tous les joueurs inscrits à au moins un tournoi ce jour
-- Par joueur : badges par tournoi + checkbox par tournoi (pré-cochées par défaut)
-- Bouton "Check-in" par joueur → checke les inscriptions des tournois dont la checkbox est cochée
-- Cas doubles : checker un joueur checke toute son équipe (les deux membres)
-- Après check-in : ligne marquée comme "Checké" (reste visible, état visuel distinct)
-- Dé-checker un joueur : possible via `confirm()`, décoche tous ses tournois de la journée
+- Seule la table `tournament_registration` est modifiée (`checked_in`) — le statut du tournoi n'est jamais touché depuis cet écran
+- Affiche tous les joueurs inscrits à au moins un tournoi ce jour, triés par ordre alphabétique
+- Champ de recherche en temps réel par nom au-dessus de la liste, avec bouton croix pour vider
+- Par joueur :
+  - Bouton **"Check-in tous"** à droite du nom — grand, vert — checke toutes ses inscriptions du jour
+  - Boutons **par tournoi** — petits, bleus — pour checker ou déchercker un tournoi individuel
+  - Pas de checkboxes
+- Cas doubles : checker un joueur (bouton tournoi ou tous) checke toute son équipe (les deux membres)
+- Dé-checker un tournoi : via le bouton tournoi individuel + `confirm()`
+- Après action : ligne mise à jour visuellement (état "Checké" si tous les tournois sont checkés)
 - Pas de navigation de date sur cet écran — l'admin revient sur `/admin/events/[id]` pour choisir un autre jour
 
 #### Définition "joueur checké"
 
 Un joueur est considéré **checké** si et seulement si `checked_in = true` pour **tous** ses tournois de la journée.
-- Exemple : inscrit en simples + doubles → partenaire valide le doubles mais simples pas encore checké → joueur **non checké** dans la jauge et le filtre
-- La logique s'applique au niveau du joueur individuel, pas de l'équipe
+- Exemple : inscrit en simples + doubles → doubles checké mais simples non → joueur **non checké** dans la jauge et le filtre
+- La logique s'applique au niveau du joueur individuel
 
 #### Jauge de progression
 
-- Barre horizontale en haut de la page indiquant le % de joueurs checkés (`nb_checkés / nb_total`)
-- Se met à jour après chaque action de check-in / dé-check-in
+- Barre horizontale en haut de la page : % de joueurs checkés (`nb_checkés / nb_total`)
+- Se met à jour après chaque action
 
 #### Filtre liste joueurs
 
-- Checkbox au-dessus de la liste : "Afficher uniquement les joueurs non checkés"
-- Par défaut : tous les joueurs sont affichés
-- Quand activé : masque les joueurs dont tous les tournois de la journée sont checkés
+- Checkbox "Afficher uniquement les joueurs non checkés", désactivée par défaut
+- Quand activée : masque les joueurs dont tous les tournois du jour sont à `checked_in = true`
 
 #### Patterns existants à réutiliser
 
