@@ -22,12 +22,12 @@ See: .planning/PROJECT.md (updated 2026-02-28)
 
 ## Current Position
 
-Phase: 03-player-registration — plan 05 complete (PHASE COMPLETE)
-Plan: 03-05 complete (admin roster page, check-in, status management, player add/remove)
-Status: 03-05 complete — admin roster at /admin/events/[id]/tournaments/[tid] with all management actions
-Last activity: 2026-03-09 - Completed quick task 8: RegistrationModal — dropdown fix + MinimumPlayerCreationForm component
+Phase: 03-player-registration — plan 06 complete (PHASE COMPLETE)
+Plan: 03-06 complete (cross-tournament check-in flow — day buttons, checkin page, CheckinRegistrationModal)
+Status: 03-06 complete — check-in page at /admin/events/[id]/checkin?date= with progress bar, search, filter, doubles sync
+Last activity: 2026-03-30 - Completed plan 06: cross-tournament check-in flow
 
-Progress: [████░░░░░░] 57% (23/40 plans estimated)
+Progress: [████░░░░░░] 60% (24/40 plans estimated)
 
 ## Performance Metrics
 
@@ -64,6 +64,7 @@ Progress: [████░░░░░░] 57% (23/40 plans estimated)
 | Phase 03.2-player-profile P01 | 2 | 2 tasks | 2 files |
 | Phase 03.2-player-profile P03 | 3 | 2 tasks | 3 files |
 | Phase 03.2-player-profile P02 | 2 | 2 tasks | 8 files |
+| Phase 03-player-registration P06 | 7 | 3 tasks | 9 files |
 
 ## Accumulated Context
 
@@ -147,6 +148,10 @@ Progress: [████░░░░░░] 57% (23/40 plans estimated)
 - [Phase 03.2-02]: PlayerCreationForm renders fields-only (no form tag) — pages control form element to inject hidden inputs like redirectTo
 - [Phase 03.2-02]: licence_no guard in both load() and actions.default() — prevents bypass via direct POST to /profile/edit
 - [Phase 03.2-02]: CreateProfileSchema/UpdateProfileSchema in event-schemas.ts not request-schemas.ts — tightly coupled to Player domain type per Zod-first rule
+- [03-06]: team-checkin PATCH checks status = 'check-in' guard — prevents accidental check-in on non-active tournaments
+- [03-06]: CheckinRegistrationModal uses /api/tournament/register (existing endpoint) not a new per-tournament admin endpoint — avoids endpoint proliferation
+- [03-06]: register endpoint RETURNING id — fully backwards-compatible, callers that ignore response body are unaffected
+- [03-06]: syncPartners() loops all players scanning registration_id — doubles partner row updates instantly without page reload
 
 ### Roadmap Evolution
 
@@ -183,6 +188,6 @@ Progress: [████░░░░░░] 57% (23/40 plans estimated)
 
 ## Session Continuity
 
-Last session: 2026-03-09
-Stopped at: Completed quick-9 — player.birth_date nullable (migration 015), Zod schemas updated, '1900-01-01' placeholder eliminated from all server routes.
+Last session: 2026-03-30
+Stopped at: Completed 03-06 — cross-tournament check-in flow (day buttons, checkin page, team-checkin endpoint, CheckinRegistrationModal).
 Resume file: None
