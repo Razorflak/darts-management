@@ -98,15 +98,15 @@ export const POST: RequestHandler = async ({ request, locals, params }) => {
 	const teamId = await findOrCreateTeam(playerIds)
 
 	try {
-		await sql`
+		const [reg] = await sql<{ id: string }[]>`
 			INSERT INTO tournament_registration (tournament_id, team_id)
 			VALUES (${tournament_id}, ${teamId})
+			RETURNING id
 		`
+		return json({ ok: true, registration_id: reg.id })
 	} catch (err) {
 		const pgErr = err as { code?: string }
 		if (pgErr.code === "23505") error(409, "Équipe déjà inscrite")
 		throw err
 	}
-
-	return json({ ok: true })
 }

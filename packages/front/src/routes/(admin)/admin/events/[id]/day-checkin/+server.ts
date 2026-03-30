@@ -1,7 +1,7 @@
 import { error, json } from "@sveltejs/kit"
 import { z } from "zod"
-import { sql } from "$lib/server/db"
 import { getUserRoles } from "$lib/server/authz"
+import { sql } from "$lib/server/db"
 import type { RequestHandler } from "./$types"
 
 export const PATCH: RequestHandler = async ({ locals, params, request }) => {

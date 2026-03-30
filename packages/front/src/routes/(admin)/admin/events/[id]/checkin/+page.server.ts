@@ -1,7 +1,7 @@
 import { error } from "@sveltejs/kit"
 import { z } from "zod"
-import { sql } from "$lib/server/db"
 import { getUserRoles } from "$lib/server/authz"
+import { sql } from "$lib/server/db"
 import {
 	AdminEventDetailSchema,
 	CheckinPlayerSchema,

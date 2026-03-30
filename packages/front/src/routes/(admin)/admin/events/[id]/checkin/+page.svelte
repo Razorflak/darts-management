@@ -1,11 +1,11 @@
 <script lang="ts">
-import { Button, Badge } from "flowbite-svelte"
+import { Badge, Button } from "flowbite-svelte"
 import { confirm } from "$lib/confirm.svelte.js"
-import type { PageData } from "./$types"
 import type {
 	CheckinPlayer,
 	CheckinRegistration,
 } from "$lib/server/schemas/event-schemas.js"
+import type { PageData } from "./$types"
 import CheckinRegistrationModal from "./CheckinRegistrationModal.svelte"
 
 let { data }: { data: PageData } = $props()
@@ -23,7 +23,9 @@ let modalOpen = $state(false)
 
 // A player is fully checked if ALL their registrations are checked_in
 function isFullyChecked(p: CheckinPlayer): boolean {
-	return p.registrations.length > 0 && p.registrations.every((r) => r.checked_in)
+	return (
+		p.registrations.length > 0 && p.registrations.every((r) => r.checked_in)
+	)
 }
 
 // Progress
@@ -48,7 +50,10 @@ let filteredPlayers = $derived(
 
 // Sync checked_in state for all players who share any of the affected registration_ids.
 // This ensures a doubles partner's row updates instantly without a page reload.
-function syncPartners(affectedRegistrationIds: string[], newCheckedIn: boolean) {
+function syncPartners(
+	affectedRegistrationIds: string[],
+	newCheckedIn: boolean,
+) {
 	for (const player of players) {
 		for (const reg of player.registrations) {
 			if (affectedRegistrationIds.includes(reg.registration_id)) {
@@ -76,10 +81,7 @@ async function checkinAll(p: CheckinPlayer) {
 	}
 }
 
-async function toggleRegistration(
-	p: CheckinPlayer,
-	reg: CheckinRegistration,
-) {
+async function toggleRegistration(p: CheckinPlayer, reg: CheckinRegistration) {
 	const newState = !reg.checked_in
 	if (!newState) {
 		const ok = await confirm(
