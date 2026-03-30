@@ -285,3 +285,36 @@ export const UpdateProfileSchema = z.object({
 	// licence_no intentionally absent — not modifiable after initial entry
 })
 export type UpdateProfileInput = z.infer<typeof UpdateProfileSchema>
+
+/** ################################## */
+/** ####### CHECK-IN CROSS-DAY ####### */
+/** ################################## */
+
+// One tournament's check-in state for a player, used by the cross-day checkin page
+export const CheckinRegistrationSchema = z.object({
+	registration_id: z.uuid(),
+	team_id: z.uuid(),
+	tournament_id: z.uuid(),
+	tournament_name: z.string(),
+	checked_in: z.boolean(),
+})
+export type CheckinRegistration = z.infer<typeof CheckinRegistrationSchema>
+
+// One player row on the cross-day checkin page
+export const CheckinPlayerSchema = z.object({
+	player_id: z.uuid(),
+	first_name: z.string(),
+	last_name: z.string(),
+	registrations: z.array(CheckinRegistrationSchema),
+})
+export type CheckinPlayer = z.infer<typeof CheckinPlayerSchema>
+
+// One competition day entry on /admin/events/[id], derived from tournament.start_at
+export const CheckinDaySchema = z.object({
+	date: z.string(), // 'YYYY-MM-DD' (start_at::date::text)
+	tournament_ids: z.array(z.uuid()),
+	tournament_names: z.array(z.string()),
+	any_ready: z.boolean(), // true if at least one tournament of the day is still 'ready'
+	any_checkin: z.boolean(), // true if at least one tournament of the day is in 'check-in'
+})
+export type CheckinDay = z.infer<typeof CheckinDaySchema>

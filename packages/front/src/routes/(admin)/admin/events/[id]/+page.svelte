@@ -9,10 +9,31 @@ import {
 	TableHead,
 	TableHeadCell,
 } from "flowbite-svelte"
+import { goto } from "$app/navigation"
+import { confirm } from "$lib/confirm.svelte.js"
 import { CATEGORY_LABELS } from "$lib/tournament/labels"
+import type { CheckinDay } from "$lib/server/schemas/event-schemas.js"
 import type { PageData } from "./$types"
 
 let { data }: { data: PageData } = $props()
+
+async function startDayCheckin(day: CheckinDay) {
+	if (day.any_ready) {
+		const ok = await confirm(
+			"Cette action passera tous les tournois de cette journée en statut check-in",
+		)
+		if (!ok) return
+	}
+	const res = await fetch(`/admin/events/${data.event.id}/day-checkin`, {
+		method: "PATCH",
+		headers: { "Content-Type": "application/json" },
+		body: JSON.stringify({ date: day.date }),
+	})
+	if (res.ok) {
+		const { redirect } = await res.json()
+		goto(redirect)
+	}
+}
 
 const STATUS_LABELS: Record<string, string> = {
 	ready: "Ouvert",
@@ -59,6 +80,29 @@ const EVENT_STATUS_COLORS: Record<string, "gray" | "green" | "yellow" | "red"> =
 		>Modifier l'événement</Button
 	>
 </div>
+
+<!-- Day check-in buttons -->
+{#if data.checkinDays.length > 0}
+	<div class="mb-6">
+		<h2 class="mb-3 text-base font-semibold text-gray-800">Check-in par journée</h2>
+		<div class="flex flex-wrap gap-3">
+			{#each data.checkinDays as day (day.date)}
+				{#if day.any_ready || day.any_checkin}
+					<Button
+						onclick={() => startDayCheckin(day)}
+						color={day.any_checkin ? "yellow" : "primary"}
+						size="sm"
+					>
+						Check-in {new Date(day.date).toLocaleDateString("fr-FR", {
+							day: "numeric",
+							month: "long",
+						})}
+					</Button>
+				{/if}
+			{/each}
+		</div>
+	</div>
+{/if}
 
 <!-- Tournaments table -->
 <h2 class="mb-3 text-base font-semibold text-gray-800">Tournois ({data.tournaments.length})</h2>
