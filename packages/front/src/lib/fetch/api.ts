@@ -14,6 +14,8 @@ export const apiRoutes = {
 		method: ["POST"],
 		path: "/api/tournament/checkin-all",
 	},
+	TOURNAMENT_CANCEL: { method: ["POST"], path: "/api/tournament/cancel" },
+	TOURNAMENT_LAUNCH: { method: ["POST"], path: "/api/tournament/launch" },
 	TOURNAMENT_REGISTER: { method: ["POST"], path: "/api/tournament/register" },
 	TOURNAMENT_STATUS: { method: ["PATCH"], path: "/api/tournament/status" },
 	TOURNAMENT_UNEREGISER: {
