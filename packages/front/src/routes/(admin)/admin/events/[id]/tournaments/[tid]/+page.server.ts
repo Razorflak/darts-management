@@ -4,6 +4,7 @@ import { sql } from "$lib/server/db"
 import { getUserRoles } from "$lib/server/authz"
 import {
 	AdminTournamentSchema,
+	MatchDisplaySchema,
 	RosterEntrySchema,
 } from "$lib/server/schemas/event-schemas.js"
 import type { PageServerLoad } from "./$types"
@@ -55,5 +56,27 @@ export const load: PageServerLoad = async ({ locals, params }) => {
 	`
 	const roster = z.array(RosterEntrySchema).parse(rosterRows)
 
-	return { tournament, roster }
+	let matches: z.infer<typeof MatchDisplaySchema>[] = []
+	if (tournament.status === "started" || tournament.status === "finished") {
+		const matchRows = await sql<Record<string, unknown>[]>`
+			SELECT m.id, m.event_match_id, m.group_number, m.round_number, m.position,
+			       m.status, m.phase_id, p.type AS phase_type, p.position AS phase_position,
+			       (SELECT string_agg(pl.first_name || ' ' || pl.last_name, ' / ' ORDER BY pl.last_name)
+			        FROM team_member tm2 JOIN player pl ON pl.id = tm2.player_id
+			        WHERE tm2.team_id = m.team_a_id) AS team_a_name,
+			       (SELECT string_agg(pl.first_name || ' ' || pl.last_name, ' / ' ORDER BY pl.last_name)
+			        FROM team_member tm2 JOIN player pl ON pl.id = tm2.player_id
+			        WHERE tm2.team_id = m.team_b_id) AS team_b_name,
+			       (SELECT string_agg(pl.first_name || ' ' || pl.last_name, ' / ' ORDER BY pl.last_name)
+			        FROM team_member tm2 JOIN player pl ON pl.id = tm2.player_id
+			        WHERE tm2.team_id = m.referee_team_id) AS referee_name
+			FROM match m
+			JOIN phase p ON p.id = m.phase_id
+			WHERE p.tournament_id = ${params.tid}
+			ORDER BY p.position, m.group_number NULLS LAST, m.round_number, m.position
+		`
+		matches = z.array(MatchDisplaySchema).parse(matchRows)
+	}
+
+	return { tournament, roster, matches }
 }

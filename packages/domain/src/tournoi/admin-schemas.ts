@@ -28,6 +28,36 @@ export const AdminTournamentSchema = z.object({
 })
 export type AdminTournament = z.infer<typeof AdminTournamentSchema>
 
+// Match display row for post-launch tables (joined with team names)
+export const MatchDisplaySchema = z.object({
+	id: z.uuid(),
+	event_match_id: z.number().int(),
+	group_number: z.number().int().nullable(),
+	round_number: z.number().int(),
+	position: z.number().int(),
+	team_a_name: z.string().nullable(),
+	team_b_name: z.string().nullable(),
+	referee_name: z.string().nullable(),
+	status: z.string(),
+	phase_id: z.uuid(),
+	phase_type: z.string(),
+	phase_position: z.number().int(),
+})
+export type MatchDisplay = z.infer<typeof MatchDisplaySchema>
+
+// Launch preview: phase structure summary for /launch page
+export const LaunchPhasePreviewSchema = z.object({
+	id: z.uuid(),
+	position: z.number().int(),
+	type: z.string(),
+	players_per_group: z.number().int().nullable(),
+	qualifiers_per_group: z.number().int().nullable(),
+	qualifiers_count: z.number().int().nullable(),
+	sets_to_win: z.number().int(),
+	legs_per_set: z.number().int(),
+})
+export type LaunchPhasePreview = z.infer<typeof LaunchPhasePreviewSchema>
+
 // One competition day entry on /admin/events/[id], derived from tournament.start_at
 export const CheckinDaySchema = z.object({
 	date: z.string(), // 'YYYY-MM-DD' (start_at::date::text)
