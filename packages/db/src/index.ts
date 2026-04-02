@@ -9,6 +9,10 @@ export {
 	getEventRepositoryWithSql,
 } from "./repositories/event-repository.js"
 export {
+	getLaunchRepositoryWithSql,
+	launchRepository,
+} from "./repositories/launch-repository.js"
+export {
 	getPlayerRepositoryWithSql,
 	playerRepository,
 } from "./repositories/player-repository.js"
