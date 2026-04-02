@@ -2,30 +2,34 @@
 import { Alert, Badge, Button } from "flowbite-svelte"
 import { goto } from "$app/navigation"
 import { apiRoutes } from "$lib/fetch/api"
-import { PHASE_TYPE_LABELS } from "$lib/tournament/labels"
 import type { LaunchPhasePreview } from "$lib/server/schemas/event-schemas.js"
+import { PHASE_TYPE_LABELS } from "$lib/tournament/labels"
 import type { PageData } from "./$types"
 
 let { data }: { data: PageData } = $props()
 
 const eventId = $derived(data.tournament.event_id)
 const tournamentId = $derived(data.tournament.id)
-const backUrl = $derived(
-	`/admin/events/${eventId}/tournaments/${tournamentId}`,
-)
+const backUrl = $derived(`/admin/events/${eventId}/tournaments/${tournamentId}`)
 
 type LaunchState = "idle" | "submitting" | "error"
 let launchState = $state<LaunchState>("idle")
 let errorMessage = $state("")
 
-function estimateGroupCount(phase: LaunchPhasePreview, totalTeams: number): number {
+function estimateGroupCount(
+	phase: LaunchPhasePreview,
+	totalTeams: number,
+): number {
 	if (phase.players_per_group && phase.players_per_group > 0) {
 		return Math.ceil(totalTeams / phase.players_per_group)
 	}
 	return 1
 }
 
-function estimateMatchCount(phase: LaunchPhasePreview, totalTeams: number): number {
+function estimateMatchCount(
+	phase: LaunchPhasePreview,
+	totalTeams: number,
+): number {
 	if (phase.type === "round_robin" || phase.type === "double_loss_groups") {
 		const groups = estimateGroupCount(phase, totalTeams)
 		const perGroup = phase.players_per_group ?? totalTeams

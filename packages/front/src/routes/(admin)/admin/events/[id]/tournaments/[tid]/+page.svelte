@@ -1,5 +1,6 @@
 <script lang="ts">
 import {
+	Alert,
 	Badge,
 	Button,
 	Input,
@@ -21,6 +22,7 @@ import {
 	TOURNAMENT_STATUS_PREV,
 } from "$lib/tournament/labels"
 import type { PageData } from "./$types"
+import PhaseMatchTable from "./PhaseMatchTable.svelte"
 import RegistrationModal from "./RegistrationModal.svelte"
 
 let { data }: { data: PageData } = $props()
@@ -38,6 +40,10 @@ let roster = $state<RosterEntry[]>(data.roster)
 let tournamentStatus = $state<"ready" | "check-in" | "started" | "finished">(
 	// svelte-ignore state_referenced_locally
 	data.tournament.status,
+)
+
+const isLaunched = $derived(
+	tournamentStatus === "started" || tournamentStatus === "finished",
 )
 
 // Filter
@@ -68,11 +74,7 @@ async function changeStatus(newStatus: string) {
 		body: JSON.stringify({ status: newStatus, tournament_id: tournamentId }),
 	})
 	if (res.ok) {
-		tournamentStatus = newStatus as
-			| "ready"
-			| "check-in"
-			| "started"
-			| "finished"
+		tournamentStatus = newStatus as "ready" | "check-in" | "started" | "finished"
 	}
 }
 
@@ -98,6 +100,24 @@ async function unregister(registrationId: string) {
 	})
 	roster = roster.filter((e) => e.registration_id !== registrationId)
 }
+
+async function cancelLaunch() {
+	if (
+		!(await confirm(
+			"Cette action supprimera tous les matchs générés. Les inscriptions seront conservées. Confirmer ?",
+		))
+	)
+		return
+	const res = await fetch(apiRoutes.TOURNAMENT_CANCEL.path, {
+		method: "POST",
+		headers: { "Content-Type": "application/json" },
+		body: JSON.stringify({ tournament_id: tournamentId }),
+	})
+	if (res.ok) {
+		tournamentStatus = "check-in"
+		await invalidateAll()
+	}
+}
 </script>
 
 <svelte:head>
@@ -115,7 +135,7 @@ async function unregister(registrationId: string) {
 
 <!-- Tournament header + status management -->
 <div class="mb-6">
-	<h1 class="text-2xl font-bold text-gray-900">{data.tournament.name}</h1>
+	<h1 class="text-2xl font-semibold text-gray-900">{data.tournament.name}</h1>
 	<p class="mt-1 text-sm text-gray-500">{data.tournament.event_name}</p>
 	<p class="mt-1 text-sm text-gray-600">
 		{roster.length} équipe{roster.length !== 1 ? "s" : ""} inscrite{roster.length !== 1
@@ -124,40 +144,53 @@ async function unregister(registrationId: string) {
 	</p>
 
 	<!-- Status badge + transition buttons -->
-	<div class="mt-3 flex items-center gap-3">
+	<div class="mt-3 flex flex-wrap items-center gap-3">
 		<Badge color={TOURNAMENT_STATUS_COLORS[tournamentStatus] ?? "gray"}>
 			{TOURNAMENT_STATUS_LABELS[tournamentStatus] ?? tournamentStatus}
 		</Badge>
-		{#if TOURNAMENT_STATUS_PREV[tournamentStatus]}
-			<Button
-				size="xs"
-				color="light"
-				onclick={() => changeStatus(TOURNAMENT_STATUS_PREV[tournamentStatus]!)}
-			>
-				&larr; {TOURNAMENT_STATUS_LABELS[TOURNAMENT_STATUS_PREV[tournamentStatus]!]}
+		{#if !isLaunched}
+			{#if TOURNAMENT_STATUS_PREV[tournamentStatus]}
+				<Button
+					size="xs"
+					color="light"
+					onclick={() => changeStatus(TOURNAMENT_STATUS_PREV[tournamentStatus]!)}
+				>
+					&larr; {TOURNAMENT_STATUS_LABELS[TOURNAMENT_STATUS_PREV[tournamentStatus]!]}
+				</Button>
+			{/if}
+			{#if TOURNAMENT_STATUS_NEXT[tournamentStatus] && TOURNAMENT_STATUS_NEXT[tournamentStatus] !== "started"}
+				<Button
+					size="xs"
+					color="primary"
+					onclick={() => changeStatus(TOURNAMENT_STATUS_NEXT[tournamentStatus]!)}
+				>
+					Passer en {TOURNAMENT_STATUS_LABELS[TOURNAMENT_STATUS_NEXT[tournamentStatus]!]} &rarr;
+				</Button>
+			{/if}
+			<!-- Lancer le tournoi button -->
+			<Button size="sm" color="primary" href="{baseUrl}/launch">
+				Lancer le tournoi
 			</Button>
 		{/if}
-		{#if TOURNAMENT_STATUS_NEXT[tournamentStatus]}
-			<Button
-				size="xs"
-				color="primary"
-				onclick={() => changeStatus(TOURNAMENT_STATUS_NEXT[tournamentStatus]!)}
-			>
-				Passer en {TOURNAMENT_STATUS_LABELS[TOURNAMENT_STATUS_NEXT[tournamentStatus]!]} &rarr;
+		{#if tournamentStatus === "started"}
+			<Button size="xs" color="red" onclick={cancelLaunch}>
+				Annuler le lancement
 			</Button>
 		{/if}
 	</div>
 </div>
 
-<!-- Add button + filter -->
-<div class="mb-4 flex items-center gap-3">
-	<Button color="primary" size="sm" onclick={() => (showAddModal = true)}>
-		{isDoubles ? "Ajouter une équipe" : "Ajouter un joueur"}
-	</Button>
-	{#if roster.length > 0}
-		<Input placeholder="Filtrer les inscrits..." bind:value={filterQuery} class="max-w-xs" />
-	{/if}
-</div>
+{#if !isLaunched}
+	<!-- Add button + filter -->
+	<div class="mb-4 flex items-center gap-3">
+		<Button color="primary" size="sm" onclick={() => (showAddModal = true)}>
+			{isDoubles ? "Ajouter une équipe" : "Ajouter un joueur"}
+		</Button>
+		{#if roster.length > 0}
+			<Input placeholder="Filtrer les inscrits..." bind:value={filterQuery} class="max-w-xs" />
+		{/if}
+	</div>
+{/if}
 
 <!-- Roster table -->
 {#if roster.length === 0}
@@ -167,10 +200,12 @@ async function unregister(registrationId: string) {
 		<Table>
 			<TableHead>
 				<TableHeadCell>Équipe</TableHeadCell>
-				{#if data.tournament.check_in_required}
+				{#if data.tournament.check_in_required && !isLaunched}
 					<TableHeadCell>Présent</TableHeadCell>
 				{/if}
-				<TableHeadCell>Actions</TableHeadCell>
+				{#if !isLaunched}
+					<TableHeadCell>Actions</TableHeadCell>
+				{/if}
 			</TableHead>
 			<TableBody>
 				{#each filteredRoster as entry (entry.registration_id)}
@@ -186,7 +221,7 @@ async function unregister(registrationId: string) {
 								{/if}
 							{/each}
 						</TableBodyCell>
-						{#if data.tournament.check_in_required}
+						{#if data.tournament.check_in_required && !isLaunched}
 							<TableBodyCell>
 								{#if entry.checked_in}
 									<Button
@@ -207,11 +242,13 @@ async function unregister(registrationId: string) {
 								{/if}
 							</TableBodyCell>
 						{/if}
-						<TableBodyCell>
-							<Button color="red" size="xs" onclick={() => unregister(entry.registration_id)}>
-								Retirer
-							</Button>
-						</TableBodyCell>
+						{#if !isLaunched}
+							<TableBodyCell>
+								<Button color="red" size="xs" onclick={() => unregister(entry.registration_id)}>
+									Retirer
+								</Button>
+							</TableBodyCell>
+						{/if}
 					</TableBodyRow>
 				{/each}
 			</TableBody>
@@ -219,9 +256,31 @@ async function unregister(registrationId: string) {
 	</div>
 {/if}
 
-<RegistrationModal
-	bind:open={showAddModal}
-	{isDoubles}
-	{tournamentId}
-	onRegistered={async () => { await invalidateAll() }}
-/>
+<!-- Post-launch match display -->
+{#if isLaunched}
+	{#if data.matches.length === 0}
+		<p class="mb-6 text-sm text-gray-500">
+			Les matchs seront affichés après le lancement du tournoi.
+		</p>
+	{:else}
+		<section class="mb-6">
+			<h2 class="mb-4 text-base font-semibold text-gray-800">Matchs générés</h2>
+			<PhaseMatchTable matches={data.matches} />
+		</section>
+	{/if}
+{/if}
+
+{#if !isLaunched}
+	<RegistrationModal
+		bind:open={showAddModal}
+		{isDoubles}
+		{tournamentId}
+		onRegistered={async () => { await invalidateAll() }}
+	/>
+{/if}
+
+{#if isLaunched && data.matches.length === 0}
+	<Alert color="yellow" class="mt-4">
+		Aucun match généré. Le lancement semble avoir échoué. Essayez d'annuler et relancer.
+	</Alert>
+{/if}

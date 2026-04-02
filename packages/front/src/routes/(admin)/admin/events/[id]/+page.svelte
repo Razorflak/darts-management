@@ -131,11 +131,20 @@ async function startDayCheckin(day: CheckinDay) {
 					<TableBodyCell>{t.registration_count}</TableBodyCell>
 					<TableBodyCell>{t.check_in_required ? "Oui" : "Non"}</TableBodyCell>
 					<TableBodyCell>
-						<Button
-							href="/admin/events/{data.event.id}/tournaments/{t.id}"
-							size="xs"
-							color="primary">Gérer le roster</Button
-						>
+						<div class="flex gap-2">
+							<Button
+								href="/admin/events/{data.event.id}/tournaments/{t.id}"
+								size="xs"
+								color="light">Gérer le roster</Button
+							>
+							{#if t.status === "ready" || t.status === "check-in"}
+								<Button
+									href="/admin/events/{data.event.id}/tournaments/{t.id}/launch"
+									size="xs"
+									color="primary">Lancer le tournoi</Button
+								>
+							{/if}
+						</div>
 					</TableBodyCell>
 				</TableBodyRow>
 			{/each}
