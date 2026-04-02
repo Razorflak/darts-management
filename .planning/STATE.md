@@ -3,14 +3,14 @@ gsd_state_version: 1.0
 milestone: v1.0
 milestone_name: milestone
 status: executing
-stopped_at: Completed 04-02-PLAN.md
-last_updated: "2026-04-02T21:19:47.245Z"
+stopped_at: Completed 04-06-PLAN.md
+last_updated: "2026-04-02T21:23:39.150Z"
 last_activity: 2026-04-02
 progress:
   total_phases: 8
   completed_phases: 5
   total_plans: 33
-  completed_plans: 29
+  completed_plans: 30
   percent: 60
 ---
 
@@ -26,7 +26,7 @@ See: .planning/PROJECT.md (updated 2026-02-28)
 ## Current Position
 
 Phase: 04 (launch-and-match-generation) — EXECUTING
-Plan: 3 of 6
+Plan: 4 of 6
 Status: Ready to execute
 Last activity: 2026-04-02
 
@@ -71,6 +71,7 @@ Progress: [████░░░░░░] 60% (24/40 plans estimated)
 | Phase 03-player-registration P06 | 7 | 3 tasks | 9 files |
 | Phase 04 P01 | 5 | 2 tasks | 4 files |
 | Phase 04 P02 | 9 | 3 tasks | 12 files |
+| Phase 04 P06 | 2 | 1 tasks | 5 files |
 
 ## Accumulated Context
 
@@ -164,6 +165,8 @@ Progress: [████░░░░░░] 60% (24/40 plans estimated)
 - [Phase 04-02]: snakeDistribute uses floor(N/groupCount)*groupCount snake passes, remainder appended to last group
 - [Phase 04-02]: generateSingleEliminationBracket: round_number=0 is final, level N-1 is first round — advances_to flows from child to parent
 - [Phase 04-02]: Double-KO advances_to_match_id encodes winner path only; loser routing to R2Lower is implicit structure resolved by Phase 5
+- [Phase 04-06]: GroupPhaseSchema .default(2/3) on sets_to_win/legs_per_set ensures backward compatibility for existing DB rows and old wizard state parsed without these fields
+- [Phase 04-06]: createGroupPhase factory and EVENT_TEMPLATES carry explicit defaults — Zod .default() applies at parse time only, wizard rune state needs explicit initial values
 
 ### Roadmap Evolution
 
@@ -200,6 +203,6 @@ Progress: [████░░░░░░] 60% (24/40 plans estimated)
 
 ## Session Continuity
 
-Last session: 2026-04-02T21:19:47.239Z
-Stopped at: Completed 04-02-PLAN.md
+Last session: 2026-04-02T21:23:39.146Z
+Stopped at: Completed 04-06-PLAN.md
 Resume file: None

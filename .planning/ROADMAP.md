@@ -125,7 +125,7 @@ Plans:
 - [ ] 04-03-PLAN.md — Launch orchestration: repository, launchTournament/cancelLaunch services, API endpoints (with authz)
 - [ ] 04-04-PLAN.md — Launch UI: /launch confirmation page, post-launch match display, Lancer buttons
 - [ ] 04-05-PLAN.md — Seeding UI: drag-and-drop seed reorder on roster page + PATCH endpoint
-- [ ] 04-06-PLAN.md — Wizard match format: sets_to_win/legs_per_set fields in PhaseCard for group phases
+- [x] 04-06-PLAN.md — Wizard match format: sets_to_win/legs_per_set fields in PhaseCard for group phases
 
 ### Phase 5: Results and Advancement
 **Goal**: An admin tournoi can enter match results and the system automatically advances players through the bracket and computes standings
@@ -161,6 +161,6 @@ Phases execute in numeric order: 1 → 2 → 3 → 4 → 5 → 6
 | 3. Player Registration | 3/6 | In Progress|  |
 | 03.1. Teams and Doubles | 4/4 | Complete   | 2026-03-08 |
 | 03.2. Player Profile | 3/3 | Complete   | 2026-03-13 |
-| 4. Launch and Match Generation | 2/6 | In Progress|  |
+| 4. Launch and Match Generation | 3/6 | In Progress|  |
 | 5. Results and Advancement | 0/? | Not started | - |
 | 6. Views and Dashboard | 0/? | Not started | - |
