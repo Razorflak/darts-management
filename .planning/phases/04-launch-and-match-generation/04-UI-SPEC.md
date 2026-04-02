@@ -53,13 +53,14 @@ Source: established 8-point scale from existing pages; exception from CONTEXT.md
 |------|------|--------|-------------|
 | Body | 16px (18px ≥768px) | 400 | 1.5 |
 | Label | 14px | 400 | 1.4 |
-| Heading | 24px | 700 | 1.2 |
+| Heading | 24px | 600 | 1.2 |
 | Section heading | 16px | 600 | 1.3 |
 
 Notes:
 - Base `font-size: 16px` on mobile, `18px` on `min-width: 768px` per `layout.css`
-- `text-2xl font-bold` (heading) and `text-base font-semibold` (section heading) match existing page patterns
+- Both Heading and Section Heading use `font-semibold` (600) — aligns with existing admin page pattern (`text-2xl font-semibold`). `font-bold` (700) is not used in this phase.
 - `text-sm` (14px) used for metadata, breadcrumb, and secondary info — matches existing roster/event pages
+- Maximum 2 declared weights: 400 (body/label) and 600 (all headings)
 
 Source: `packages/front/src/routes/layout.css`, codebase grep of existing admin page patterns.
 
@@ -71,12 +72,12 @@ Source: `packages/front/src/routes/layout.css`, codebase grep of existing admin 
 |------|-------|-------|
 | Dominant (60%) | `--color-surface`: oklch(98% 0.005 264) | Page background, table rows |
 | Secondary (30%) | `--color-surface-raised`: oklch(100% 0 0) | Cards, modal backgrounds, raised panels |
-| Accent (10%) | `--color-primary-600`: oklch(50% 0.22 264) | Primary CTA button ("Confirmer le lancement"), active status badge, "Lancer" navigation button |
+| Accent (10%) | `--color-primary-600`: oklch(50% 0.22 264) | Primary CTA button ("Confirmer le lancement"), active status badge, "Lancer le tournoi" navigation button |
 | Destructive | Flowbite `color="red"` | "Annuler le lancement" button only |
 
 Accent reserved for:
 1. The primary "Confirmer le lancement" button on the `/launch` page
-2. The "Lancer" link/button that navigates to the `/launch` page (on roster and event detail pages)
+2. The "Lancer le tournoi" link/button that navigates to the `/launch` page (on roster and event detail pages)
 3. The `ready` and `started` status badges (via `TOURNAMENT_STATUS_COLORS` mapping — existing pattern)
 
 Additional semantic colors (established flowbite-svelte patterns from existing pages):
@@ -94,13 +95,15 @@ Source: `packages/front/src/lib/styles/theme.css`, existing admin page component
 
 **Purpose:** Pre-launch confirmation screen. Admin reviews roster summary, contextual warnings, phase structure preview, then confirms launch.
 
+**Primary visual anchor:** The "Confirmer le lancement" button in the sticky action bar at the bottom of the page. This is the focal point — it must be immediately visible on arrival without scrolling on standard viewport heights.
+
 **Layout:**
 - Breadcrumb: Événements / [Event name] / [Tournament name] / Lancement
 - Page heading: "Lancer [Tournament name]"
 - Section 1 — Récapitulatif des inscrits: count badge + roster count by check-in status
 - Section 2 — Avertissements: zero or more `Alert` components (flowbite-svelte, `color="yellow"`) for contextual warnings
 - Section 3 — Structure générée: one collapsible/flat block per phase showing phase name, group count, match count
-- Action bar (bottom): "Confirmer le lancement" (primary) + "Annuler" link back to roster page
+- Action bar (sticky bottom): "Confirmer le lancement" (primary, accent color, min-height 44px) + "Annuler" link back to roster page
 
 **States:**
 - Loading state: show skeleton while server load fetches roster + phase preview
@@ -118,7 +121,7 @@ Source: `packages/front/src/lib/styles/theme.css`, existing admin page component
 **Purpose:** Roster page enriched with generated match display after launch.
 
 **Layout additions for `status = 'started'`:**
-- Hide the "Lancer" button (tournament already launched)
+- Hide the "Lancer le tournoi" button (tournament already launched)
 - Hide check-in controls (launch is locked)
 - New section: "Matchs générés" — one subsection per phase
   - **Round-robin / double KO phases:** Table per group — columns: `#` (event_match_id) | Équipe A | vs | Équipe B | Arbitre
@@ -158,11 +161,11 @@ Source: `packages/front/src/lib/styles/theme.css`, existing admin page component
 | Element | Copy |
 |---------|------|
 | Primary CTA — launch | "Confirmer le lancement" |
-| Navigation button to launch page | "Lancer" |
+| Navigation button to launch page | "Lancer le tournoi" |
 | Empty state — no matches yet | "Les matchs seront affichés après le lancement du tournoi." |
 | Empty state — no roster | "Aucune équipe inscrite. Inscrivez des joueurs avant de lancer." |
 | Error state — launch failed | "Le lancement a échoué. Veuillez réessayer. Si le problème persiste, contactez l'administrateur." |
-| Error state — already launched | "Ce tournoi est déjà lancé." |
+| Error state — already launched | "Ce tournoi est déjà lancé. Consultez les matchs générés ci-dessous." |
 | Warning — low roster | "Attention : seulement [N] équipe(s) inscrite(s). La génération continuera mais certains groupes seront incomplets." |
 | Warning — check-in incomplete | "Des joueurs n'ont pas encore été checkés. Seuls les joueurs présents seront inclus." |
 | Destructive — cancel launch | "Annuler le lancement" |
@@ -232,7 +235,7 @@ Components to reuse from existing codebase (no new UI dependencies):
 |-----------|--------|-----------------|
 | `Alert` | flowbite-svelte | Launch warnings, launch error state |
 | `Badge` | flowbite-svelte | Status display, match count summary |
-| `Button` | flowbite-svelte | "Confirmer le lancement", "Lancer", "Annuler", "Réessayer" |
+| `Button` | flowbite-svelte | "Confirmer le lancement", "Lancer le tournoi", "Annuler", "Réessayer" |
 | `Table` / `TableBody` / `TableHead` / `TableBodyRow` / `TableBodyCell` / `TableHeadCell` | flowbite-svelte | Match display tables (round-robin and KO) |
 | `Input` | flowbite-svelte | sets_to_win / legs_per_set number inputs in PhaseCard |
 | `confirm()` | `$lib/confirm.svelte.js` | Cancel launch confirmation |
