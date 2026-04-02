@@ -38,6 +38,12 @@ export function createAuth(sql: postgres.Sql, config: AuthConfig) {
 				generateId: () => crypto.randomUUID(),
 			},
 		},
+		session: {
+			cookieCache: {
+				enabled: true,
+				maxAge: 5 * 60, // 5 minutes
+			},
+		},
 		database: {
 			dialect: new PostgresJSDialect({ postgres: sql }),
 			type: "postgresql",
