@@ -36,7 +36,7 @@
 
 ### LAUNCH — Lancement & Génération
 
-- [ ] **LAUNCH-01**: L'admin tournoi peut lancer un tournoi (verrouille la configuration)
+- [x] **LAUNCH-01**: L'admin tournoi peut lancer un tournoi (verrouille la configuration)
 - [x] **LAUNCH-02**: Au lancement, le système génère tous les matchs de toutes les phases (round-robin, poules double KO, brackets d'élimination à vide)
 - [x] **LAUNCH-03**: La génération est atomique — tout réussit ou tout échoue (transaction PostgreSQL)
 - [x] **LAUNCH-04**: Le format set/manche est configurable par phase avant le lancement
@@ -101,7 +101,7 @@
 | PLAYER-02 | Phase 3 — Player Registration | Complete |
 | PLAYER-03 | Phase 3 — Player Registration | Complete |
 | PLAYER-04 | Phase 3 — Player Registration | Complete |
-| LAUNCH-01 | Phase 4 — Launch and Match Generation | Pending |
+| LAUNCH-01 | Phase 4 — Launch and Match Generation | Complete |
 | LAUNCH-02 | Phase 4 — Launch and Match Generation | Complete |
 | LAUNCH-03 | Phase 4 — Launch and Match Generation | Complete |
 | LAUNCH-04 | Phase 4 — Launch and Match Generation | Complete |

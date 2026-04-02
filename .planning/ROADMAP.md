@@ -122,7 +122,7 @@ Plans:
 Plans:
 - [x] 04-01-PLAN.md — Migration 016 (phase_tier + match tables, tournament/phase columns) + Zod schemas
 - [x] 04-02-PLAN.md — Match generators TDD: snake seeding, round-robin, double-KO, single-elimination, referee assignment
-- [ ] 04-03-PLAN.md — Launch orchestration: repository, launchTournament/cancelLaunch services, API endpoints (with authz)
+- [x] 04-03-PLAN.md — Launch orchestration: repository, launchTournament/cancelLaunch services, API endpoints (with authz)
 - [ ] 04-04-PLAN.md — Launch UI: /launch confirmation page, post-launch match display, Lancer buttons
 - [ ] 04-05-PLAN.md — Seeding UI: drag-and-drop seed reorder on roster page + PATCH endpoint
 - [x] 04-06-PLAN.md — Wizard match format: sets_to_win/legs_per_set fields in PhaseCard for group phases
@@ -161,6 +161,6 @@ Phases execute in numeric order: 1 → 2 → 3 → 4 → 5 → 6
 | 3. Player Registration | 3/6 | In Progress|  |
 | 03.1. Teams and Doubles | 4/4 | Complete   | 2026-03-08 |
 | 03.2. Player Profile | 3/3 | Complete   | 2026-03-13 |
-| 4. Launch and Match Generation | 3/6 | In Progress|  |
+| 4. Launch and Match Generation | 4/6 | In Progress|  |
 | 5. Results and Advancement | 0/? | Not started | - |
 | 6. Views and Dashboard | 0/? | Not started | - |
