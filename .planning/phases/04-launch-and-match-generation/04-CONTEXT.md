@@ -83,6 +83,13 @@ Un admin tournoi peut déclencher le lancement d'un tournoi, ce qui verrouille s
   - **R3 Last chance** : perdants R2 Upper vs vainqueurs R2 Lower → qualifiés seed 3-4
 - Contrainte "pas de revanche" garantie par le bracket fixe
 
+### double_elimination — Report explicite a Phase 5+
+
+- Le type de phase `double_elimination` est **explicitement non supporte en Phase 4**.
+- `launchTournament` doit lever une erreur explicite `throw new Error("double_elimination phase type not supported in Phase 4 — deferred to Phase 5")` si une phase de ce type est rencontree.
+- Il ne faut PAS mapper silencieusement `double_elimination` vers `single_elimination`.
+- L'implementation complete de `double_elimination` est reportee a Phase 5 ou ulterieur.
+
 ### Algorithme bracket KO (phase élimination)
 
 Utiliser l'algo de seeding standard fourni, adapté en TypeScript :
@@ -146,7 +153,7 @@ function getBracket(participantsCount: number): Array<[number | null, number | n
 
 ### Lock concurrent
 
-- `pg_advisory_xact_lock(tournament_id::bigint)` dans la transaction de lancement pour prévenir le double-launch concurrent (déjà identifié comme blocker dans STATE.md)
+- `pg_advisory_xact_lock(hashtext(event_id))` dans la transaction de lancement pour prévenir le double-launch concurrent (scopé par événement pour cohérence avec `event_match_id` — voir RESEARCH.md Pitfall 4)
 
 ### Claude's Discretion
 
@@ -223,6 +230,7 @@ function getBracket(participantsCount: number): Array<[number | null, number | n
 - Perfectionnement visuel des brackets (arbre SVG/CSS) — Phase 6
 - Classements et standings dans les poules — Phase 5
 - Généralisation du bracket double KO pour tailles non-puissance de 2 — post-v1
+- **double_elimination** phase type — Phase 5+ (explicit throw in Phase 4)
 
 </deferred>
 
