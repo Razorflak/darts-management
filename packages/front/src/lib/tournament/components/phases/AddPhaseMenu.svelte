@@ -1,4 +1,5 @@
 <script lang="ts">
+import { ChevronDownOutline, PlusOutline } from "flowbite-svelte-icons"
 import type { PhaseType } from "$lib/server/schemas/event-schemas.js"
 import { PHASE_TYPE_LABELS } from "../../labels.js"
 
@@ -35,13 +36,9 @@ function handleAdd(type: PhaseType) {
 		onclick={() => (open = !open)}
 		class="inline-flex items-center gap-1.5 rounded-full border border-blue-500 px-3 py-1.5 text-sm font-medium text-blue-600 transition-colors hover:bg-blue-50"
 	>
-		<svg class="h-3.5 w-3.5" viewBox="0 0 20 20" fill="currentColor" aria-hidden="true">
-			<path d="M10.75 4.75a.75.75 0 0 0-1.5 0v4.5h-4.5a.75.75 0 0 0 0 1.5h4.5v4.5a.75.75 0 0 0 1.5 0v-4.5h4.5a.75.75 0 0 0 0-1.5h-4.5v-4.5Z" />
-		</svg>
+		<PlusOutline class="h-3.5 w-3.5" />
 		Ajouter une phase
-		<svg class="h-3 w-3" viewBox="0 0 20 20" fill="currentColor" aria-hidden="true">
-			<path fill-rule="evenodd" d="M5.22 8.22a.75.75 0 0 1 1.06 0L10 11.94l3.72-3.72a.75.75 1 1 1 1.06 1.06l-4.25 4.25a.75.75 0 0 1-1.06 0L5.22 9.28a.75.75 0 0 1 0-1.06Z" clip-rule="evenodd" />
-		</svg>
+		<ChevronDownOutline class="h-3 w-3" />
 	</button>
 
 	<!-- Dropdown menu -->

@@ -1,11 +1,10 @@
 <script lang="ts">
+import { Button, Datepicker, Label, Select } from "flowbite-svelte"
 import type {
 	DraftEvent,
-	Event,
 	Entity,
+	Event,
 } from "$lib/server/schemas/event-schemas.js"
-
-import { Button, Datepicker, Label, Select } from "flowbite-svelte"
 
 interface Props {
 	event: DraftEvent | Event
@@ -123,7 +122,7 @@ function handleSubmit(e: SubmitEvent) {
 		<Label class="mb-2">Ouverture des inscriptions</Label>
 		<p class="mb-2 text-xs text-gray-400">Optionnel — si vide, ouvertes dès la publication</p>
 		<Datepicker
-			value={event.registration_opens_at}
+			bind:value={event.registration_opens_at}
 			locale="fr-FR"
 			firstDayOfWeek={1}
 			placeholder="jj/mm/aaaa"

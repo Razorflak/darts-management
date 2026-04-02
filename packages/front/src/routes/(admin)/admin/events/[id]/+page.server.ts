@@ -73,6 +73,7 @@ export const load: PageServerLoad = async ({ locals, params }) => {
 	>()
 	for (const t of tournaments) {
 		if (!t.start_at) continue // no date = skip
+		if (!t.check_in_required) continue // only check-in required tournaments
 		const dateKey = t.start_at.slice(0, 10)
 		if (!dayMap.has(dateKey)) {
 			dayMap.set(dateKey, {

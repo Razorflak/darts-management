@@ -10,9 +10,12 @@
 		"db:migrate": "node-pg-migrate up --database-url-var DATABASE_URL --migrations-dir src/schema",
 		"db:migrate:dev": "node-pg-migrate up --database-url-var DATABASE_URL --migrations-dir src/schema",
 		"db:migrate:create": "node-pg-migrate create --migrations-dir src/schema",
-		"typecheck": "tsc --noEmit"
+		"typecheck": "tsc --noEmit",
+		"lint": "biome check .",
+		"format": "biome format --write ."
 	},
 	"dependencies": {
+		"@darts-management/domain": "workspace:*",
 		"better-auth": "^1.4.20",
 		"kysely-postgres-js": "^3.0.0",
 		"nodemailer": "^8.0.4",

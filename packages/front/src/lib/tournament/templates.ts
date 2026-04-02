@@ -90,7 +90,7 @@ export const EVENT_TEMPLATES: EventTemplate[] = [
 					category: "double",
 					start_at: new Date(2026, 0, 1, 9, 0, 0, 0),
 					auto_referee: true,
-					check_in_required: false,
+					check_in_required: true,
 					phases: [
 						{ ...doubleKOPhase, position: 0 },
 						{ ...elim3Tiers, position: 1 },
@@ -102,7 +102,7 @@ export const EVENT_TEMPLATES: EventTemplate[] = [
 					category: "male",
 					start_at: new Date(2026, 0, 1, 15, 0, 0, 0),
 					auto_referee: true,
-					check_in_required: false,
+					check_in_required: true,
 					phases: [
 						{ ...doubleKOPhase, position: 0 },
 						{ ...elim3Tiers, position: 1 },
@@ -113,7 +113,7 @@ export const EVENT_TEMPLATES: EventTemplate[] = [
 					category: "female",
 					id: "<generated>",
 					auto_referee: true,
-					check_in_required: false,
+					check_in_required: true,
 					start_at: new Date(2026, 0, 1, 15, 0, 0, 0),
 					phases: [
 						{ ...doubleKOPhase, position: 0 },
@@ -125,7 +125,7 @@ export const EVENT_TEMPLATES: EventTemplate[] = [
 					id: "<generated>",
 					category: "veteran",
 					auto_referee: true,
-					check_in_required: false,
+					check_in_required: true,
 					start_at: new Date(2026, 0, 1, 15, 0, 0, 0),
 					phases: [
 						{ ...doubleKOPhase, position: 0 },
@@ -137,7 +137,7 @@ export const EVENT_TEMPLATES: EventTemplate[] = [
 					id: "<generated>",
 					category: "junior",
 					auto_referee: true,
-					check_in_required: false,
+					check_in_required: true,
 					start_at: new Date(2026, 0, 1, 15, 0, 0, 0),
 					phases: [
 						{ ...doubleKOPhase, position: 0 },

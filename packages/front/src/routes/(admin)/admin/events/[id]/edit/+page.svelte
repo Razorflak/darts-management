@@ -1,17 +1,19 @@
 <script lang="ts">
+import { Button } from "flowbite-svelte"
+import { ChevronLeftOutline } from "flowbite-svelte-icons"
+import { goto } from "$app/navigation"
+import { apiRoutes } from "$lib/fetch/api.js"
+import type {
+	DraftEvent,
+	DraftTournament,
+	Event,
+} from "$lib/server/schemas/event-schemas.js"
 import Breadcrumb from "$lib/tournament/components/Breadcrumb.svelte"
 import EventStep from "$lib/tournament/components/EventStep.svelte"
-import TournamentStep from "$lib/tournament/components/TournamentStep.svelte"
 import PublishStep from "$lib/tournament/components/PublishStep.svelte"
 import TemplateModal from "$lib/tournament/components/TemplateModal.svelte"
-import { Button } from "flowbite-svelte"
-import { goto } from "$app/navigation"
+import TournamentStep from "$lib/tournament/components/TournamentStep.svelte"
 import type { WizardStep } from "$lib/tournament/types.js"
-import type {
-	Event,
-	DraftTournament,
-	DraftEvent,
-} from "$lib/server/schemas/event-schemas.js"
 
 let { data } = $props()
 
@@ -37,10 +39,10 @@ async function save() {
 	saving = true
 	saveError = null
 	try {
-		const res = await fetch("/admin/events/new/save", {
+		const res = await fetch(apiRoutes.EVENT_SAVE.path, {
 			method: "POST",
 			headers: { "content-type": "application/json" },
-			body: JSON.stringify({ event }),
+			body: JSON.stringify(event),
 		})
 		const json = await res.json()
 		if (!res.ok) {
@@ -57,14 +59,14 @@ async function publish() {
 	publishError = null
 	saving = true
 	try {
-		const res = await fetch("/admin/events/new/publish", {
+		const res = await fetch(apiRoutes.EVENT_PUBLISH.path, {
 			method: "POST",
 			headers: { "content-type": "application/json" },
-			body: JSON.stringify({ event }),
+			body: JSON.stringify(event),
 		})
 		const json = await res.json()
 		if (res.ok) {
-			await goto("/events")
+			await goto("/admin/events")
 		} else {
 			publishError = json.error ?? "Erreur lors de la publication."
 		}
@@ -84,16 +86,10 @@ async function publish() {
 	<div class="mx-auto max-w-3xl">
 		<div class="mb-8">
 			<a
-				href="/events"
+				href="/admin/events"
 				class="mb-4 inline-flex items-center gap-1 text-sm text-gray-400 transition-colors hover:text-gray-600"
 			>
-				<svg class="h-4 w-4" viewBox="0 0 20 20" fill="currentColor" aria-hidden="true">
-					<path
-						fill-rule="evenodd"
-						d="M11.78 5.22a.75.75 0 0 1 0 1.06L8.06 10l3.72 3.72a.75.75 0 0 1-1.06 1.06l-4.25-4.25a.75.75 0 0 1 0-1.06l4.25-4.25a.75.75 0 0 1 1.06 0Z"
-						clip-rule="evenodd"
-					/>
-				</svg>
+				<ChevronLeftOutline class="h-4 w-4" />
 				Mes événements
 			</a>
 

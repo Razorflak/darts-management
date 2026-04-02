@@ -1,16 +1,17 @@
 <script lang="ts">
-import { sortable } from "../../sortable.js"
-import { createGroupPhase, createEliminationPhase } from "../../utils.js"
-import PhaseCard from "./PhaseCard.svelte"
-import AddPhaseMenu from "./AddPhaseMenu.svelte"
 import type { Phase, PhaseType } from "$lib/server/schemas/event-schemas.js"
+import { sortable } from "../../sortable.js"
+import { createEliminationPhase, createGroupPhase } from "../../utils.js"
+import AddPhaseMenu from "./AddPhaseMenu.svelte"
+import PhaseCard from "./PhaseCard.svelte"
 
 interface Props {
 	phases: Phase[]
 	tournament_id: string
+	disabled?: boolean
 }
 
-let { phases = $bindable(), tournament_id }: Props = $props()
+let { phases = $bindable(), tournament_id, disabled = false }: Props = $props()
 
 const lastPhaseId = $derived(phases[phases.length - 1]?.id ?? null)
 
@@ -42,7 +43,8 @@ function onSortEnd(evt: { oldIndex?: number; newIndex?: number }) {
 			use:sortable={{
 				animation: 150,
 				handle: "[data-drag]",
-				onEnd: onSortEnd
+				onEnd: onSortEnd,
+				disabled,
 			}}
 			class="space-y-3"
 		>
@@ -52,6 +54,7 @@ function onSortEnd(evt: { oldIndex?: number; newIndex?: number }) {
 						bind:phase={phases[i]}
 						isLast={phase.id === lastPhaseId}
 						onDelete={() => deletePhase(phase.id)}
+						{disabled}
 					/>
 				</li>
 			{/each}
@@ -62,5 +65,7 @@ function onSortEnd(evt: { oldIndex?: number; newIndex?: number }) {
 		</div>
 	{/if}
 
-	<AddPhaseMenu onAdd={addPhase} />
+	{#if !disabled}
+		<AddPhaseMenu onAdd={addPhase} />
+	{/if}
 </div>

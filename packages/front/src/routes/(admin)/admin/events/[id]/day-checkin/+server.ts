@@ -42,6 +42,7 @@ export const PATCH: RequestHandler = async ({ locals, params, request }) => {
 		WHERE event_id = ${params.id}
 			AND start_at::date::text = ${date}
 			AND status = 'ready'
+			AND check_in_required = true
 	`
 
 	return json({ redirect: `/admin/events/${params.id}/checkin?date=${date}` })

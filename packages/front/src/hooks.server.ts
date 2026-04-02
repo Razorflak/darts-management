@@ -1,10 +1,12 @@
+import type { Handle } from "@sveltejs/kit"
+import { sequence } from "@sveltejs/kit/hooks"
+import { svelteKitHandler } from "better-auth/svelte-kit"
+import { building } from "$app/environment"
 import { auth } from "$lib/server/auth"
 import { sql } from "$lib/server/db"
 import { PlayerSchema } from "$lib/server/schemas/event-schemas.js"
-import { svelteKitHandler } from "better-auth/svelte-kit"
-import { building } from "$app/environment"
-import type { Handle } from "@sveltejs/kit"
-import { sequence } from "@sveltejs/kit/hooks"
+// Oui, dotenv casse un peu le système de svelte pour la gestion des variable d'env, mais j'ai besoin de ces variable dans d'autre package (notamment db et auth) et c'est plus simple de les exporter dans process.env un fois que de trouver un moyen de les faire passe de svelte au reste
+import "dotenv/config"
 
 const authHandle: Handle = async ({ event, resolve }) => {
 	const sessionData = await auth.api.getSession({

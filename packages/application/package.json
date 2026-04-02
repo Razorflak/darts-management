@@ -1,0 +1,23 @@
+{
+	"name": "@darts-management/application",
+	"private": true,
+	"version": "1.0.0",
+	"type": "module",
+	"exports": {
+		".": "./src/index.ts"
+	},
+	"scripts": {
+		"typecheck": "tsc --noEmit",
+		"lint": "biome check .",
+		"format": "biome format --write ."
+	},
+	"dependencies": {
+		"@darts-management/db": "workspace:*",
+		"@darts-management/domain": "workspace:*",
+		"zod": "^4.3.6"
+	},
+	"devDependencies": {
+		"@darts-management/biome-config": "workspace:*",
+		"@darts-management/typescript-config": "workspace:*"
+	}
+}

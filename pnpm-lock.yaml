@@ -46,6 +46,25 @@ importers:
         specifier: ^4.1.2
         version: 4.1.2(@types/node@25.5.0)(jsdom@25.0.1)(vite@7.3.1(@types/node@25.5.0)(jiti@2.6.1)(lightningcss@1.31.1)(tsx@4.20.5))
 
+  packages/application:
+    dependencies:
+      '@darts-management/db':
+        specifier: workspace:*
+        version: link:../db
+      '@darts-management/domain':
+        specifier: workspace:*
+        version: link:../domain
+      zod:
+        specifier: ^4.3.6
+        version: 4.3.6
+    devDependencies:
+      '@darts-management/biome-config':
+        specifier: workspace:*
+        version: link:../config/biome-config
+      '@darts-management/typescript-config':
+        specifier: workspace:*
+        version: link:../config/typescript-config
+
   packages/config/biome-config: {}
 
   packages/config/typescript-config: {}
@@ -58,6 +77,9 @@ importers:
 
   packages/db:
     dependencies:
+      '@darts-management/domain':
+        specifier: workspace:*
+        version: link:../domain
       better-auth:
         specifier: ^1.4.20
         version: 1.4.20(@sveltejs/kit@2.55.0(@sveltejs/vite-plugin-svelte@6.2.4(svelte@5.55.0)(vite@7.3.1(@types/node@25.5.0)(jiti@2.6.1)(lightningcss@1.31.1)(tsx@4.20.5)))(svelte@5.55.0)(typescript@5.9.3)(vite@7.3.1(@types/node@25.5.0)(jiti@2.6.1)(lightningcss@1.31.1)(tsx@4.20.5)))(pg@8.19.0)(prisma@6.19.2(typescript@5.9.3))(svelte@5.55.0)(vitest@4.1.2(@types/node@25.5.0)(jsdom@25.0.1)(vite@7.3.1(@types/node@25.5.0)(jiti@2.6.1)(lightningcss@1.31.1)(tsx@4.20.5)))
@@ -90,17 +112,39 @@ importers:
         specifier: ^6.0.0
         version: 6.19.2(typescript@5.9.3)
 
+  packages/domain:
+    dependencies:
+      zod:
+        specifier: ^4.3.6
+        version: 4.3.6
+    devDependencies:
+      '@darts-management/biome-config':
+        specifier: workspace:*
+        version: link:../config/biome-config
+      '@darts-management/typescript-config':
+        specifier: workspace:*
+        version: link:../config/typescript-config
+
   packages/front:
     dependencies:
+      '@darts-management/application':
+        specifier: workspace:*
+        version: link:../application
       '@darts-management/db':
         specifier: workspace:*
         version: link:../db
+      '@darts-management/domain':
+        specifier: workspace:*
+        version: link:../domain
       better-auth:
         specifier: ^1.4.20
         version: 1.4.20(@sveltejs/kit@2.55.0(@sveltejs/vite-plugin-svelte@6.2.4(svelte@5.55.0)(vite@7.3.1(@types/node@24.10.13)(jiti@2.6.1)(lightningcss@1.31.1)(tsx@4.20.5)))(svelte@5.55.0)(typescript@5.9.3)(vite@7.3.1(@types/node@24.10.13)(jiti@2.6.1)(lightningcss@1.31.1)(tsx@4.20.5)))(pg@8.19.0)(prisma@6.19.2(typescript@5.9.3))(svelte@5.55.0)(vitest@4.0.18)
       dayjs:
         specifier: ^1.11.19
         version: 1.11.19
+      dotenv:
+        specifier: ^17.4.0
+        version: 17.4.0
       flowbite-svelte:
         specifier: ^1.31.0
         version: 1.31.0(rollup@4.59.0)(svelte@5.55.0)(tailwindcss@4.2.0)
@@ -1395,6 +1439,10 @@ packages:
 
   dotenv@16.6.1:
     resolution: {integrity: sha512-uBq4egWHTcTt33a72vpSG0z3HnPuIl6NqYcTrKEg2azoEyl2hpW0zqlxysq2pK9HlDIHyHyakeYaYnSAwd8bow==}
+    engines: {node: '>=12'}
+
+  dotenv@17.4.0:
+    resolution: {integrity: sha512-kCKF62fwtzwYm0IGBNjRUjtJgMfGapII+FslMHIjMR5KTnwEmBmWLDRSnc3XSNP8bNy34tekgQyDT0hr7pERRQ==}
     engines: {node: '>=12'}
 
   dunder-proto@1.0.1:
@@ -3647,6 +3695,8 @@ snapshots:
       '@types/trusted-types': 2.0.7
 
   dotenv@16.6.1: {}
+
+  dotenv@17.4.0: {}
 
   dunder-proto@1.0.1:
     dependencies:

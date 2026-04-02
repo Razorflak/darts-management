@@ -18,6 +18,12 @@ interface Props {
 
 let { tournament = $bindable(), onUpdate }: Props = $props()
 
+const disabled = $derived(
+	tournament.status !== undefined &&
+		tournament.status !== "ready" &&
+		tournament.status !== "check-in",
+)
+
 let startDateObj = $derived<Date | undefined>(tournament.start_at ?? undefined)
 
 let startTime = $state<string>(
@@ -26,6 +32,7 @@ let startTime = $state<string>(
 
 function updateCategory(newCategory: Category) {
 	tournament.category = newCategory
+	tournament.name = CATEGORY_LABELS[newCategory]
 	if (onUpdate) {
 		onUpdate(tournament)
 	}
@@ -65,6 +72,7 @@ const categories: Category[] = [
 		</Label>
 		<Select
 			bind:value={tournament.category}
+			disabled={disabled}
 			onchange={(e) => {
 				updateCategory((e.target as HTMLSelectElement).value as Category)
 			}}
@@ -86,6 +94,7 @@ const categories: Category[] = [
 			<div class="flex-1">
 				<Datepicker
 					bind:value={startDateObj}
+					disabled={disabled}
 					locale="fr-FR"
 					firstDayOfWeek={1}
 					placeholder="jj/mm/aaaa"
@@ -95,25 +104,26 @@ const categories: Category[] = [
 				id="tournament-start-{tournament.id}"
 				bind:value={startTime}
 				bind:tournament
+				{disabled}
 			/>
 		</div>
 	</div>
 
 	<!-- Arbitrage automatique -->
 	<div class="flex items-center gap-3">
-		<Toggle id="auto-referee-{tournament.id}" bind:checked={tournament.auto_referee} />
+		<Toggle id="auto-referee-{tournament.id}" bind:checked={tournament.auto_referee} {disabled} />
 		<Label for="auto-referee-{tournament.id}">Assignation automatique des arbitres</Label>
 	</div>
 
 	<!-- Check-in requis -->
 	<div class="flex items-center gap-3">
-		<Toggle id="check-in-{tournament.id}" bind:checked={tournament.check_in_required} />
+		<Toggle id="check-in-{tournament.id}" bind:checked={tournament.check_in_required} {disabled} />
 		<Label for="check-in-{tournament.id}">Check-in requis avant le lancement</Label>
 	</div>
 
 	<!-- Phases -->
 	<div>
 		<h3 class="mb-3 font-semibold text-gray-700">Phases</h3>
-		<PhasesBuilder bind:phases={tournament.phases} tournament_id={tournament.id} />
+		<PhasesBuilder bind:phases={tournament.phases} tournament_id={tournament.id} {disabled} />
 	</div>
 </div>

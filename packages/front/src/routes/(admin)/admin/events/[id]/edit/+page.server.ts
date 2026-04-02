@@ -31,7 +31,7 @@ export const load: PageServerLoad = async ({ locals, params }) => {
 
 	// Load tournaments
 	const tournamentRows = await sql<Record<string, unknown>[]>`
-		SELECT id, name, category, start_at::text, auto_referee, check_in_required
+		SELECT id, name, category, start_at::text, auto_referee, check_in_required, status
 		FROM tournament
 		WHERE event_id = ${eventId}
 		ORDER BY created_at
@@ -112,6 +112,7 @@ export const load: PageServerLoad = async ({ locals, params }) => {
 			start_at: t.start_at ?? null,
 			auto_referee: t.auto_referee,
 			check_in_required: t.check_in_required ?? false,
+			status: t.status ?? undefined,
 			phases: phasesByTournament[t.id as string] ?? [],
 		})),
 	}

@@ -1,5 +1,8 @@
 // Les méthodes sont juste la à titre indicatif pour éviter d'avoir à les chercher dans les ficchiers
 export const apiRoutes = {
+	EVENT_SAVE: { method: ["POST"], path: "/api/event/save" },
+	EVENT_PUBLISH: { method: ["POST"], path: "/api/event/publish" },
+	EVENT_DELETE: { method: ["DELETE"], path: "/api/event/delete" },
 	PLAYERS_PARTER_SEARCH: {
 		method: ["GET"],
 		path: "/api/players/partner/search",
@@ -16,5 +19,9 @@ export const apiRoutes = {
 	TOURNAMENT_UNEREGISER: {
 		method: ["DELETE"],
 		path: "/api/tournament/unregister",
+	},
+	PLAYERS_CREATE_PROFILE: {
+		method: ["POST"],
+		path: "/api/players/create-player-profile",
 	},
 }

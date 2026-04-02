@@ -1,0 +1,5 @@
+{
+	"extends": "@darts-management/typescript-config/tsconfig.json",
+	"include": ["src"],
+	"exclude": ["dist", "build", "node_modules"]
+}

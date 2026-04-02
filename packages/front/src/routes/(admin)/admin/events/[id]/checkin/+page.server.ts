@@ -61,6 +61,7 @@ export const load: PageServerLoad = async ({ locals, params, url }) => {
 		WHERE t.event_id = ${params.id}
 			AND t.start_at::date::text = ${date}
 			AND t.status = 'check-in'
+			AND t.check_in_required = true
 		ORDER BY p.last_name, p.first_name, t.name
 	`
 
@@ -109,17 +110,29 @@ export const load: PageServerLoad = async ({ locals, params, url }) => {
 		.array(CheckinPlayerSchema)
 		.parse(Array.from(playerMap.values()))
 
-	// Tournaments of the day (check-in status) — passed to CheckinRegistrationModal
+	// All event tournaments in one query — filtered in code
 	const tournamentRows = await sql<Record<string, unknown>[]>`
-		SELECT id, name, category FROM tournament
+		SELECT id, name, category, start_at::date::text AS start_date, status
+		FROM tournament
 		WHERE event_id = ${params.id}
-			AND start_at::date::text = ${date}
-			AND status = 'check-in'
 		ORDER BY name
 	`
-	const tournaments = z
-		.array(z.object({ id: z.uuid(), name: z.string(), category: z.string() }))
-		.parse(tournamentRows)
+	const TournamentRowSchema = z.object({
+		id: z.string().uuid(),
+		name: z.string(),
+		category: z.string(),
+		start_date: z.string(),
+		status: z.string(),
+	})
+	const allTournaments = z.array(TournamentRowSchema).parse(tournamentRows)
 
-	return { event, players, date, tournaments }
+	const eventTournaments = allTournaments.map(({ id, name, category }) => ({
+		id,
+		name,
+		category,
+	}))
+	const eventTournamentsDay = allTournaments
+		.filter((t) => t.start_date === date && t.status === "check-in")
+		.map(({ id, name, category }) => ({ id, name, category }))
+	return { event, players, date, eventTournaments, eventTournamentsDay }
 }

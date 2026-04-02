@@ -1,12 +1,18 @@
 <script lang="ts">
+import { Input } from "flowbite-svelte"
+import {
+	ChevronDownOutline,
+	CloseOutline,
+	PlusOutline,
+} from "flowbite-svelte-icons"
 import type { BracketTier } from "$lib/server/schemas/event-schemas.js"
 import { BRACKET_ROUND_LABELS } from "../../labels.js"
 import { sortable } from "../../sortable.js"
 import { createBracketTier } from "../../utils.js"
-import { Input } from "flowbite-svelte"
 
 interface Props {
 	tiers: BracketTier[]
+	disabled?: boolean
 }
 
 const BRACKET_ROUNDS: BracketTier["round"][] = [
@@ -22,9 +28,10 @@ const BRACKET_ROUNDS: BracketTier["round"][] = [
 	"8",
 	"4",
 	"2",
+	"1",
 ]
 
-let { tiers = $bindable() }: Props = $props()
+let { tiers = $bindable(), disabled = false }: Props = $props()
 
 const availableRounds = $derived(
 	BRACKET_ROUNDS.filter((r) => !tiers.some((t) => t.round === r)),
@@ -56,7 +63,8 @@ function onSortEnd(evt: { oldIndex?: number; newIndex?: number }) {
 		use:sortable={{
 			animation: 150,
 			handle: "[data-drag]",
-			onEnd: onSortEnd
+			onEnd: onSortEnd,
+			disabled,
 		}}
 		class="space-y-2"
 	>
@@ -87,6 +95,7 @@ function onSortEnd(evt: { oldIndex?: number; newIndex?: number }) {
 						min="1"
 						max="11"
 						size="sm"
+						disabled={disabled}
 						class="w-16 text-center"
 					/>
 					<span class="text-sm text-gray-500">manches</span>
@@ -96,21 +105,18 @@ function onSortEnd(evt: { oldIndex?: number; newIndex?: number }) {
 				<button
 					type="button"
 					onclick={() => removeTier(tier.round)}
-					class="text-gray-300 transition-colors hover:text-red-400"
+					disabled={disabled}
+					class="text-gray-300 transition-colors hover:text-red-400 disabled:pointer-events-none disabled:opacity-50"
 					aria-label="Supprimer ce palier"
 				>
-					<svg class="h-5 w-5" viewBox="0 0 20 20" fill="currentColor" aria-hidden="true">
-						<path
-							d="M6.28 5.22a.75.75 0 0 0-1.06 1.06L8.94 10l-3.72 3.72a.75.75 1 0 1.06 1.06L10 11.06l3.72 3.72a.75.75 1 1 1.06-1.06L11.06 10l3.72-3.72a.75.75 0 0 0-1.06-1.06L10 8.94 6.28 5.22Z"
-						/>
-					</svg>
+					<CloseOutline class="h-5 w-5" />
 				</button>
 			</li>
 		{/each}
 	</ul>
 
 	<!-- Add tier dropdown -->
-	{#if availableRounds.length > 0}
+	{#if availableRounds.length > 0 && !disabled}
 		<div class="relative inline-block">
 			<!-- Backdrop -->
 			{#if addOpen}
@@ -127,25 +133,15 @@ function onSortEnd(evt: { oldIndex?: number; newIndex?: number }) {
 				onclick={() => (addOpen = !addOpen)}
 				class="inline-flex items-center gap-1 rounded-full border border-gray-300 px-2.5 py-1 text-xs font-medium text-gray-600 transition-colors hover:border-blue-400 hover:text-blue-600"
 			>
-				<svg class="h-3 w-3" viewBox="0 0 20 20" fill="currentColor" aria-hidden="true">
-					<path
-						d="M10.75 4.75a.75.75 0 0 0-1.5 0v4.5h-4.5a.75.75 0 0 0 0 1.5h4.5v4.5a.75.75 0 0 0 1.5 0v-4.5h4.5a.75.75 0 0 0 0-1.5h-4.5v-4.5Z"
-					/>
-				</svg>
+				<PlusOutline class="h-3 w-3" />
 				Ajouter un palier
-				<svg class="h-2.5 w-2.5" viewBox="0 0 20 20" fill="currentColor" aria-hidden="true">
-					<path
-						fill-rule="evenodd"
-						d="M5.22 8.22a.75.75 0 0 1 1.06 0L10 11.94l3.72-3.72a.75.75 1 1 1.06 1.06l-4.25 4.25a.75.75 0 0 1-1.06 0L5.22 9.28a.75.75 0 0 1 0-1.06Z"
-						clip-rule="evenodd"
-					/>
-				</svg>
+				<ChevronDownOutline class="h-2.5 w-2.5" />
 			</button>
 
 			<!-- Dropdown menu — stays open so multiple tiers can be added -->
 			{#if addOpen}
 				<div
-					class="absolute top-full left-0 z-20 mt-1 min-w-44 overflow-hidden rounded-lg border border-gray-200 bg-white shadow-lg"
+					class="absolute top-full left-0 z-20 mt-1 min-w-44 max-h-56 overflow-y-auto rounded-lg border border-gray-200 bg-white shadow-lg"
 				>
 					{#each availableRounds as round}
 						<button

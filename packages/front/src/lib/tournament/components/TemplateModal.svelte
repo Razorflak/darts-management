@@ -1,8 +1,8 @@
 <script lang="ts">
-import { EVENT_TEMPLATES } from "../templates.js"
 import { Button, Datepicker, Modal } from "flowbite-svelte"
 import type { DraftEvent } from "$lib/server/schemas/event-schemas.js"
 import { gendUuidv7 } from "$lib/utils/uuid.js"
+import { EVENT_TEMPLATES } from "../templates.js"
 
 interface Props {
 	open: boolean
@@ -53,7 +53,7 @@ function apply() {
 	draftEvent.tournaments?.forEach((t) => {
 		const tournamentId = gendUuidv7()
 		t.id = tournamentId
-		t.start_at = t.start_at ? setTimeToDate(startDate, t.start_at) : startDate
+		t.start_at = t.start_at ? setTimeToDate(t.start_at, startDate) : startDate
 		t.phases?.forEach((p) => {
 			p.id = gendUuidv7()
 			p.tournament_id = tournamentId

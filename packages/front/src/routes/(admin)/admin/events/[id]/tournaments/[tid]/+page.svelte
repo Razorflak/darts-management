@@ -14,6 +14,12 @@ import { invalidateAll } from "$app/navigation"
 import { confirm } from "$lib/confirm.svelte.js"
 import { apiRoutes } from "$lib/fetch/api"
 import type { RosterEntry } from "$lib/server/schemas/event-schemas.js"
+import {
+	TOURNAMENT_STATUS_COLORS,
+	TOURNAMENT_STATUS_LABELS,
+	TOURNAMENT_STATUS_NEXT,
+	TOURNAMENT_STATUS_PREV,
+} from "$lib/tournament/labels"
 import type { PageData } from "./$types"
 import RegistrationModal from "./RegistrationModal.svelte"
 
@@ -55,32 +61,6 @@ let filteredRoster = $derived(
 // Modal state
 let showAddModal = $state(false)
 
-// Status management
-const STATUS_TRANSITIONS: Record<string, string | null> = {
-	ready: "check-in",
-	"check-in": "started",
-	started: "finished",
-	finished: null,
-}
-const STATUS_PREV: Record<string, string | null> = {
-	ready: null,
-	"check-in": "ready",
-	started: "check-in",
-	finished: "started",
-}
-const STATUS_LABELS: Record<string, string> = {
-	ready: "Ouvert",
-	"check-in": "Check-in",
-	started: "Lancé",
-	finished: "Terminé",
-}
-const STATUS_COLORS: Record<string, "green" | "yellow" | "blue" | "gray"> = {
-	ready: "green",
-	"check-in": "yellow",
-	started: "blue",
-	finished: "gray",
-}
-
 async function changeStatus(newStatus: string) {
 	const res = await fetch(apiRoutes.TOURNAMENT_STATUS.path, {
 		method: "PATCH",
@@ -101,8 +81,7 @@ async function checkIn(registrationId: string, value: boolean) {
 		method: "POST",
 		headers: { "Content-Type": "application/json" },
 		body: JSON.stringify({
-			tournament_id: tournamentId,
-			registration_id: registrationId,
+			registration_ids: [registrationId],
 			checked_in: value,
 		}),
 	})
@@ -146,25 +125,25 @@ async function unregister(registrationId: string) {
 
 	<!-- Status badge + transition buttons -->
 	<div class="mt-3 flex items-center gap-3">
-		<Badge color={STATUS_COLORS[tournamentStatus] ?? "gray"}>
-			{STATUS_LABELS[tournamentStatus] ?? tournamentStatus}
+		<Badge color={TOURNAMENT_STATUS_COLORS[tournamentStatus] ?? "gray"}>
+			{TOURNAMENT_STATUS_LABELS[tournamentStatus] ?? tournamentStatus}
 		</Badge>
-		{#if STATUS_PREV[tournamentStatus]}
+		{#if TOURNAMENT_STATUS_PREV[tournamentStatus]}
 			<Button
 				size="xs"
 				color="light"
-				onclick={() => changeStatus(STATUS_PREV[tournamentStatus]!)}
+				onclick={() => changeStatus(TOURNAMENT_STATUS_PREV[tournamentStatus]!)}
 			>
-				&larr; {STATUS_LABELS[STATUS_PREV[tournamentStatus]!]}
+				&larr; {TOURNAMENT_STATUS_LABELS[TOURNAMENT_STATUS_PREV[tournamentStatus]!]}
 			</Button>
 		{/if}
-		{#if STATUS_TRANSITIONS[tournamentStatus]}
+		{#if TOURNAMENT_STATUS_NEXT[tournamentStatus]}
 			<Button
 				size="xs"
 				color="primary"
-				onclick={() => changeStatus(STATUS_TRANSITIONS[tournamentStatus]!)}
+				onclick={() => changeStatus(TOURNAMENT_STATUS_NEXT[tournamentStatus]!)}
 			>
-				Passer en {STATUS_LABELS[STATUS_TRANSITIONS[tournamentStatus]!]} &rarr;
+				Passer en {TOURNAMENT_STATUS_LABELS[TOURNAMENT_STATUS_NEXT[tournamentStatus]!]} &rarr;
 			</Button>
 		{/if}
 	</div>

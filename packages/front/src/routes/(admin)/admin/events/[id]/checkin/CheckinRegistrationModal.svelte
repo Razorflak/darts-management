@@ -1,86 +1,61 @@
 <script lang="ts">
 import { Button, Modal } from "flowbite-svelte"
+import { invalidateAll } from "$app/navigation"
 import { apiRoutes } from "$lib/fetch/api"
 import type { PlayerSearchResult } from "$lib/server/schemas/event-schemas.js"
-import MinimumPlayerCreationForm from "$lib/tournament/components/MinimumPlayerCreationForm.svelte"
-import PlayerSearch from "$lib/tournament/components/PlayerSearch.svelte"
+import PlayerSelector from "./PlayerSelector.svelte"
 
 let {
-	eventId,
-	date: _date,
-	tournaments,
-	onClose,
+	open = $bindable(true),
+	eventTournaments,
 }: {
-	eventId: string
-	date: string
-	tournaments: { id: string; name: string; category: string }[]
-	onClose: () => void
+	open: boolean
+	eventTournaments: { id: string; name: string; category: string }[]
 } = $props()
 
 // Category splitting
 const DOUBLES_PREFIX = "double"
 const soloTournaments = $derived(
-	tournaments.filter((t) => !t.category.startsWith(DOUBLES_PREFIX)),
+	eventTournaments.filter((t) => !t.category.startsWith(DOUBLES_PREFIX)),
 )
 const doublesTournaments = $derived(
-	tournaments.filter((t) => t.category.startsWith(DOUBLES_PREFIX)),
+	eventTournaments.filter((t) => t.category.startsWith(DOUBLES_PREFIX)),
 )
 
 // Player 1
 let player1 = $state<PlayerSearchResult | null>(null)
-let showCreate1 = $state(false)
 let new1 = $state({ first_name: "", last_name: "", department: "" })
+let selectedTournaments1 = $state(new Set<string>())
 
 // Player 2
 let player2 = $state<PlayerSearchResult | null>(null)
-let showCreate2 = $state(false)
 let new2 = $state({ first_name: "", last_name: "", department: "" })
+let selectedTournaments2 = $state(new Set<string>())
 let section2Open = $state(false)
 
-// Tournament selections
-let selectedTournaments1 = $state<Set<string>>(new Set())
-let selectedTournaments2 = $state<Set<string>>(new Set())
-let selectedDoublesTournaments = $state<Set<string>>(new Set())
+// Doubles
+let selectedDoublesTournaments = $state(new Set<string>())
 
 let submitting = $state(false)
 let errorMsg = $state<string | null>(null)
 
-let open = $state(true)
+function getPlayerEntry(
+	player: PlayerSearchResult | null,
+	newPlayer: { first_name: string; last_name: string; department: string },
+) {
+	if (player) return { id: player.id }
+	return {
+		first_name: newPlayer.first_name,
+		last_name: newPlayer.last_name,
+		department: newPlayer.department,
+	}
+}
 
-function toggleTournament1(tid: string) {
-	const next = new Set(selectedTournaments1)
-	if (next.has(tid)) next.delete(tid)
-	else next.add(tid)
-	selectedTournaments1 = next
-}
-function toggleTournament2(tid: string) {
-	const next = new Set(selectedTournaments2)
-	if (next.has(tid)) next.delete(tid)
-	else next.add(tid)
-	selectedTournaments2 = next
-}
 function toggleDoubles(tid: string) {
 	const next = new Set(selectedDoublesTournaments)
 	if (next.has(tid)) next.delete(tid)
 	else next.add(tid)
 	selectedDoublesTournaments = next
-}
-
-function getPlayer1Entry() {
-	if (player1) return { id: player1.id }
-	return {
-		first_name: new1.first_name,
-		last_name: new1.last_name,
-		department: new1.department,
-	}
-}
-function getPlayer2Entry() {
-	if (player2) return { id: player2.id }
-	return {
-		first_name: new2.first_name,
-		last_name: new2.last_name,
-		department: new2.department,
-	}
 }
 
 async function submit() {
@@ -94,7 +69,10 @@ async function submit() {
 			const res = await fetch(apiRoutes.TOURNAMENT_REGISTER.path, {
 				method: "POST",
 				headers: { "Content-Type": "application/json" },
-				body: JSON.stringify({ tournament_id: tid, team: [getPlayer1Entry()] }),
+				body: JSON.stringify({
+					tournament_id: tid,
+					team: [getPlayerEntry(player1, new1)],
+				}),
 			})
 			if (!res.ok) {
 				const body = await res.json().catch(() => ({}))
@@ -116,7 +94,7 @@ async function submit() {
 					headers: { "Content-Type": "application/json" },
 					body: JSON.stringify({
 						tournament_id: tid,
-						team: [getPlayer2Entry()],
+						team: [getPlayerEntry(player2, new2)],
 					}),
 				})
 				if (!res.ok) {
@@ -140,7 +118,10 @@ async function submit() {
 					headers: { "Content-Type": "application/json" },
 					body: JSON.stringify({
 						tournament_id: tid,
-						team: [getPlayer1Entry(), getPlayer2Entry()],
+						team: [
+							getPlayerEntry(player1, new1),
+							getPlayerEntry(player2, new2),
+						],
 					}),
 				})
 				if (!res.ok) {
@@ -159,16 +140,16 @@ async function submit() {
 		// Immediate check-in for all registrations just created.
 		const regIds = registered.map((r) => r.registrationId)
 		if (regIds.length > 0) {
-			await fetch(`/admin/events/${eventId}/checkin/team-checkin`, {
-				method: "PATCH",
+			await fetch(apiRoutes.TOURNAMENT_CHECKIN.path, {
+				method: "POST",
 				headers: { "Content-Type": "application/json" },
 				body: JSON.stringify({ registration_ids: regIds, checked_in: true }),
 			})
 			// Check-in failure is non-blocking (players are registered; check-in can be done manually)
 		}
 
+		await invalidateAll()
 		open = false
-		onClose()
 	} catch (err) {
 		// Rollback: unregister all registered in this session
 		for (const r of registered) {
@@ -187,172 +168,43 @@ async function submit() {
 		submitting = false
 	}
 }
-
-function handleClose() {
-	open = false
-	onClose()
-}
 </script>
 
-<Modal bind:open title="Inscription" size="lg" outsideclose onclose={handleClose}>
+<Modal bind:open title="Inscription" size="lg" outsideclose>
 	<div class="space-y-6">
-		<!-- Section 1 — Joueur 1 -->
-		<div>
-			<h3 class="mb-2 font-semibold text-gray-700">Joueur 1</h3>
-			{#if player1}
-				<div class="flex items-center gap-2 rounded bg-gray-50 p-2">
-					<span class="font-medium">{player1.last_name} {player1.first_name}</span>
-					{#if player1.department}
-						<span class="text-sm text-gray-500">({player1.department})</span>
-					{/if}
-					<Button
-						size="xs"
-						color="light"
-						onclick={() => {
-							player1 = null
-						}}>Changer</Button
-					>
-				</div>
-			{:else if !showCreate1}
-				<PlayerSearch
-					mode="all"
-					onSelect={(p) => {
-						player1 = p
-						showCreate1 = false
-					}}
-				/>
-			{/if}
-			{#if !player1}
-				<div class="mt-3">
-					<button
-						type="button"
-						class="text-sm text-blue-600 hover:underline"
-						onclick={() => {
-							showCreate1 = !showCreate1
-							player1 = null
-						}}
-					>
-						{showCreate1 ? "▲ Annuler la création" : "▼ Joueur non trouvé ? Créer un joueur"}
-					</button>
-					{#if showCreate1}
-						<MinimumPlayerCreationForm
-							bind:first_name={new1.first_name}
-							bind:last_name={new1.last_name}
-							bind:department={new1.department}
-						/>
-					{/if}
-				</div>
-			{/if}
+		<PlayerSelector
+			label="Joueur 1"
+			bind:player={player1}
+			bind:newPlayer={new1}
+			tournaments={soloTournaments}
+			bind:selectedTournamentIds={selectedTournaments1}
+		/>
 
-			<!-- Solo tournaments for player 1 -->
-			{#if soloTournaments.length > 0}
-				<div class="mt-3 space-y-1">
-					{#each soloTournaments as t (t.id)}
-						<label class="flex cursor-pointer items-center gap-2 text-sm text-gray-700">
-							<input
-								type="checkbox"
-								class="rounded"
-								checked={selectedTournaments1.has(t.id)}
-								onchange={() => toggleTournament1(t.id)}
-							/>
-							{t.name}
-						</label>
-					{/each}
-				</div>
-			{/if}
-		</div>
-
-		<!-- Toggle section 2 -->
 		<div>
 			<button
 				type="button"
 				class="text-sm text-blue-600 hover:underline"
-				onclick={() => {
-					section2Open = !section2Open
-				}}
+				onclick={() => { section2Open = !section2Open }}
 			>
 				{section2Open ? "— Retirer le joueur 2" : "+ Ajouter un joueur"}
 			</button>
 		</div>
 
-		<!-- Section 2 — Joueur 2 (visible only when section2Open) -->
 		{#if section2Open}
-			<div>
-				<h3 class="mb-2 font-semibold text-gray-700">Joueur 2</h3>
-				{#if player2}
-					<div class="flex items-center gap-2 rounded bg-gray-50 p-2">
-						<span class="font-medium">{player2.last_name} {player2.first_name}</span>
-						{#if player2.department}
-							<span class="text-sm text-gray-500">({player2.department})</span>
-						{/if}
-						<Button
-							size="xs"
-							color="light"
-							onclick={() => {
-								player2 = null
-							}}>Changer</Button
-						>
-					</div>
-				{:else if !showCreate2}
-					<PlayerSearch
-						mode="all"
-						onSelect={(p) => {
-							player2 = p
-							showCreate2 = false
-						}}
-					/>
-				{/if}
-				{#if !player2}
-					<div class="mt-3">
-						<button
-							type="button"
-							class="text-sm text-blue-600 hover:underline"
-							onclick={() => {
-								showCreate2 = !showCreate2
-								player2 = null
-							}}
-						>
-							{showCreate2 ? "▲ Annuler la création" : "▼ Joueur non trouvé ? Créer un joueur"}
-						</button>
-						{#if showCreate2}
-							<MinimumPlayerCreationForm
-								bind:first_name={new2.first_name}
-								bind:last_name={new2.last_name}
-								bind:department={new2.department}
-							/>
-						{/if}
-					</div>
-				{/if}
+			<PlayerSelector
+				label="Joueur 2"
+				bind:player={player2}
+				bind:newPlayer={new2}
+				tournaments={soloTournaments}
+				bind:selectedTournamentIds={selectedTournaments2}
+			/>
 
-				<!-- Solo tournaments for player 2 -->
-				{#if soloTournaments.length > 0}
-					<div class="mt-3 space-y-1">
-						{#each soloTournaments as t (t.id)}
-							<label
-								class="flex cursor-pointer items-center gap-2 text-sm text-gray-700"
-							>
-								<input
-									type="checkbox"
-									class="rounded"
-									checked={selectedTournaments2.has(t.id)}
-									onchange={() => toggleTournament2(t.id)}
-								/>
-								{t.name}
-							</label>
-						{/each}
-					</div>
-				{/if}
-			</div>
-
-			<!-- Doubles tournaments (common, visible only when section 2 open) -->
 			{#if doublesTournaments.length > 0}
 				<div class="border-t border-gray-200 pt-4">
 					<h3 class="mb-2 font-semibold text-gray-700">Doubles</h3>
 					<div class="space-y-1">
 						{#each doublesTournaments as t (t.id)}
-							<label
-								class="flex cursor-pointer items-center gap-2 text-sm text-gray-700"
-							>
+							<label class="flex cursor-pointer items-center gap-2 text-sm text-gray-700">
 								<input
 									type="checkbox"
 									class="rounded"
@@ -376,6 +228,6 @@ function handleClose() {
 		<Button color="primary" onclick={submit} disabled={submitting}>
 			{submitting ? "Inscription en cours…" : "Valider"}
 		</Button>
-		<Button color="light" onclick={handleClose} disabled={submitting}>Annuler</Button>
+		<Button color="light" onclick={() => (open = false)} disabled={submitting}>Annuler</Button>
 	{/snippet}
 </Modal>

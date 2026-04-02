@@ -11,7 +11,13 @@ import {
 } from "flowbite-svelte"
 import { goto } from "$app/navigation"
 import { confirm } from "$lib/confirm.svelte.js"
-import { CATEGORY_LABELS } from "$lib/tournament/labels"
+import { apiRoutes } from "$lib/fetch/api"
+import {
+	CATEGORY_LABELS,
+	EVENT_DETAIL_STATUS_COLORS,
+	TOURNAMENT_STATUS_COLORS,
+	TOURNAMENT_STATUS_LABELS,
+} from "$lib/tournament/labels"
 import type { CheckinDay } from "$lib/server/schemas/event-schemas.js"
 import type { PageData } from "./$types"
 
@@ -24,36 +30,21 @@ async function startDayCheckin(day: CheckinDay) {
 		)
 		if (!ok) return
 	}
-	const res = await fetch(`/admin/events/${data.event.id}/day-checkin`, {
-		method: "PATCH",
-		headers: { "Content-Type": "application/json" },
-		body: JSON.stringify({ date: day.date }),
-	})
-	if (res.ok) {
-		const { redirect } = await res.json()
-		goto(redirect)
-	}
+	const readyIds = day.tournament_ids.filter(
+		(id) => data.tournaments.find((t) => t.id === id)?.status === "ready",
+	)
+	await Promise.all(
+		readyIds.map((tournament_id) =>
+			fetch(apiRoutes.TOURNAMENT_STATUS.path, {
+				method: "PATCH",
+				headers: { "Content-Type": "application/json" },
+				body: JSON.stringify({ tournament_id, status: "check-in" }),
+			}),
+		),
+	)
+	goto(`/admin/events/${data.event.id}/checkin?date=${day.date}`)
 }
 
-const STATUS_LABELS: Record<string, string> = {
-	ready: "Ouvert",
-	"check-in": "Check-in",
-	started: "Lancé",
-	finished: "Terminé",
-}
-const STATUS_COLORS: Record<string, "green" | "yellow" | "blue" | "gray"> = {
-	ready: "green",
-	"check-in": "yellow",
-	started: "blue",
-	finished: "gray",
-}
-const EVENT_STATUS_COLORS: Record<string, "gray" | "green" | "yellow" | "red"> =
-	{
-		draft: "gray",
-		ready: "green",
-		started: "yellow",
-		finished: "red",
-	}
 </script>
 
 <svelte:head>
@@ -73,7 +64,7 @@ const EVENT_STATUS_COLORS: Record<string, "gray" | "green" | "yellow" | "red"> =
 		<h1 class="text-2xl font-bold text-gray-900">{data.event.name}</h1>
 		<p class="mt-1 text-sm text-gray-500">{data.event.entity_name} · {data.event.location}</p>
 		<div class="mt-2">
-			<Badge color={EVENT_STATUS_COLORS[data.event.status]}>{data.event.status}</Badge>
+			<Badge color={EVENT_DETAIL_STATUS_COLORS[data.event.status]}>{data.event.status}</Badge>
 		</div>
 	</div>
 	<Button href="/admin/events/{data.event.id}/edit" color="light" size="sm"
@@ -125,8 +116,8 @@ const EVENT_STATUS_COLORS: Record<string, "gray" | "green" | "yellow" | "red"> =
 					<TableBodyCell class="font-medium">{t.name}</TableBodyCell>
 					<TableBodyCell>{CATEGORY_LABELS[t.category]}</TableBodyCell>
 					<TableBodyCell>
-						<Badge color={STATUS_COLORS[t.status] ?? "gray"}
-							>{STATUS_LABELS[t.status] ?? t.status}</Badge
+						<Badge color={TOURNAMENT_STATUS_COLORS[t.status] ?? "gray"}
+							>{TOURNAMENT_STATUS_LABELS[t.status] ?? t.status}</Badge
 						>
 					</TableBodyCell>
 					<TableBodyCell>{t.registration_count}</TableBodyCell>

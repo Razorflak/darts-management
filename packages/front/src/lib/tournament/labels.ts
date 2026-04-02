@@ -4,6 +4,62 @@ import type {
 	PhaseType,
 } from "$lib/server/schemas/event-schemas"
 
+// Tournament status (ready | check-in | started | finished)
+export const TOURNAMENT_STATUS_LABELS: Record<string, string> = {
+	ready: "Ouvert",
+	"check-in": "Check-in",
+	started: "Lancé",
+	finished: "Terminé",
+}
+export const TOURNAMENT_STATUS_COLORS: Record<
+	string,
+	"green" | "yellow" | "blue" | "gray"
+> = {
+	ready: "green",
+	"check-in": "yellow",
+	started: "blue",
+	finished: "gray",
+}
+export const TOURNAMENT_STATUS_NEXT: Record<string, string | null> = {
+	ready: "check-in",
+	"check-in": "started",
+	started: "finished",
+	finished: null,
+}
+export const TOURNAMENT_STATUS_PREV: Record<string, string | null> = {
+	ready: null,
+	"check-in": "ready",
+	started: "check-in",
+	finished: "started",
+}
+
+// Event status (draft | ready | started | finished)
+export const EVENT_STATUS_LABELS: Record<string, string> = {
+	draft: "Brouillon",
+	ready: "Publié",
+	started: "En cours",
+	finished: "Terminé",
+}
+export const EVENT_STATUS_COLORS: Record<
+	string,
+	"gray" | "green" | "blue" | "indigo"
+> = {
+	draft: "gray",
+	ready: "green",
+	started: "blue",
+	finished: "indigo",
+}
+// Variant used on the event detail page
+export const EVENT_DETAIL_STATUS_COLORS: Record<
+	string,
+	"gray" | "green" | "yellow" | "red"
+> = {
+	draft: "gray",
+	ready: "green",
+	started: "yellow",
+	finished: "red",
+}
+
 export const CATEGORY_LABELS: Record<Category, string> = {
 	male: "Masculin",
 	female: "Féminin",
@@ -33,7 +89,8 @@ export const BRACKET_ROUND_LABELS: Record<BracketTier["round"], string> = {
 	64: "jusqu'en 1/64",
 	32: "jusqu'en 1/32",
 	16: "jusqu'en 1/16",
-	8: "Quarts de finale",
-	4: "Demi-finales",
-	2: "Finale",
+	8: "jusqu'en 1/8",
+	4: "Quarts de finale",
+	2: "Demi-finales",
+	1: "Finale",
 }

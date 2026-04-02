@@ -1,4 +1,4 @@
-import { z } from 'zod'
+import { z } from "zod"
 
 // ------------------------------------------------------------------
 // authz.ts checkRole query: SELECT COUNT(*) as count FROM user_entity_role
@@ -12,12 +12,12 @@ export type CheckRoleRow = z.infer<typeof CheckRoleRowSchema>
 // authz.ts getUserRoles query: SELECT entity_id, role FROM user_entity_role
 // ------------------------------------------------------------------
 const EntityRoleSchema = z.enum([
-	'organisateur',
-	'adminTournoi',
-	'adminClub',
-	'adminComite',
-	'adminLigue',
-	'adminFederal',
+	"organisateur",
+	"adminTournoi",
+	"adminClub",
+	"adminComite",
+	"adminLigue",
+	"adminFederal",
 ])
 export const UserRoleRowSchema = z.object({
 	entity_id: z.string(),

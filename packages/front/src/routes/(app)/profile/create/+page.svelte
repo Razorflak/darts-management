@@ -1,6 +1,7 @@
 <script lang="ts">
 import { goto } from "$app/navigation"
 import { Card } from "flowbite-svelte"
+import { apiRoutes } from "$lib/fetch/api"
 import PlayerCreationForm from "$lib/tournament/components/PlayerCreationForm.svelte"
 import type { PageData } from "./$types"
 
@@ -25,7 +26,7 @@ async function handleSubmit(event: SubmitEvent) {
 	}
 
 	try {
-		const res = await fetch("/api/players/create-player-profile", {
+		const res = await fetch(apiRoutes.PLAYERS_CREATE_PROFILE.path, {
 			method: "POST",
 			headers: { "Content-Type": "application/json" },
 			body: JSON.stringify(body),

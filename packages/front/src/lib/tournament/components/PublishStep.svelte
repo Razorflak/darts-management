@@ -1,21 +1,19 @@
 <script lang="ts">
+import { isGroupPhase } from "@darts-management/domain"
 import type {
 	DraftEvent,
-	Event,
 	EliminationPhase,
+	Event,
 	GroupPhase,
 	Phase,
-} from "$lib/server/schemas/event-schemas.js"
+} from "@darts-management/domain"
 import {
+	BRACKET_ROUND_LABELS,
 	CATEGORY_LABELS,
 	PHASE_TYPE_LABELS,
-	BRACKET_ROUND_LABELS,
 } from "../labels.js"
 import { Badge, Button, Card } from "flowbite-svelte"
 
-function isGroupPhase(p: Phase): p is GroupPhase {
-	return p.type === "round_robin" || p.type === "double_loss_groups"
-}
 function isEliminationPhase(p: Phase): p is EliminationPhase {
 	return p.type === "single_elimination" || p.type === "double_elimination"
 }

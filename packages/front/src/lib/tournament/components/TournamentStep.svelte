@@ -21,7 +21,19 @@ let {
 
 let tournaments = $state(tournamentProps)
 
-let activeId = $derived(tournaments[0]?.id ?? "")
+// Sync local changes back to parent (bind:tournaments on the page)
+$effect(() => {
+	tournamentProps = tournaments
+})
+
+let activeId = $state(tournaments[0]?.id ?? "")
+
+// If the active tournament is removed, fall back to first
+$effect(() => {
+	if (!tournaments.find((t) => t.id === activeId)) {
+		activeId = tournaments[0]?.id ?? ""
+	}
+})
 
 let activeTournament = $derived(tournaments.find((t) => t.id === activeId))
 const activeIndex = $derived(tournaments.findIndex((t) => t.id === activeId))

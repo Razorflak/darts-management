@@ -1,4 +1,15 @@
 <script lang="ts">
+import {
+	ArrowRightToBracketOutline,
+	AwardOutline,
+	BarsOutline,
+	BuildingOutline,
+	ChevronLeftOutline,
+	ChevronRightOutline,
+	CloseOutline,
+	HomeOutline,
+} from "flowbite-svelte-icons"
+
 let { children, data } = $props()
 let collapsed = $state(false)
 let mobileOpen = $state(false)
@@ -23,15 +34,9 @@ function toggleMobileMenu() {
     aria-label={collapsed ? "Développer le menu" : "Réduire le menu"}
   >
     {#if collapsed}
-      <!-- chevron right -->
-      <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 20 20" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
-        <path d="M7.5 5l5 5-5 5" />
-      </svg>
+      <ChevronRightOutline />
     {:else}
-      <!-- chevron left -->
-      <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 20 20" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
-        <path d="M12.5 5l-5 5 5 5" />
-      </svg>
+      <ChevronLeftOutline />
     {/if}
   </button>
 
@@ -45,10 +50,7 @@ function toggleMobileMenu() {
       title={collapsed ? "Accueil" : undefined}
     >
       <!-- icône maison -->
-      <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true" class="shrink-0">
-        <path d="M3 9.5L10 3l7 6.5V19a1 1 0 0 1-1 1H4a1 1 0 0 1-1-1V9.5z" />
-        <path d="M8 20V13h4v7" />
-      </svg>
+      <HomeOutline class="shrink-0" />
       {#if !collapsed}
         <span class="text-sm font-medium whitespace-nowrap">Accueil</span>
       {/if}
@@ -62,11 +64,7 @@ function toggleMobileMenu() {
       title={collapsed ? "Évènements" : undefined}
     >
       <!-- icône cible/fléchette -->
-      <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 20 20" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true" class="shrink-0">
-        <circle cx="10" cy="10" r="8" />
-        <circle cx="10" cy="10" r="4" />
-        <circle cx="10" cy="10" r="1" fill="currentColor" stroke="none" />
-      </svg>
+      <AwardOutline class="shrink-0" />
       {#if !collapsed}
         <span class="text-sm font-medium whitespace-nowrap">Évènements</span>
       {/if}
@@ -80,11 +78,7 @@ function toggleMobileMenu() {
       title={collapsed ? "Entités" : undefined}
     >
       <!-- icône bâtiment -->
-      <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 20 20" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true" class="shrink-0">
-        <rect x="3" y="7" width="14" height="11" rx="1" />
-        <path d="M6 7V5a4 4 0 0 1 8 0v2" />
-        <rect x="8" y="11" width="4" height="7" />
-      </svg>
+      <BuildingOutline class="shrink-0" />
       {#if !collapsed}
         <span class="text-sm font-medium whitespace-nowrap">Entités</span>
       {/if}
@@ -100,11 +94,7 @@ function toggleMobileMenu() {
       title={collapsed ? "Quitter l'administration" : undefined}
     >
       <!-- icône flèche sortie -->
-      <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true" class="shrink-0">
-        <path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4" />
-        <polyline points="16 17 21 12 16 7" />
-        <line x1="21" y1="12" x2="9" y2="12" />
-      </svg>
+      <ArrowRightToBracketOutline class="shrink-0" />
       {#if !collapsed}
         <span class="text-sm font-medium whitespace-nowrap">Quitter l'administration</span>
       {/if}
@@ -116,15 +106,9 @@ function toggleMobileMenu() {
 <div class="md:hidden fixed top-0 left-0 right-0 z-30 bg-gray-900 text-white h-12 flex items-center px-4 gap-4">
   <button onclick={toggleMobileMenu} class="p-1" aria-label={mobileOpen ? "Fermer le menu" : "Ouvrir le menu"}>
     {#if mobileOpen}
-      <!-- X -->
-      <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
-        <path d="M18 6L6 18M6 6l12 12" />
-      </svg>
+      <CloseOutline />
     {:else}
-      <!-- Hamburger -->
-      <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
-        <path d="M3 12h18M3 6h18M3 18h18" />
-      </svg>
+      <BarsOutline />
     {/if}
   </button>
   <span class="font-semibold text-sm">Administration</span>
@@ -143,10 +127,7 @@ function toggleMobileMenu() {
       onclick={toggleMobileMenu}
       class="flex items-center gap-3 px-4 py-3 hover:bg-gray-700"
     >
-      <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
-        <path d="M3 9.5L10 3l7 6.5V19a1 1 0 0 1-1 1H4a1 1 0 0 1-1-1V9.5z" />
-        <path d="M8 20V13h4v7" />
-      </svg>
+      <HomeOutline />
       Accueil
     </a>
     <a
@@ -154,11 +135,7 @@ function toggleMobileMenu() {
       onclick={toggleMobileMenu}
       class="flex items-center gap-3 px-4 py-3 hover:bg-gray-700"
     >
-      <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 20 20" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
-        <circle cx="10" cy="10" r="8" />
-        <circle cx="10" cy="10" r="4" />
-        <circle cx="10" cy="10" r="1" fill="currentColor" stroke="none" />
-      </svg>
+      <AwardOutline />
       Évènements
     </a>
     <a
@@ -166,11 +143,7 @@ function toggleMobileMenu() {
       onclick={toggleMobileMenu}
       class="flex items-center gap-3 px-4 py-3 hover:bg-gray-700"
     >
-      <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 20 20" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
-        <rect x="3" y="7" width="14" height="11" rx="1" />
-        <path d="M6 7V5a4 4 0 0 1 8 0v2" />
-        <rect x="8" y="11" width="4" height="7" />
-      </svg>
+      <BuildingOutline />
       Entités
     </a>
     <div class="border-t border-gray-700 mt-1 pt-1">
@@ -179,11 +152,7 @@ function toggleMobileMenu() {
         onclick={toggleMobileMenu}
         class="flex items-center gap-3 px-4 py-3 hover:bg-red-900/40 text-red-400"
       >
-        <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
-          <path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4" />
-          <polyline points="16 17 21 12 16 7" />
-          <line x1="21" y1="12" x2="9" y2="12" />
-        </svg>
+        <ArrowRightToBracketOutline />
         Quitter l'administration
       </a>
     </div>
