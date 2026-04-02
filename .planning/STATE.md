@@ -2,15 +2,15 @@
 gsd_state_version: 1.0
 milestone: v1.0
 milestone_name: milestone
-status: completed
-stopped_at: Phase 4 UI-SPEC approved
-last_updated: "2026-04-02T20:24:19.089Z"
-last_activity: "2026-03-30 - Completed plan 06: cross-tournament check-in flow"
+status: executing
+stopped_at: Completed 04-01-PLAN.md
+last_updated: "2026-04-02T21:08:01.903Z"
+last_activity: 2026-04-02
 progress:
   total_phases: 8
   completed_phases: 5
-  total_plans: 28
-  completed_plans: 27
+  total_plans: 33
+  completed_plans: 28
   percent: 60
 ---
 
@@ -21,14 +21,14 @@ progress:
 See: .planning/PROJECT.md (updated 2026-02-28)
 
 **Core value:** Permettre a un organisateur de creer un tournoi complexe, de le lancer, et que le systeme gere automatiquement la generation des matchs et le suivi des resultats jusqu'aux classements finaux.
-**Current focus:** Phase 3 — Player Registration
+**Current focus:** Phase 04 — launch-and-match-generation
 
 ## Current Position
 
-Phase: 03-player-registration — plan 06 complete (PHASE COMPLETE)
-Plan: 03-06 complete (cross-tournament check-in flow — day buttons, checkin page, CheckinRegistrationModal)
-Status: 03-06 complete — check-in page at /admin/events/[id]/checkin?date= with progress bar, search, filter, doubles sync
-Last activity: 2026-03-30 - Completed plan 06: cross-tournament check-in flow
+Phase: 04 (launch-and-match-generation) — EXECUTING
+Plan: 2 of 6
+Status: Ready to execute
+Last activity: 2026-04-02
 
 Progress: [████░░░░░░] 60% (24/40 plans estimated)
 
@@ -69,6 +69,7 @@ Progress: [████░░░░░░] 60% (24/40 plans estimated)
 | Phase 03.2-player-profile P03 | 3 | 2 tasks | 3 files |
 | Phase 03.2-player-profile P02 | 2 | 2 tasks | 8 files |
 | Phase 03-player-registration P06 | 7 | 3 tasks | 9 files |
+| Phase 04 P01 | 5 | 2 tasks | 4 files |
 
 ## Accumulated Context
 
@@ -156,6 +157,9 @@ Progress: [████░░░░░░] 60% (24/40 plans estimated)
 - [03-06]: CheckinRegistrationModal uses /api/tournament/register (existing endpoint) not a new per-tournament admin endpoint — avoids endpoint proliferation
 - [03-06]: register endpoint RETURNING id — fully backwards-compatible, callers that ignore response body are unaffected
 - [03-06]: syncPartners() loops all players scanning registration_id — doubles partner row updates instantly without page reload
+- [Phase 04]: [04-01] advances_to_slot TEXT ('a'|'b') separate from advances_to_match_id — Phase 5 needs to know which slot winner fills in next match
+- [Phase 04]: [04-01] phase.tiers JSONB not dropped — wizard still uses it; plan 04-04 will migrate to phase_tier table
+- [Phase 04]: [04-01] MatchInsertRowSchema (no score/created_at) for generators; MatchRowSchema extends with DB-only fields for reads
 
 ### Roadmap Evolution
 
@@ -192,6 +196,6 @@ Progress: [████░░░░░░] 60% (24/40 plans estimated)
 
 ## Session Continuity
 
-Last session: 2026-04-02T20:24:19.084Z
-Stopped at: Phase 4 UI-SPEC approved
-Resume file: .planning/phases/04-launch-and-match-generation/04-UI-SPEC.md
+Last session: 2026-04-02T21:08:01.899Z
+Stopped at: Completed 04-01-PLAN.md
+Resume file: None

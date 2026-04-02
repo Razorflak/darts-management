@@ -37,9 +37,9 @@
 ### LAUNCH — Lancement & Génération
 
 - [ ] **LAUNCH-01**: L'admin tournoi peut lancer un tournoi (verrouille la configuration)
-- [ ] **LAUNCH-02**: Au lancement, le système génère tous les matchs de toutes les phases (round-robin, poules double KO, brackets d'élimination à vide)
-- [ ] **LAUNCH-03**: La génération est atomique — tout réussit ou tout échoue (transaction PostgreSQL)
-- [ ] **LAUNCH-04**: Le format set/manche est configurable par phase avant le lancement
+- [x] **LAUNCH-02**: Au lancement, le système génère tous les matchs de toutes les phases (round-robin, poules double KO, brackets d'élimination à vide)
+- [x] **LAUNCH-03**: La génération est atomique — tout réussit ou tout échoue (transaction PostgreSQL)
+- [x] **LAUNCH-04**: Le format set/manche est configurable par phase avant le lancement
 - [ ] **LAUNCH-05**: Si l'assignation d'arbitres est activée, le système assigne automatiquement un arbitre à chaque match (joueur inscrit au même tournoi, ne jouant pas ce match)
 
 ### RESULT — Saisie & Avancement
@@ -102,9 +102,9 @@
 | PLAYER-03 | Phase 3 — Player Registration | Complete |
 | PLAYER-04 | Phase 3 — Player Registration | Complete |
 | LAUNCH-01 | Phase 4 — Launch and Match Generation | Pending |
-| LAUNCH-02 | Phase 4 — Launch and Match Generation | Pending |
-| LAUNCH-03 | Phase 4 — Launch and Match Generation | Pending |
-| LAUNCH-04 | Phase 4 — Launch and Match Generation | Pending |
+| LAUNCH-02 | Phase 4 — Launch and Match Generation | Complete |
+| LAUNCH-03 | Phase 4 — Launch and Match Generation | Complete |
+| LAUNCH-04 | Phase 4 — Launch and Match Generation | Complete |
 | LAUNCH-05 | Phase 4 — Launch and Match Generation | Pending |
 | RESULT-01 | Phase 5 — Results and Advancement | Pending |
 | RESULT-02 | Phase 5 — Results and Advancement | Pending |
