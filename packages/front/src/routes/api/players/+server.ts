@@ -1,7 +1,7 @@
+import { playerRepository } from "@darts-management/db"
+import { formatPlayerInfo } from "@darts-management/domain"
 import { error, json } from "@sveltejs/kit"
 import { z } from "zod"
-import { formatPlayerInfo } from "@darts-management/domain"
-import { playerRepository } from "@darts-management/db"
 import type { RequestHandler } from "./$types"
 
 const CreatePlayerSchema = z.object({

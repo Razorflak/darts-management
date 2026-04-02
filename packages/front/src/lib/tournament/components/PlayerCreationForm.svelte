@@ -1,5 +1,5 @@
 <script lang="ts">
-import { Alert, Button, Input, Label } from "flowbite-svelte"
+import { Alert, Button, Datepicker, Input, Label } from "flowbite-svelte"
 import { InfoCircleSolid } from "flowbite-svelte-icons"
 import DepartmentSelect from "./DepartmentSelect.svelte"
 
@@ -7,7 +7,7 @@ type Values = {
 	first_name?: string | null
 	last_name?: string | null
 	department?: string | null
-	birth_date?: string | null
+	birth_date?: Date | null
 	licence_no?: string | null
 }
 
@@ -21,6 +21,7 @@ type Props = {
 let { values = {}, submitLabel, showLicence = true, form }: Props = $props()
 
 let department = $state(values?.department ?? "")
+let birthDate = $state<Date | undefined>(values?.birth_date ?? undefined)
 </script>
 
 {#if form?.error}
@@ -63,11 +64,12 @@ let department = $state(values?.department ?? "")
 
 	<div>
 		<Label for="birth_date" class="mb-2">Date de naissance</Label>
-		<Input
-			id="birth_date"
-			name="birth_date"
-			type="date"
-			value={form?.values?.birth_date ?? values?.birth_date ?? ""}
+		<input type="hidden" name="birth_date" value={birthDate ? `${birthDate.getFullYear()}-${String(birthDate.getMonth() + 1).padStart(2, "0")}-${String(birthDate.getDate()).padStart(2, "0")}` : ""} />
+		<Datepicker
+			bind:value={birthDate}
+			locale="fr-FR"
+			firstDayOfWeek={1}
+			placeholder="jj/mm/aaaa"
 		/>
 	</div>
 

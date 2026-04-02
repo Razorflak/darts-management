@@ -4,14 +4,9 @@ import type { PageData } from "./$types"
 
 let { data }: { data: PageData } = $props()
 
-function formatBirthDate(dateStr: string | null): string {
-	if (!dateStr) return "Non renseignée"
-	const d = new Date(dateStr)
-	return d.toLocaleDateString("fr-FR", {
-		day: "numeric",
-		month: "long",
-		year: "numeric",
-	})
+function formatBirthDate(date: Date | null): string {
+	if (!date) return "Non renseignée"
+	return date.toLocaleDateString("fr-FR", { day: "numeric", month: "long", year: "numeric", timeZone: "UTC" })
 }
 </script>
 

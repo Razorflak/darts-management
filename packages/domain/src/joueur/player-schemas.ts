@@ -5,7 +5,7 @@ export const PlayerSchema = z.object({
 	user_id: z.string().nullable(),
 	first_name: z.string(),
 	last_name: z.string(),
-	birth_date: z.string().nullable(), // DATE returned as text from postgres, nullable
+	birth_date: z.coerce.date().nullable(),
 	licence_no: z.string().nullable(),
 	department: z.string(),
 })

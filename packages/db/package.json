@@ -10,6 +10,7 @@
 		"db:migrate": "node-pg-migrate up --database-url-var DATABASE_URL --migrations-dir src/schema",
 		"db:migrate:dev": "node-pg-migrate up --database-url-var DATABASE_URL --migrations-dir src/schema",
 		"db:migrate:create": "node-pg-migrate create --migrations-dir src/schema",
+		"db:seed": "psql $DATABASE_URL -f src/seeds/seed_dev.sql",
 		"typecheck": "tsc --noEmit",
 		"lint": "biome check .",
 		"format": "biome format --write ."

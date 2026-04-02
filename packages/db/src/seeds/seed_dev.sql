@@ -1,4 +1,4 @@
--- DEV SEED -- run manually: psql $DATABASE_URL -f packages/db/src/schema/003_seed_dev.sql
+-- DEV SEED -- run manually: psql $DATABASE_URL -f packages/db/src/seeds/seed_dev.sql
 -- NOT a node-pg-migrate migration file
 -- Populates: 1 federation, 2 ligues, 4 comites, 3 clubs, 4 test users with distinct roles
 

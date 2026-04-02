@@ -1,6 +1,6 @@
+import { tournamentRepository } from "@darts-management/db"
 import { json } from "@sveltejs/kit"
 import { z } from "zod"
-import { tournamentRepository } from "@darts-management/db"
 import type { RequestHandler } from "./$types"
 
 const CheckinAllRequestSchema = z.object({

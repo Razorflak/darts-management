@@ -1,8 +1,12 @@
 import { getOrCreatePlayer, registerTeam } from "@darts-management/application"
-import { MinimalPlayerSchema, PlayerSchema } from "@darts-management/domain"
+import {
+	errors,
+	getJsonStringError,
+	MinimalPlayerSchema,
+	PlayerSchema,
+} from "@darts-management/domain"
 import { error, json } from "@sveltejs/kit"
 import { z } from "zod"
-import { errors, getJsonStringError } from "$lib/error"
 import type { RequestHandler } from "./$types"
 
 const RegistrationRequestSchema = z.object({
@@ -34,10 +38,10 @@ export const POST: RequestHandler = async ({ request }) => {
 		if (err instanceof Error) {
 			if (err.message.startsWith("AlreadyRegistered:")) {
 				const name = err.message.slice("AlreadyRegistered:".length)
-				error(409, `Le joueur ${name} est déjà inscrit à ce tournoi`)
+				return error(409, getJsonStringError(errors.ERR_0009, name))
 			}
 			if (err.message === "TeamAlreadyRegistered")
-				error(409, "Équipe déjà inscrite")
+				return error(409, getJsonStringError(errors.ERR_0008))
 		}
 		throw err
 	}

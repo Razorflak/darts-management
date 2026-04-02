@@ -142,6 +142,27 @@ const internalRepoPlayer = {
 		`
 		return { created: true }
 	},
+
+	updateProfile: async (
+		sql: Sql,
+		playerId: string,
+		data: {
+			first_name: string
+			last_name: string
+			department: string
+			birth_date: Date | null
+		},
+	): Promise<void> => {
+		const formatted = formatPlayerInfo(data)
+		await sql`
+			UPDATE player
+			SET first_name = ${formatted.first_name},
+			    last_name  = ${formatted.last_name},
+			    department = ${formatted.department},
+			    birth_date = ${data.birth_date ?? null}
+			WHERE id = ${playerId}
+		`
+	},
 }
 
 export const playerRepository = createRepository(defaultSql, internalRepoPlayer)

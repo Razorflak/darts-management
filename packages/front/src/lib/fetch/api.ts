@@ -24,4 +24,8 @@ export const apiRoutes = {
 		method: ["POST"],
 		path: "/api/players/create-player-profile",
 	},
+	PLAYERS_UPDATE_PROFILE: {
+		method: ["PUT"],
+		path: "/api/players/profile",
+	},
 }

@@ -1,3 +1,4 @@
+export * from "./errors.js"
 export * from "./inscription/schemas.js"
 export * from "./joueur/format.js"
 export * from "./joueur/schemas.js"
