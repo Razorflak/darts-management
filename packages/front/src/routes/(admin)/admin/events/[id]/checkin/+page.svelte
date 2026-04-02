@@ -18,7 +18,7 @@ import type {
 	CheckinRegistration,
 } from "$lib/server/schemas/event-schemas.js"
 import type { PageData } from "./$types"
-import CheckinRegistrationModal from "./CheckinRegistrationModal.svelte"
+import RegistrationModal from "$lib/tournament/components/RegistrationModal.svelte"
 
 let { data }: { data: PageData } = $props()
 
@@ -281,5 +281,5 @@ async function toggleRegistration(p: CheckinPlayer, reg: CheckinRegistration) {
 {/if}
 
 {#if modalOpen}
-	<CheckinRegistrationModal bind:open={modalOpen} eventTournaments={data.eventTournaments} />
+	<RegistrationModal bind:open={modalOpen} eventTournaments={data.eventTournaments} immediateCheckin />
 {/if}

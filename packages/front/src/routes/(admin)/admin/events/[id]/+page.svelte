@@ -19,9 +19,12 @@ import {
 	TOURNAMENT_STATUS_LABELS,
 } from "$lib/tournament/labels"
 import type { CheckinDay } from "$lib/server/schemas/event-schemas.js"
+import RegistrationModal from "$lib/tournament/components/RegistrationModal.svelte"
 import type { PageData } from "./$types"
 
 let { data }: { data: PageData } = $props()
+
+let registrationModalOpen = $state(false)
 
 async function startDayCheckin(day: CheckinDay) {
 	if (day.any_ready) {
@@ -67,12 +70,17 @@ async function startDayCheckin(day: CheckinDay) {
 			<Badge color={EVENT_DETAIL_STATUS_COLORS[data.event.status]}>{data.event.status}</Badge>
 		</div>
 	</div>
-	<Button href="/admin/events/{data.event.id}/edit" color="light" size="sm"
-		>Modifier l'événement</Button
-	>
+	<div class="flex gap-2">
+		<Button onclick={() => (registrationModalOpen = true)} color="primary" size="sm">Inscrire un joueur</Button>
+		<Button href="/admin/events/{data.event.id}/edit" color="light" size="sm">Modifier l'événement</Button>
+	</div>
 </div>
 
 <!-- Day check-in buttons -->
+{#if registrationModalOpen}
+	<RegistrationModal bind:open={registrationModalOpen} eventTournaments={data.tournaments} />
+{/if}
+
 {#if data.checkinDays.length > 0}
 	<div class="mb-6">
 		<h2 class="mb-3 text-base font-semibold text-gray-800">Check-in par journée</h2>

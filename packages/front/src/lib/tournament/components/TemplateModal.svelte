@@ -1,7 +1,7 @@
 <script lang="ts">
 import { Button, Datepicker, Modal } from "flowbite-svelte"
 import type { DraftEvent } from "$lib/server/schemas/event-schemas.js"
-import { gendUuidv7 } from "$lib/utils/uuid.js"
+import { generateUuid } from "$lib/utils/uuid.js"
 import { EVENT_TEMPLATES } from "../templates.js"
 
 interface Props {
@@ -49,13 +49,13 @@ function apply() {
 	const draftEvent = selectedTemplate.event
 
 	// Création de tous les id
-	draftEvent.id = gendUuidv7()
+	draftEvent.id = generateUuid()
 	draftEvent.tournaments?.forEach((t) => {
-		const tournamentId = gendUuidv7()
+		const tournamentId = generateUuid()
 		t.id = tournamentId
 		t.start_at = t.start_at ? setTimeToDate(t.start_at, startDate) : startDate
 		t.phases?.forEach((p) => {
-			p.id = gendUuidv7()
+			p.id = generateUuid()
 			p.tournament_id = tournamentId
 		})
 	})

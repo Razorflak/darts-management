@@ -14,7 +14,7 @@ import TemplateModal from "$lib/tournament/components/TemplateModal.svelte"
 import TournamentStep from "$lib/tournament/components/TournamentStep.svelte"
 import type { WizardStep } from "$lib/tournament/types.js"
 import { createBlankTournament } from "$lib/tournament/utils.js"
-import { gendUuidv7 } from "$lib/utils/uuid"
+import { generateUuid } from "$lib/utils/uuid"
 
 let { data } = $props()
 
@@ -24,7 +24,7 @@ let saveError = $state<string | null>(null)
 let publishError = $state<string | null>(null)
 
 let event = $state<DraftEvent>({
-	id: gendUuidv7(),
+	id: generateUuid(),
 	status: "draft",
 	name: "",
 	location: "",

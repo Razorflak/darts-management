@@ -6,7 +6,7 @@ import type {
 	GroupPhase,
 	PhaseType,
 } from "$lib/server/schemas/event-schemas.js"
-import { gendUuidv7 } from "$lib/utils/uuid.js"
+import { generateUuid } from "$lib/utils/uuid.js"
 
 export function genId(): string {
 	return Math.random().toString(36).slice(2, 10)
@@ -26,7 +26,7 @@ export function toLocalDateISO(d: Date): string {
 
 export function createBlankTournament(): DraftTournament {
 	return {
-		id: gendUuidv7(),
+		id: generateUuid(),
 		name: "",
 		phases: [],
 		auto_referee: true,
@@ -40,7 +40,7 @@ export function createGroupPhase(
 	position: number,
 ): GroupPhase {
 	return {
-		id: gendUuidv7(),
+		id: generateUuid(),
 		type,
 		players_per_group: 4,
 		tournament_id,
@@ -55,7 +55,7 @@ export function createEliminationPhase(
 	position: number,
 ): EliminationPhase {
 	return {
-		id: gendUuidv7(),
+		id: generateUuid(),
 		type,
 		tiers: [],
 		tournament_id,

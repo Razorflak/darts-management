@@ -33,6 +33,11 @@ export function createAuth(sql: postgres.Sql, config: AuthConfig) {
 	return betterAuth({
 		secret: config.secret,
 		...(config.baseURL ? { baseURL: config.baseURL } : {}),
+		advanced: {
+			database: {
+				generateId: () => crypto.randomUUID(),
+			},
+		},
 		database: {
 			dialect: new PostgresJSDialect({ postgres: sql }),
 			type: "postgresql",

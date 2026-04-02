@@ -1,9 +1,9 @@
 import { redirect } from "@sveltejs/kit"
 import { z } from "zod"
-import { sql } from "$lib/server/db"
 import { getUserRoles } from "$lib/server/authz"
-import type { PageServerLoad } from "./$types"
+import { sql } from "$lib/server/db"
 import { EntitySchema } from "$lib/server/schemas/event-schemas.js"
+import type { PageServerLoad } from "./$types"
 
 export const load: PageServerLoad = async ({ locals }) => {
 	if (!locals.user) redirect(302, "/login")
@@ -21,6 +21,7 @@ export const load: PageServerLoad = async ({ locals }) => {
 		.map((r) => r.entityId)
 
 	if (entityIds.length === 0) return { entities: [] }
+	console.log("JTa", entityIds)
 
 	const entities = z.array(EntitySchema).parse(
 		await sql<Record<string, unknown>[]>`

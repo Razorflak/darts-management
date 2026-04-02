@@ -8,9 +8,11 @@ import PlayerSelector from "./PlayerSelector.svelte"
 let {
 	open = $bindable(true),
 	eventTournaments,
+	immediateCheckin = false,
 }: {
 	open: boolean
 	eventTournaments: { id: string; name: string; category: string }[]
+	immediateCheckin?: boolean
 } = $props()
 
 // Category splitting
@@ -137,15 +139,17 @@ async function submit() {
 			}
 		}
 
-		// Immediate check-in for all registrations just created.
-		const regIds = registered.map((r) => r.registrationId)
-		if (regIds.length > 0) {
-			await fetch(apiRoutes.TOURNAMENT_CHECKIN.path, {
-				method: "POST",
-				headers: { "Content-Type": "application/json" },
-				body: JSON.stringify({ registration_ids: regIds, checked_in: true }),
-			})
-			// Check-in failure is non-blocking (players are registered; check-in can be done manually)
+		// Immediate check-in for all registrations just created (checkin screen only).
+		if (immediateCheckin) {
+			const regIds = registered.map((r) => r.registrationId)
+			if (regIds.length > 0) {
+				await fetch(apiRoutes.TOURNAMENT_CHECKIN.path, {
+					method: "POST",
+					headers: { "Content-Type": "application/json" },
+					body: JSON.stringify({ registration_ids: regIds, checked_in: true }),
+				})
+				// Check-in failure is non-blocking (players are registered; check-in can be done manually)
+			}
 		}
 
 		await invalidateAll()
