@@ -61,3 +61,13 @@ export const PhaseSchema = z.discriminatedUnion("type", [
 	//SwissPhaseSchema
 ])
 export type Phase = z.infer<typeof PhaseSchema>
+
+export const PhaseTierSchema = z.object({
+	id: z.uuid(),
+	phase_id: z.uuid(),
+	position: z.number().int(),
+	sets_to_win: z.number().int().positive(),
+	legs_per_set: z.number().int().positive(),
+	qualifiers_count: z.number().int().nullable(),
+})
+export type PhaseTier = z.infer<typeof PhaseTierSchema>
