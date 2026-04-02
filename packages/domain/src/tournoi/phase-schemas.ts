@@ -38,6 +38,8 @@ export const GroupPhaseSchema = CommonPhaseSchema.extend({
 	type: z.enum(["round_robin", "double_loss_groups"]),
 	players_per_group: z.number().int(),
 	qualifiers_per_group: z.number().int(),
+	sets_to_win: z.number().int().positive().default(2),
+	legs_per_set: z.number().int().positive().default(3),
 })
 export type GroupPhase = z.infer<typeof GroupPhaseSchema>
 

@@ -25,8 +25,8 @@ async function insertPhases(
 		const p = phases[i]
 		if (isGroupPhase(p)) {
 			await sql`
-				INSERT INTO phase (id, tournament_id, position, type, players_per_group, qualifiers_per_group)
-				VALUES (${p.id}, ${tournamentId}, ${i}, ${p.type}, ${p.players_per_group}, ${p.qualifiers_per_group})
+				INSERT INTO phase (id, tournament_id, position, type, players_per_group, qualifiers_per_group, sets_to_win, legs_per_set)
+				VALUES (${p.id}, ${tournamentId}, ${i}, ${p.type}, ${p.players_per_group}, ${p.qualifiers_per_group}, ${p.sets_to_win ?? 2}, ${p.legs_per_set ?? 3})
 			`
 		} else {
 			const ep = p as EliminationPhase

@@ -46,6 +46,8 @@ export function createGroupPhase(
 		tournament_id,
 		position,
 		qualifiers_per_group: 2,
+		sets_to_win: 2,
+		legs_per_set: 3,
 	}
 }
 

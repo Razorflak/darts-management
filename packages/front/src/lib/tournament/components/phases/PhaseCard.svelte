@@ -106,6 +106,33 @@ function isEliminationPhase(p: Phase): p is EliminationPhase {
 					/>
 				</div>
 			</div>
+			<!-- Match format for group phases -->
+			<div class="grid grid-cols-2 gap-4 mt-3">
+				<div>
+					<Label for="phase-sets-{phase.id}" class="mb-2">Sets gagnants</Label>
+					<Input
+						id="phase-sets-{phase.id}"
+						type="number"
+						bind:value={phase.sets_to_win}
+						min="1"
+						max="5"
+						disabled={disabled}
+						class="text-center"
+					/>
+				</div>
+				<div>
+					<Label for="phase-legs-{phase.id}" class="mb-2">Legs par set</Label>
+					<Input
+						id="phase-legs-{phase.id}"
+						type="number"
+						bind:value={phase.legs_per_set}
+						min="1"
+						max="9"
+						disabled={disabled}
+						class="text-center"
+					/>
+				</div>
+			</div>
 		</div>
 	{/if}
 
