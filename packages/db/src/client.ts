@@ -1,4 +1,8 @@
+import { setDefaultResultOrder } from "node:dns"
 import postgres from "postgres"
+
+// Résout les soucis de perf vers supaBase
+setDefaultResultOrder("ipv6first")
 
 export function createSql(databaseUrl: string): postgres.Sql {
 	const isPooler = databaseUrl.includes(":6543")
@@ -7,7 +11,7 @@ export function createSql(databaseUrl: string): postgres.Sql {
 		max: 5,
 		idle_timeout: 20,
 		max_lifetime: 1800,
-		prepare: !isPooler, // les prepared statements sont incompatibles avec le pooler Transaction (port 6543)
+		prepare: !isPooler,
 	})
 }
 

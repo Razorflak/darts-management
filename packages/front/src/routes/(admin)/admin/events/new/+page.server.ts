@@ -21,7 +21,6 @@ export const load: PageServerLoad = async ({ locals }) => {
 		.map((r) => r.entityId)
 
 	if (entityIds.length === 0) return { entities: [] }
-	console.log("JTa", entityIds)
 
 	const entities = z.array(EntitySchema).parse(
 		await sql<Record<string, unknown>[]>`

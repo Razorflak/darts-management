@@ -45,6 +45,6 @@ export async function saveDraftEvent(
 			userId,
 		)
 
-		await tournamentRepo.upsertTournaments(event.id, event.tournaments)
+		await tournamentRepo.upsertTournamentsBatch(event.id, event.tournaments)
 	})
 }

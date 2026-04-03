@@ -53,6 +53,7 @@ function apply() {
 	draftEvent.tournaments?.forEach((t) => {
 		const tournamentId = generateUuid()
 		t.id = tournamentId
+		t.status = "ready"
 		t.start_at = t.start_at ? setTimeToDate(t.start_at, startDate) : startDate
 		t.phases?.forEach((p) => {
 			p.id = generateUuid()

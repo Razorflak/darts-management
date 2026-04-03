@@ -14,6 +14,7 @@ import PublishStep from "$lib/tournament/components/PublishStep.svelte"
 import TemplateModal from "$lib/tournament/components/TemplateModal.svelte"
 import TournamentStep from "$lib/tournament/components/TournamentStep.svelte"
 import type { WizardStep } from "$lib/tournament/types.js"
+import { toLocalDateISO } from "$lib/tournament/utils.js"
 
 let { data } = $props()
 
@@ -39,10 +40,16 @@ async function save() {
 	saving = true
 	saveError = null
 	try {
+		const s = (d: Date | undefined) => (d ? toLocalDateISO(d) : undefined)
 		const res = await fetch(apiRoutes.EVENT_SAVE.path, {
 			method: "POST",
 			headers: { "content-type": "application/json" },
-			body: JSON.stringify(event),
+			body: JSON.stringify({
+				...event,
+				starts_at: s(event.starts_at),
+				ends_at: s(event.ends_at),
+				registration_opens_at: s(event.registration_opens_at),
+			}),
 		})
 		const json = await res.json()
 		if (!res.ok) {
@@ -59,10 +66,16 @@ async function publish() {
 	publishError = null
 	saving = true
 	try {
+		const s = (d: Date | undefined) => (d ? toLocalDateISO(d) : undefined)
 		const res = await fetch(apiRoutes.EVENT_PUBLISH.path, {
 			method: "POST",
 			headers: { "content-type": "application/json" },
-			body: JSON.stringify(event),
+			body: JSON.stringify({
+				...event,
+				starts_at: s(event.starts_at),
+				ends_at: s(event.ends_at),
+				registration_opens_at: s(event.registration_opens_at),
+			}),
 		})
 		const json = await res.json()
 		if (res.ok) {

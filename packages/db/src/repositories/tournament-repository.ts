@@ -21,6 +21,7 @@ async function insertPhases(
 	phases: Phase[],
 ): Promise<void> {
 	await sql`DELETE FROM phase WHERE tournament_id = ${tournamentId}`
+
 	for (let i = 0; i < phases.length; i++) {
 		const p = phases[i]
 		if (isGroupPhase(p)) {
@@ -34,11 +35,138 @@ async function insertPhases(
 				INSERT INTO phase (id, tournament_id, position, type, qualifiers_count, tiers)
 				VALUES (${ep.id}, ${tournamentId}, ${i}, ${ep.type}, ${ep.qualifiers_count}, ${JSON.stringify(ep.tiers)})
 			`
+
+			for (let j = 0; j < ep.tiers.length; j++) {
+				const tier = ep.tiers[j]
+				await sql`
+					INSERT INTO phase_tier (phase_id, position, sets_to_win, legs_per_set)
+					VALUES (${ep.id}, ${j}, 2, ${tier.legs})
+				`
+			}
 		}
 	}
 }
 
 const internalRepoTournament = {
+	upsertTournamentsBatch: async (
+		sql: Sql,
+		eventId: string,
+		tournaments: DraftTournament[],
+	): Promise<void> => {
+		// 1. Bulk upsert all tournaments via ON CONFLICT (no SELECT needed)
+		if (tournaments.length > 0) {
+			const tournamentRows = tournaments.map((t) => ({
+				id: t.id,
+				event_id: eventId,
+				name: t.name,
+				category: t.category ?? null,
+				start_at: t.start_at ?? null,
+				auto_referee: t.auto_referee ?? false,
+				check_in_required: t.check_in_required ?? false,
+			}))
+			await sql`
+				INSERT INTO tournament ${sql(tournamentRows)}
+				ON CONFLICT (id) DO UPDATE SET
+					name              = EXCLUDED.name,
+					category          = EXCLUDED.category,
+					start_at          = EXCLUDED.start_at,
+					auto_referee      = EXCLUDED.auto_referee,
+					check_in_required = EXCLUDED.check_in_required,
+					updated_at        = now()
+			`
+		}
+
+		// 2. Delete all phases for these tournaments at once, then batch insert
+		const tournamentIds = tournaments.map((t) => t.id)
+		if (tournamentIds.length > 0) {
+			await sql`DELETE FROM phase WHERE tournament_id = ANY(${tournamentIds})`
+
+			const groupPhaseRows: {
+				id: string
+				tournament_id: string
+				position: number
+				type: string
+				players_per_group: number
+				qualifiers_per_group: number
+				sets_to_win: number
+				legs_per_set: number
+			}[] = []
+
+			const eliminationPhaseRows: {
+				id: string
+				tournament_id: string
+				position: number
+				type: string
+				qualifiers_count: number
+				tiers: string
+			}[] = []
+
+			const tierRows: {
+				phase_id: string
+				position: number
+				sets_to_win: number
+				legs_per_set: number
+			}[] = []
+
+			for (const t of tournaments) {
+				for (let i = 0; i < t.phases.length; i++) {
+					const p = t.phases[i]
+					if (isGroupPhase(p)) {
+						groupPhaseRows.push({
+							id: p.id,
+							tournament_id: t.id,
+							position: i,
+							type: p.type,
+							players_per_group: p.players_per_group,
+							qualifiers_per_group: p.qualifiers_per_group,
+							sets_to_win: p.sets_to_win ?? 2,
+							legs_per_set: p.legs_per_set ?? 3,
+						})
+					} else {
+						const ep = p as EliminationPhase
+						eliminationPhaseRows.push({
+							id: ep.id,
+							tournament_id: t.id,
+							position: i,
+							type: ep.type,
+							qualifiers_count: ep.qualifiers_count,
+							tiers: JSON.stringify(ep.tiers),
+						})
+						for (let j = 0; j < ep.tiers.length; j++) {
+							tierRows.push({
+								phase_id: ep.id,
+								position: j,
+								sets_to_win: 2,
+								legs_per_set: ep.tiers[j].legs,
+							})
+						}
+					}
+				}
+			}
+
+			if (groupPhaseRows.length > 0) {
+				await sql`INSERT INTO phase ${sql(groupPhaseRows)}`
+			}
+			if (eliminationPhaseRows.length > 0) {
+				await sql`INSERT INTO phase ${sql(eliminationPhaseRows)}`
+			}
+			if (tierRows.length > 0) {
+				await sql`INSERT INTO phase_tier ${sql(tierRows)}`
+			}
+		}
+
+		// 3. Remove tournaments no longer in payload (only if no registrations)
+		await sql`
+			DELETE FROM tournament
+			WHERE event_id = ${eventId}
+			  AND id != ALL(${tournamentIds})
+			  AND NOT EXISTS (
+			      SELECT 1 FROM tournament_registration
+			      WHERE tournament_id = tournament.id
+			  )
+		`
+	},
+
 	upsertTournaments: async (
 		sql: Sql,
 		eventId: string,
@@ -47,10 +175,11 @@ const internalRepoTournament = {
 		const existingRows = await sql<
 			{ id: string }[]
 		>`SELECT id FROM tournament WHERE event_id = ${eventId}`
+
 		const existingIds = new Set(existingRows.map((r) => r.id))
 		const payloadIds = new Set(tournaments.map((t) => t.id))
 
-		for (const t of tournaments) {
+		const promises = tournaments.map(async (t) => {
 			if (existingIds.has(t.id)) {
 				await sql`
 					UPDATE tournament SET
@@ -68,8 +197,9 @@ const internalRepoTournament = {
 					VALUES (${t.id}, ${eventId}, ${t.name}, ${t.category ?? null}, ${t.start_at ?? null}, ${t.auto_referee ?? false}, ${t.check_in_required ?? false})
 				`
 			}
-			await insertPhases(sql, t.id, t.phases)
-		}
+			return insertPhases(sql, t.id, t.phases)
+		})
+		await Promise.all(promises)
 
 		for (const existingId of existingIds) {
 			if (!payloadIds.has(existingId)) {

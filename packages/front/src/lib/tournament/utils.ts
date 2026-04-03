@@ -30,6 +30,7 @@ export function createBlankTournament(): DraftTournament {
 		name: "",
 		phases: [],
 		auto_referee: true,
+		status: "ready",
 		check_in_required: false,
 	}
 }
