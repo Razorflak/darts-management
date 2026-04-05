@@ -1,6 +1,10 @@
 import { describe, expect, it } from "vitest"
 import { bergerRounds, generateRoundRobinMatches } from "../round-robin.js"
 
+const phaseId = "550e8400-e29b-41d4-a716-446655440000"
+const tournamentId = "550e8400-e29b-41d4-a716-446655440001"
+const config = { setsToWin: 2, legsPerSet: 3 }
+
 describe("bergerRounds", () => {
 	it("produces N-1 rounds for N even teams (4 teams → 3 rounds)", () => {
 		const rounds = bergerRounds(["A", "B", "C", "D"])
@@ -60,66 +64,123 @@ describe("bergerRounds", () => {
 })
 
 describe("generateRoundRobinMatches", () => {
-	const phaseId = "550e8400-e29b-41d4-a716-446655440000"
-	const config = { setsToWin: 2, legsPerSet: 3 }
-
 	it("2 groups of 3 produces 6 matches total (3 per group)", () => {
 		const groups = [
 			["T1", "T2", "T3"],
 			["T4", "T5", "T6"],
 		]
-		const matches = generateRoundRobinMatches(groups, phaseId, 1, config)
-		expect(matches).toHaveLength(6)
+		const result = generateRoundRobinMatches(
+			groups,
+			phaseId,
+			tournamentId,
+			1,
+			config,
+		)
+		expect(result.matches).toHaveLength(6)
 	})
 
-	it("each match has correct group_number", () => {
+	it("each match has a round_robin_info with correct group_number", () => {
 		const groups = [
 			["T1", "T2", "T3"],
 			["T4", "T5", "T6"],
 		]
-		const matches = generateRoundRobinMatches(groups, phaseId, 1, config)
-		const group0 = matches.filter((m) => m.group_number === 0)
-		const group1 = matches.filter((m) => m.group_number === 1)
-		expect(group0).toHaveLength(3)
-		expect(group1).toHaveLength(3)
+		const result = generateRoundRobinMatches(
+			groups,
+			phaseId,
+			tournamentId,
+			1,
+			config,
+		)
+		const group0Infos = result.roundRobinInfos.filter(
+			(i) => i.group_number === 0,
+		)
+		const group1Infos = result.roundRobinInfos.filter(
+			(i) => i.group_number === 1,
+		)
+		expect(group0Infos).toHaveLength(3)
+		expect(group1Infos).toHaveLength(3)
 	})
 
 	it("event_match_id is assigned sequentially starting from startId", () => {
 		const groups = [["T1", "T2", "T3"]]
-		const matches = generateRoundRobinMatches(groups, phaseId, 5, config)
-		const ids = matches.map((m) => m.event_match_id).sort((a, b) => a - b)
+		const result = generateRoundRobinMatches(
+			groups,
+			phaseId,
+			tournamentId,
+			5,
+			config,
+		)
+		const ids = result.matches
+			.map((m) => m.event_match_id)
+			.sort((a, b) => a - b)
 		expect(ids).toEqual([5, 6, 7])
 	})
 
 	it("each match has correct sets_to_win and legs_per_set from config", () => {
 		const groups = [["T1", "T2"]]
-		const matches = generateRoundRobinMatches(groups, phaseId, 1, config)
-		for (const m of matches) {
+		const result = generateRoundRobinMatches(
+			groups,
+			phaseId,
+			tournamentId,
+			1,
+			config,
+		)
+		for (const m of result.matches) {
 			expect(m.sets_to_win).toBe(2)
 			expect(m.legs_per_set).toBe(3)
 		}
 	})
 
-	it("each match has phase_id, status pending, and null advances_to/referee fields", () => {
+	it("each match has phase_id, status pending, and null referee_team_id", () => {
 		const groups = [["T1", "T2"]]
-		const matches = generateRoundRobinMatches(groups, phaseId, 1, config)
-		for (const m of matches) {
+		const result = generateRoundRobinMatches(
+			groups,
+			phaseId,
+			tournamentId,
+			1,
+			config,
+		)
+		for (const m of result.matches) {
 			expect(m.phase_id).toBe(phaseId)
 			expect(m.status).toBe("pending")
 			expect(m.referee_team_id).toBeNull()
-			expect(m.advances_to_match_id).toBeNull()
-			expect(m.advances_to_slot).toBeNull()
+			expect(m.bracket_info_id).toBeNull()
+			expect(m.round_robin_info_id).not.toBeNull()
 		}
 	})
 
-	it("each match has round_number and position set correctly", () => {
+	it("round_robin_infos have correct round_number and position", () => {
 		const groups = [["T1", "T2", "T3"]]
-		const matches = generateRoundRobinMatches(groups, phaseId, 1, config)
+		const result = generateRoundRobinMatches(
+			groups,
+			phaseId,
+			tournamentId,
+			1,
+			config,
+		)
 		// 3 rounds of 1 match each
-		const roundNums = matches.map((m) => m.round_number).sort((a, b) => a - b)
+		const roundNums = result.roundRobinInfos
+			.map((i) => i.round_number)
+			.sort((a, b) => a - b)
 		expect(roundNums).toEqual([0, 1, 2])
-		for (const m of matches) {
-			expect(m.position).toBe(0)
+		for (const i of result.roundRobinInfos) {
+			expect(i.position).toBe(0)
+		}
+	})
+
+	it("round_robin_infos have slot_a and slot_b set (1-based seeds)", () => {
+		const groups = [["T1", "T2", "T3", "T4"]]
+		const result = generateRoundRobinMatches(
+			groups,
+			phaseId,
+			tournamentId,
+			1,
+			config,
+		)
+		for (const info of result.roundRobinInfos) {
+			expect(info.slot_a).toBeGreaterThan(0)
+			expect(info.slot_b).toBeGreaterThan(0)
+			expect(info.slot_a).not.toBe(info.slot_b)
 		}
 	})
 })

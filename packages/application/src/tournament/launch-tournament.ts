@@ -5,11 +5,12 @@ import {
 } from "@darts-management/db"
 import {
 	assignReferees,
-	generateDoubleKoGroupMatches,
-	generateRoundRobinMatches,
-	generateSingleEliminationBracket,
-	type MatchInsertRow,
-	snakeDistribute,
+	assignTeamsToPhase0,
+	type GeneratorResult,
+	generateDoubleKoStructure,
+	generateRoundRobinStructure,
+	generateSingleEliminationStructure,
+	PHASE_FORMAT_DEFAULTS,
 } from "@darts-management/domain"
 
 type Sql = typeof sql
@@ -70,53 +71,69 @@ export async function launchTournament(
 		)
 		let nextEventMatchId = maxEventMatchId + 1
 
-		// 7. Generate matches for each phase in order
-		const allMatches: MatchInsertRow[] = []
-		const currentTeamIds = teamIds
+		// Helper: compute how many teams qualify out of a phase
+		function computePhaseQualifiers(
+			phase: (typeof tournament.phases)[number],
+			teamCount: number,
+		): number {
+			if (phase.type === "round_robin" || phase.type === "double_loss_groups") {
+				const nbGroups = Math.ceil(teamCount / (phase.players_per_group ?? 4))
+				return nbGroups * (phase.qualifiers_per_group ?? 1)
+			}
+			if (phase.type === "single_elimination") {
+				return phase.qualifiers_count ?? 0
+			}
+			return 0
+		}
 
-		for (const phase of tournament.phases) {
-			let phaseMatches: MatchInsertRow[] = []
+		// 7. Generate matches for each phase in order
+		const combinedResult: GeneratorResult = {
+			matches: [],
+			roundRobinInfos: [],
+			bracketInfos: [],
+		}
+		let expectedQualifiers = teamIds.length
+
+		for (
+			let phaseIndex = 0;
+			phaseIndex < tournament.phases.length;
+			phaseIndex++
+		) {
+			const phase = tournament.phases[phaseIndex]
+			const defaults = PHASE_FORMAT_DEFAULTS
+
+			let phaseResult: GeneratorResult = {
+				matches: [],
+				roundRobinInfos: [],
+				bracketInfos: [],
+			}
 
 			if (phase.type === "round_robin") {
-				const groupCount = Math.ceil(
-					currentTeamIds.length / (phase.players_per_group ?? 4),
-				)
-				const groups = snakeDistribute(
-					currentTeamIds,
-					groupCount,
-					phase.players_per_group ?? 4,
-				)
-				phaseMatches = generateRoundRobinMatches(
-					groups,
+				phaseResult = generateRoundRobinStructure(
+					expectedQualifiers,
+					phase.players_per_group ?? defaults[phase.type].playersPerGroup,
 					phase.id,
+					tournamentId,
 					nextEventMatchId,
 					{
-						setsToWin: phase.sets_to_win ?? 2,
-						legsPerSet: phase.legs_per_set ?? 3,
+						setsToWin: phase.sets_to_win ?? defaults[phase.type].setsToWin,
+						legsPerSet: phase.legs_per_set ?? defaults[phase.type].legsPerSet,
 					},
 				)
 			} else if (phase.type === "double_loss_groups") {
-				const groupCount = Math.ceil(
-					currentTeamIds.length / (phase.players_per_group ?? 4),
+				phaseResult = generateDoubleKoStructure(
+					expectedQualifiers,
+					phase.players_per_group ?? defaults[phase.type].playersPerGroup,
+					phase.qualifiers_per_group ??
+						defaults[phase.type].qualifiers_per_group,
+					phase.id,
+					tournamentId,
+					nextEventMatchId,
+					{
+						setsToWin: phase.sets_to_win ?? defaults[phase.type].setsToWin,
+						legsPerSet: phase.legs_per_set ?? defaults[phase.type].legsPerSet,
+					},
 				)
-				const groups = snakeDistribute(
-					currentTeamIds,
-					groupCount,
-					phase.players_per_group ?? 4,
-				)
-				for (let g = 0; g < groups.length; g++) {
-					const groupMatches = generateDoubleKoGroupMatches(
-						groups[g],
-						g,
-						phase.id,
-						nextEventMatchId + phaseMatches.length,
-						{
-							setsToWin: phase.sets_to_win ?? 2,
-							legsPerSet: phase.legs_per_set ?? 3,
-						},
-					)
-					phaseMatches.push(...groupMatches)
-				}
 			} else if (phase.type === "single_elimination") {
 				const rawTiers = phase.tiers
 				const tiers = Array.isArray(rawTiers) ? rawTiers : []
@@ -124,39 +141,51 @@ export async function launchTournament(
 					const tier = t as Record<string, number>
 					return {
 						round: i,
-						setsToWin: tier.sets_to_win ?? tier.legs ?? phase.sets_to_win ?? 2,
-						legsPerSet: tier.legs_per_set ?? phase.legs_per_set ?? 3,
+						setsToWin: 1, //TODO: ARV quand mise en place du nombre de sets à gagner spécifique par tier
+						legsPerSet: tier.legs,
 					}
 				})
-				const slotCount = phase.qualifiers_count ?? currentTeamIds.length
-				const teamIdsForBracket =
-					currentTeamIds.length > 0 && currentTeamIds.length <= slotCount
-						? currentTeamIds
-						: []
-				phaseMatches = generateSingleEliminationBracket(
-					teamIdsForBracket,
+				const effectiveTiers = tierConfig
+				if (tierConfig.length === 0) {
+					throw new Error("single_elimination phase must have tiers config")
+				}
+
+				phaseResult = generateSingleEliminationStructure(
+					expectedQualifiers,
 					phase.id,
+					tournamentId,
 					nextEventMatchId,
-					tierConfig,
+					effectiveTiers,
 				)
 			} else if (phase.type === "double_elimination") {
-				// EXPLICIT GUARD: double_elimination is deferred to Phase 5+
 				throw new Error(
-					"double_elimination phase type not supported in Phase 4 — deferred to Phase 5",
+					"double_elimination phase type not supported yet — deferred",
 				)
 			}
 
-			nextEventMatchId += phaseMatches.length
-			allMatches.push(...phaseMatches)
+			if (phaseIndex === 0) {
+				phaseResult = assignTeamsToPhase0(phaseResult, teamIds)
+			}
+
+			expectedQualifiers = computePhaseQualifiers(phase, expectedQualifiers)
+			nextEventMatchId += phaseResult.matches.length
+
+			combinedResult.matches.push(...phaseResult.matches)
+			combinedResult.roundRobinInfos.push(...phaseResult.roundRobinInfos)
+			combinedResult.bracketInfos.push(...phaseResult.bracketInfos)
 		}
 
-		// 8. Assign referees if auto_referee enabled
-		const finalMatches = tournament.auto_referee
-			? assignReferees(allMatches, teamIds, true)
-			: allMatches
+		// 8. Assign referees (stub — sera retravaillé)
+		if (tournament.auto_referee) {
+			combinedResult.matches = assignReferees(
+				combinedResult.matches,
+				teamIds,
+				true,
+			)
+		}
 
-		// 9. Insert all matches
-		await launchRepo.insertMatches(finalMatches)
+		// 9. Insert all matches and info rows
+		await launchRepo.insertMatches(combinedResult)
 
 		// 10. Update tournament status to 'started'
 		await tournamentRepo.updateStatus(tournamentId, "started")

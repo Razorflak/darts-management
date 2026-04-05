@@ -1,177 +1,225 @@
-import type { MatchInsertRow } from "../match-schemas.js"
+import type {
+	BracketInfoInsertRow,
+	GeneratorResult,
+	MatchInsertRow,
+} from "../match-schemas.js"
+import {
+	type BracketMatch,
+	generateDoubleEliminationBracket,
+} from "./double-bracket-elimination.js"
+import { computeGroupSizes } from "./round-robin.js"
 
 /**
- * Generate double-KO group matches for a single group.
+ * Couper le bracket DE pour obtenir exactement `qualifiersPerGroup` qualifiés.
  *
- * Supported group sizes: 4, 8 (powers of 2).
- * For N players (N must be power of 2):
- *   R1 (round 0):  N/2 matches — seeded pairs (S1 vs SN, S2 vs SN-1, ...)
- *   R2 Upper (round 1, sub 0): N/4 matches — R1 winners
- *   R2 Lower (round 1, sub 1): N/4 matches — R1 losers (no-rematch by construction)
- *   R3 Last-chance (round 2):  N/4 matches — R2Upper losers vs R2Lower winners
+ * Algorithme : dans un bracket DE, chaque match LB élimine 1 joueur (2e défaite).
+ * Pour passer de N joueurs à K qualifiés, il faut jouer exactement N-K matchs LB.
  *
- * R2/R3 matches have null team_a_id/team_b_id (filled when results come in — Phase 5).
- * advances_to_match_id wiring is set for all appropriate matches.
+ * On garde :
+ * - Les N-K premiers matchs LB (triés par round ASC)
+ * - Tous les matchs WB dont le round ≤ max round des matchs LB conservés
+ *
+ * Les matchs dont le winner_goes_to / loser_goes_to pointe vers un match retiré
+ * sont nullifiés (leurs gagnants/perdants qualifient ou sont éliminés directement).
  */
-export function generateDoubleKoGroupMatches(
-	group: string[],
-	groupNumber: number,
-	phaseId: string,
-	startEventMatchId: number,
-	config: { setsToWin: number; legsPerSet: number },
-): MatchInsertRow[] {
-	const n = group.length
-	if (!isPowerOf2(n) || n < 4) {
-		throw new Error(
-			`Double KO group requires a power-of-2 group size >= 4, got ${n}`,
-		)
-	}
+function cutBracket(
+	deMatches: BracketMatch[],
+	n: number,
+	qualifiersPerGroup: number,
+): BracketMatch[] {
+	if (qualifiersPerGroup >= n) return [] // tous qualifiés, aucun match nécessaire
+	if (qualifiersPerGroup <= 0) return []
 
-	const half = n / 2
-	const quarter = n / 4
+	const targetLbCount = n - qualifiersPerGroup
 
-	// Pre-generate all match UUIDs
-	// R1: half matches
-	const r1Ids = Array.from({ length: half }, () => crypto.randomUUID())
-	// R2 Upper: quarter matches
-	const r2UpperIds = Array.from({ length: quarter }, () => crypto.randomUUID())
-	// R2 Lower: quarter matches
-	const r2LowerIds = Array.from({ length: quarter }, () => crypto.randomUUID())
-	// R3 Last-chance: quarter matches
-	const r3Ids = Array.from({ length: quarter }, () => crypto.randomUUID())
+	// Trier les matchs LB par round puis prendre les N-K premiers
+	const lbSorted = deMatches
+		.filter((m) => m.bracket === "L")
+		.sort((a, b) => a.round - b.round)
 
-	let nextEventMatchId = startEventMatchId
-	const matches: MatchInsertRow[] = []
+	const keptLbIds = new Set(lbSorted.slice(0, targetLbCount).map((m) => m.id))
+	const maxKeptLbRound =
+		targetLbCount > 0 ? (lbSorted[targetLbCount - 1]?.round ?? 0) : 0
 
-	// ── R1: seeded pairs ─────────────────────────────────────────────────────
-	// Pair structure: (S1 vs SN), (S2 vs SN-1), (S3 vs SN-2), ...
-	// Winner of match i advances to R2 Upper, loser advances to R2 Lower
-	for (let i = 0; i < half; i++) {
-		const seedA = i // 0-based seed
-		const seedB = n - 1 - i // opponent 0-based seed
+	// Conserver les LB sélectionnés et les WB dont le loser alimente un LB conservé.
+	// (Condition directe : loserGoesToMatchId ∈ keptLbIds)
+	// Jamais la GF.
+	const keptSet = new Set(
+		deMatches
+			.filter((m) => {
+				if (m.bracket === "GF") return false
+				if (m.bracket === "L") return keptLbIds.has(m.id)
+				// WB : inclure seulement si le perdant va dans un LB conservé
+				return (
+					m.loserGoesToMatchId !== null && keptLbIds.has(m.loserGoesToMatchId)
+				)
+			})
+			.map((m) => m.id),
+	)
 
-		// Which R2 Upper match does the winner go to?
-		// Pair winners: M0,M1 → R2Upper[0]; M2,M3 → R2Upper[1]; etc.
-		const r2UpperIdx = Math.floor(i / 2)
-
-		// Which R2 Lower match does the loser go to?
-		// No-rematch: L-M0 vs L-M(half-1), L-M1 vs L-M(half-2), etc.
-		// Loser of M_i pairs with loser of M_(half-1-i) in R2 Lower
-		// R2 Lower match index: floor(min(i, half-1-i) / 2) — but simpler:
-		// For 8 players (half=4): R2L[0] = L-M0 vs L-M3, R2L[1] = L-M1 vs L-M2
-		// So: M_i's loser goes to R2Lower[Math.floor(Math.min(i, half - 1 - i) / 1) ... ]
-		// Actually: L-Mi and L-M(half-1-i) are paired, so R2Lower index = floor(i/2) when i < half/2
-		// i=0 → R2L[0] slot a, i=half-1 → R2L[0] slot b
-		// i=1 → R2L[1] slot a, i=half-2 → R2L[1] slot b
-		const _loserIdx = Math.floor(i / 2)
-		const _loserSlot: "a" | "b" = i < quarter ? "a" : "b"
-
-		// Winner slot in R2 Upper: alternating a/b
-		const winnerSlot: "a" | "b" = i % 2 === 0 ? "a" : "b"
-
-		matches.push({
-			id: r1Ids[i],
-			phase_id: phaseId,
-			event_match_id: nextEventMatchId++,
-			group_number: groupNumber,
-			round_number: 0,
-			position: i,
-			team_a_id: group[seedA],
-			team_b_id: group[seedB],
-			referee_team_id: null,
-			advances_to_match_id: r2UpperIds[r2UpperIdx],
-			advances_to_slot: winnerSlot,
-			status: "pending",
-			sets_to_win: config.setsToWin,
-			legs_per_set: config.legsPerSet,
-		})
-	}
-
-	// ── R2 Upper ──────────────────────────────────────────────────────────────
-	// Winners advance to final (out of group), losers go to R3
-	for (let i = 0; i < quarter; i++) {
-		matches.push({
-			id: r2UpperIds[i],
-			phase_id: phaseId,
-			event_match_id: nextEventMatchId++,
-			group_number: groupNumber,
-			round_number: 1,
-			position: i,
-			team_a_id: null,
-			team_b_id: null,
-			referee_team_id: null,
-			advances_to_match_id: r3Ids[i],
-			advances_to_slot: "a", // loser goes to R3 slot a
-			status: "pending",
-			sets_to_win: config.setsToWin,
-			legs_per_set: config.legsPerSet,
-		})
-	}
-
-	// ── R2 Lower ──────────────────────────────────────────────────────────────
-	// R2 Lower pairs: L-M0 vs L-M(half-1), L-M1 vs L-M(half-2), ...
-	// No-rematch guaranteed by construction (they played different opponents in R1)
-	// Winners advance to R3, losers are eliminated (2 losses)
-	for (let i = 0; i < quarter; i++) {
-		matches.push({
-			id: r2LowerIds[i],
-			phase_id: phaseId,
-			event_match_id: nextEventMatchId++,
-			group_number: groupNumber,
-			round_number: 1,
-			position: quarter + i,
-			team_a_id: null,
-			team_b_id: null,
-			referee_team_id: null,
-			advances_to_match_id: r3Ids[i],
-			advances_to_slot: "b", // winner goes to R3 slot b
-			status: "pending",
-			sets_to_win: config.setsToWin,
-			legs_per_set: config.legsPerSet,
-		})
-	}
-
-	// ── R3 Last-chance ────────────────────────────────────────────────────────
-	// R2Upper loser (slot a) vs R2Lower winner (slot b)
-	// Winners qualify (seeds 3-4), losers eliminated
-	for (let i = 0; i < quarter; i++) {
-		matches.push({
-			id: r3Ids[i],
-			phase_id: phaseId,
-			event_match_id: nextEventMatchId++,
-			group_number: groupNumber,
-			round_number: 2,
-			position: i,
-			team_a_id: null,
-			team_b_id: null,
-			referee_team_id: null,
-			advances_to_match_id: null,
-			advances_to_slot: null,
-			status: "pending",
-			sets_to_win: config.setsToWin,
-			legs_per_set: config.legsPerSet,
-		})
-	}
-
-	// Wire R1 loser advances_to_match_id to R2 Lower
-	// We need to update the R1 matches to also encode the loser's destination.
-	// Since MatchInsertRow has only one advances_to_match_id/slot (for the winner),
-	// we use the convention that:
-	//   - advances_to_match_id / advances_to_slot = WINNER's next match (R2 Upper)
-	// The loser assignment is handled by Phase 5 when processing results.
-	// However, the plan says "R1 losers -> R2Lower" in the advances_to wiring.
-	// Per the task spec, we wire winner→R2Upper via advances_to_match_id.
-	// R2 Lower receives from R1 losers — Phase 5 knows this from the bracket structure.
-	// We need to add the loser wiring.
-	// UPDATE: We add separate "loser" wiring by encoding it in R1 matches.
-	// The schema only has one advances_to_match_id — this is for the winner.
-	// For the double-KO bracket, losers go to R2Lower which is implicitly known.
-	// We follow the convention used in single-elimination: one advances_to = winner path.
-	// The loser path for Phase 5 is derived from the bracket structure, not stored.
-
-	return matches
+	return deMatches
+		.filter((m) => keptSet.has(m.id))
+		.map((m) => ({
+			...m,
+			winnerGoesToMatchId:
+				m.winnerGoesToMatchId && keptSet.has(m.winnerGoesToMatchId)
+					? m.winnerGoesToMatchId
+					: null,
+			winnerGoesToSlot:
+				m.winnerGoesToMatchId && keptSet.has(m.winnerGoesToMatchId)
+					? m.winnerGoesToSlot
+					: null,
+			loserGoesToMatchId:
+				m.loserGoesToMatchId && keptSet.has(m.loserGoesToMatchId)
+					? m.loserGoesToMatchId
+					: null,
+			loserGoesToSlot:
+				m.loserGoesToMatchId && keptSet.has(m.loserGoesToMatchId)
+					? m.loserGoesToSlot
+					: null,
+		}))
 }
 
-function isPowerOf2(n: number): boolean {
-	return n > 0 && (n & (n - 1)) === 0
+/**
+ * Convertir un tableau de BracketMatch (DE generator) en GeneratorResult
+ * pour un groupe donné.
+ *
+ * Chaque BracketMatch produit une BracketInfoInsertRow (auto-référentielle via
+ * la map deMatchId → bracketInfoId) et un MatchInsertRow.
+ */
+function convertDeMatchesToResult(
+	bracketMatches: BracketMatch[],
+	groupIndex: number,
+	groupOffset: number,
+	phaseId: string,
+	tournamentId: string,
+	startEventMatchId: number,
+	config: { setsToWin: number; legsPerSet: number },
+	teamSlots: Map<number, string>, // seed 1-based global → teamId (pour R1)
+): GeneratorResult & { nextEventMatchId: number } {
+	// Map deMatch.id → bracketInfoId (pré-générés pour les auto-références)
+	const infoIdByDeId = new Map<string, string>()
+	for (const m of bracketMatches) {
+		infoIdByDeId.set(m.id, crypto.randomUUID())
+	}
+
+	const bracketInfos: BracketInfoInsertRow[] = []
+	const matches: MatchInsertRow[] = []
+	let nextEventMatchId = startEventMatchId
+
+	// Trier par round ASC (finals d'abord) pour respecter la FK auto-référentielle
+	// lors de l'insertion : winner_goes_to_info_id doit exister avant son référençant.
+	const sorted = [...bracketMatches].sort((a, b) => a.round - b.round)
+
+	// Position locale dans le groupe (index dans sorted)
+	let localPos = 0
+
+	for (const dm of sorted) {
+		const infoId = infoIdByDeId.get(dm.id)!
+
+		const winnerGoesToInfoId = dm.winnerGoesToMatchId
+			? (infoIdByDeId.get(dm.winnerGoesToMatchId) ?? null)
+			: null
+
+		const loserGoesToInfoId = dm.loserGoesToMatchId
+			? (infoIdByDeId.get(dm.loserGoesToMatchId) ?? null)
+			: null
+
+		bracketInfos.push({
+			id: infoId,
+			tournament_id: tournamentId,
+			bracket: dm.bracket,
+			round_number: dm.round,
+			position: localPos++,
+			group_number: groupIndex,
+			seed_a: dm.seedA !== null ? dm.seedA + groupOffset : null,
+			seed_b: dm.seedB !== null ? dm.seedB + groupOffset : null,
+			winner_goes_to_info_id: winnerGoesToInfoId,
+			winner_goes_to_slot: dm.winnerGoesToSlot,
+			loser_goes_to_info_id: loserGoesToInfoId,
+			loser_goes_to_slot: dm.loserGoesToSlot,
+		})
+
+		// Assigner les équipes R1 via les seeds
+		let teamAId: string | null = null
+		let teamBId: string | null = null
+		let status: MatchInsertRow["status"] = "pending"
+
+		if (dm.seedA !== null || dm.seedB !== null) {
+			// Match de premier tour WB — seeds présents
+			teamAId = dm.seedA !== null ? (teamSlots.get(dm.seedA) ?? null) : null
+			teamBId = dm.seedB !== null ? (teamSlots.get(dm.seedB) ?? null) : null
+			if (teamAId === null || teamBId === null) status = "bye"
+		}
+
+		matches.push({
+			id: crypto.randomUUID(),
+			phase_id: phaseId,
+			event_match_id: nextEventMatchId++,
+			team_a_id: teamAId,
+			team_b_id: teamBId,
+			referee_team_id: null,
+			status,
+			sets_to_win: config.setsToWin,
+			legs_per_set: config.legsPerSet,
+			round_robin_info_id: null,
+			bracket_info_id: infoId,
+		})
+	}
+
+	return { matches, roundRobinInfos: [], bracketInfos, nextEventMatchId }
+}
+
+/**
+ * Generate double-KO group structure for all groups of a phase.
+ *
+ * Internally uses generateDoubleEliminationBracket and cuts at the right round
+ * to produce exactly `qualifiersPerGroup` qualifiers per group.
+ *
+ * All team slots are null — use assignTeamsToDoubleKo to fill R1 slots.
+ */
+export function generateDoubleKoStructure(
+	playerCount: number,
+	playersPerGroup: number,
+	qualifiersPerGroup: number,
+	phaseId: string,
+	tournamentId: string,
+	startEventMatchId: number,
+	config: { setsToWin: number; legsPerSet: number },
+): GeneratorResult {
+	const groupSizes = computeGroupSizes(playerCount, playersPerGroup)
+	const allMatches: MatchInsertRow[] = []
+	const allBracketInfos: BracketInfoInsertRow[] = []
+	let nextEventMatchId = startEventMatchId
+	let groupOffset = 0
+
+	for (let groupIndex = 0; groupIndex < groupSizes.length; groupIndex++) {
+		const n = groupSizes[groupIndex]
+		const deMatches = generateDoubleEliminationBracket(n)
+		const cut = cutBracket(deMatches, n, qualifiersPerGroup)
+
+		const emptySlots = new Map<number, string>() // pas d'équipe assignée
+
+		const result = convertDeMatchesToResult(
+			cut,
+			groupIndex,
+			groupOffset,
+			phaseId,
+			tournamentId,
+			nextEventMatchId,
+			config,
+			emptySlots,
+		)
+
+		allMatches.push(...result.matches)
+		allBracketInfos.push(...result.bracketInfos)
+		nextEventMatchId = result.nextEventMatchId
+		groupOffset += n
+	}
+
+	return {
+		matches: allMatches,
+		roundRobinInfos: [],
+		bracketInfos: allBracketInfos,
+	}
 }

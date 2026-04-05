@@ -67,77 +67,68 @@ async function submit() {
 
 	try {
 		// Register player 1 to solo tournaments
-		for (const tid of selectedTournaments1) {
+		// Fonction helper pour enregistrer un tournoi
+		const registerToTournament = async (
+			tournamentId: string,
+			team: ReturnType<typeof getPlayerEntry>[],
+		) => {
 			const res = await fetch(apiRoutes.TOURNAMENT_REGISTER.path, {
 				method: "POST",
 				headers: { "Content-Type": "application/json" },
 				body: JSON.stringify({
-					tournament_id: tid,
-					team: [getPlayerEntry(player1, new1)],
+					tournament_id: tournamentId,
+					team,
 				}),
 			})
+
 			if (!res.ok) {
 				const body = await res.json().catch(() => ({}))
 				throw new Error(
 					(body as { message?: string }).message ??
-						`Inscription échouée pour le joueur 1`,
+						`Inscription échouée pour le tournoi ${tournamentId}`,
 				)
 			}
+
 			const data = await res.json()
-			if (data.registration_id)
-				registered.push({ registrationId: data.registration_id })
+			return data.registration_id
+				? { registrationId: data.registration_id }
+				: null
 		}
 
-		// Register player 2 to solo tournaments (if section 2 open)
+		// Créer toutes les promesses
+		const promises: Promise<{ registrationId: string } | null>[] = []
+
+		// Player 1 solo tournaments
+		for (const tid of selectedTournaments1) {
+			promises.push(registerToTournament(tid, [getPlayerEntry(player1, new1)]))
+		}
+
+		// Player 2 solo tournaments (if section 2 open)
 		if (section2Open) {
 			for (const tid of selectedTournaments2) {
-				const res = await fetch(apiRoutes.TOURNAMENT_REGISTER.path, {
-					method: "POST",
-					headers: { "Content-Type": "application/json" },
-					body: JSON.stringify({
-						tournament_id: tid,
-						team: [getPlayerEntry(player2, new2)],
-					}),
-				})
-				if (!res.ok) {
-					const body = await res.json().catch(() => ({}))
-					throw new Error(
-						(body as { message?: string }).message ??
-							`Inscription échouée pour le joueur 2`,
-					)
-				}
-				const data = await res.json()
-				if (data.registration_id)
-					registered.push({ registrationId: data.registration_id })
+				promises.push(
+					registerToTournament(tid, [getPlayerEntry(player2, new2)]),
+				)
+			}
+
+			// Doubles tournaments
+			for (const tid of selectedDoublesTournaments) {
+				promises.push(
+					registerToTournament(tid, [
+						getPlayerEntry(player1, new1),
+						getPlayerEntry(player2, new2),
+					]),
+				)
 			}
 		}
 
-		// Register doubles (both players together, if section 2 open)
-		if (section2Open) {
-			for (const tid of selectedDoublesTournaments) {
-				const res = await fetch(apiRoutes.TOURNAMENT_REGISTER.path, {
-					method: "POST",
-					headers: { "Content-Type": "application/json" },
-					body: JSON.stringify({
-						tournament_id: tid,
-						team: [
-							getPlayerEntry(player1, new1),
-							getPlayerEntry(player2, new2),
-						],
-					}),
-				})
-				if (!res.ok) {
-					const body = await res.json().catch(() => ({}))
-					throw new Error(
-						(body as { message?: string }).message ??
-							`Inscription doubles échouée`,
-					)
-				}
-				const data = await res.json()
-				if (data.registration_id)
-					registered.push({ registrationId: data.registration_id })
-			}
-		}
+		// Exécuter toutes les promesses en parallèle
+		const results = await Promise.all(promises)
+
+		// Filtrer les résultats valides
+		registered.push(
+			...results.filter((r): r is { registrationId: string } => r !== null),
+		)
 
 		// Immediate check-in for all registrations just created (checkin screen only).
 		if (immediateCheckin) {

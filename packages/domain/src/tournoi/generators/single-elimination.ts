@@ -1,4 +1,8 @@
-import type { MatchInsertRow } from "../match-schemas.js"
+import type {
+	BracketInfoInsertRow,
+	GeneratorResult,
+	MatchInsertRow,
+} from "../match-schemas.js"
 
 /**
  * getBracket: Compute first-round seed pairings for a single-elimination bracket.
@@ -36,118 +40,210 @@ export function getBracket(
  * generateSingleEliminationBracket: Generate all matches for a single-elimination bracket.
  *
  * Builds match tree from final (root) down to first round (leaves).
- * Pre-generates all UUIDs and wires advances_to_match_id from leaves to root.
+ * Pre-generates all UUIDs and wires winner_goes_to_info_id via BracketInfoInsertRow.
  *
  * @param teamIds - Team IDs in seed order. If fewer than bracketSize, extras are BYEs.
  * @param phaseId - The phase this bracket belongs to.
+ * @param tournamentId - Used for cascade delete on bracket_match_info.
  * @param startEventMatchId - Starting sequential ID for this phase.
  * @param tiers - Array of { round, setsToWin, legsPerSet } per round.
  *   round=0 is the final, round=1 is semis, etc. (distance from final).
- *   If tiers doesn't cover all rounds, the last tier's config is used for remaining rounds.
+ *   If tiers doesn't cover all rounds, the last tier's config is used.
  */
 export function generateSingleEliminationBracket(
 	teamIds: string[],
 	phaseId: string,
+	tournamentId: string,
 	startEventMatchId: number,
 	tiers: Array<{ round: number; setsToWin: number; legsPerSet: number }>,
-): MatchInsertRow[] {
+): GeneratorResult {
 	const n = teamIds.length
 	const totalRounds = Math.ceil(Math.log2(Math.max(n, 2)))
-	const bracketSize = 2 ** totalRounds
 
-	// Build the tree level by level, starting from the final (round 0)
-	// Level 0 = final (1 match), level 1 = semis (2 matches), ...
-	// level = totalRounds - 1 = first round (bracketSize/2 matches)
-	// round_number = totalRounds - 1 - level (so final has round_number=0)
-
-	// Pre-generate match UUIDs for all matches
-	// Total matches = bracketSize - 1
-	const _totalMatches = bracketSize - 1
-
-	// Build match structure level by level
-	// matchTree[level] = array of match IDs at that level
-	const matchIdTree: string[][] = []
+	// Pre-generate bracket info UUIDs level by level (level 0 = final)
+	const infoIdTree: string[][] = []
 	for (let level = 0; level < totalRounds; level++) {
 		const count = 2 ** level
-		matchIdTree.push(Array.from({ length: count }, () => crypto.randomUUID()))
+		infoIdTree.push(Array.from({ length: count }, () => crypto.randomUUID()))
 	}
 
-	const matches: MatchInsertRow[] = []
-	let nextEventMatchId = startEventMatchId
-
-	// Get config for a given round_number (0 = final)
 	const getConfig = (
 		roundNumber: number,
 	): { setsToWin: number; legsPerSet: number } => {
-		// Find tier matching this round
 		const tier = tiers.find((t) => t.round === roundNumber)
 		if (tier) return { setsToWin: tier.setsToWin, legsPerSet: tier.legsPerSet }
-		// Fallback to last tier
 		const last = tiers[tiers.length - 1]
 		return { setsToWin: last.setsToWin, legsPerSet: last.legsPerSet }
 	}
 
-	// Get first-round seed pairings
 	const firstRoundPairings = getBracket(n)
 
-	// Generate matches from final (level 0) to first round (level totalRounds-1)
-	// round_number = 0 for final, totalRounds-1 for first round
+	const bracketInfos: BracketInfoInsertRow[] = []
+	const matches: MatchInsertRow[] = []
+	let nextEventMatchId = startEventMatchId
+
 	for (let level = 0; level < totalRounds; level++) {
-		const roundNumber = level // level 0 = final, level N-1 = first round
+		const roundNumber = level // 0 = final, totalRounds-1 = first round
 		const isFirstRound = level === totalRounds - 1
 		const config = getConfig(roundNumber)
+		const levelInfoIds = infoIdTree[level]
 
-		const levelMatchIds = matchIdTree[level]
+		for (let pos = 0; pos < levelInfoIds.length; pos++) {
+			const infoId = levelInfoIds[pos]
 
-		for (let pos = 0; pos < levelMatchIds.length; pos++) {
-			const matchId = levelMatchIds[pos]
-
-			// advances_to_match_id: parent is at level-1, position floor(pos/2)
-			let advancesToMatchId: string | null = null
-			let advancesToSlot: "a" | "b" | null = null
-
+			// winner_goes_to: parent is at level-1, position floor(pos/2)
+			let winnerGoesToInfoId: string | null = null
+			let winnerGoesToSlot: "a" | "b" | null = null
 			if (level > 0) {
-				const parentLevel = level - 1
-				const parentPos = Math.floor(pos / 2)
-				advancesToMatchId = matchIdTree[parentLevel][parentPos]
-				advancesToSlot = pos % 2 === 0 ? "a" : "b"
+				winnerGoesToInfoId = infoIdTree[level - 1][Math.floor(pos / 2)]
+				winnerGoesToSlot = pos % 2 === 0 ? "a" : "b"
 			}
 
-			let teamAId: string | null = null
-			let teamBId: string | null = null
-			let status: "pending" | "bye" = "pending"
-
+			// Seeds: only for the first round
+			let seedA: number | null = null
+			let seedB: number | null = null
 			if (isFirstRound) {
-				// Map seed numbers to team IDs
-				const [seedA, seedB] = firstRoundPairings[pos]
-				teamAId = seedA !== null && seedA <= n ? teamIds[seedA - 1] : null
-				teamBId = seedB !== null && seedB <= n ? teamIds[seedB - 1] : null
-
-				// BYE: one slot is null
-				if (teamAId === null || teamBId === null) {
-					status = "bye"
-				}
+				const [sA, sB] = firstRoundPairings[pos]
+				seedA = sA
+				seedB = sB
 			}
-			// Non-first-round matches always have null teams (filled by Phase 5)
 
-			matches.push({
-				id: matchId,
-				phase_id: phaseId,
-				event_match_id: nextEventMatchId++,
-				group_number: null,
+			bracketInfos.push({
+				id: infoId,
+				tournament_id: tournamentId,
+				bracket: "W",
 				round_number: roundNumber,
 				position: pos,
+				group_number: null,
+				seed_a: seedA,
+				seed_b: seedB,
+				winner_goes_to_info_id: winnerGoesToInfoId,
+				winner_goes_to_slot: winnerGoesToSlot,
+				loser_goes_to_info_id: null,
+				loser_goes_to_slot: null,
+			})
+
+			// Team assignment: first round only
+			let teamAId: string | null = null
+			let teamBId: string | null = null
+			let status: MatchInsertRow["status"] = "pending"
+
+			if (isFirstRound) {
+				const [sA, sB] = firstRoundPairings[pos]
+				teamAId = sA !== null && sA <= n ? teamIds[sA - 1] : null
+				teamBId = sB !== null && sB <= n ? teamIds[sB - 1] : null
+				if (teamAId === null || teamBId === null) status = "bye"
+			}
+
+			matches.push({
+				id: crypto.randomUUID(),
+				phase_id: phaseId,
+				event_match_id: nextEventMatchId++,
 				team_a_id: teamAId,
 				team_b_id: teamBId,
 				referee_team_id: null,
-				advances_to_match_id: advancesToMatchId,
-				advances_to_slot: advancesToSlot,
 				status,
 				sets_to_win: config.setsToWin,
 				legs_per_set: config.legsPerSet,
+				round_robin_info_id: null,
+				bracket_info_id: infoId,
 			})
 		}
 	}
 
-	return matches
+	return { matches, roundRobinInfos: [], bracketInfos }
+}
+
+/**
+ * Generate an empty single-elimination bracket structure for a given player count.
+ * All team slots are null — use assignTeamsToPhase0 to fill first-round slots.
+ * Seeds (seed_a/seed_b) are pre-computed via getBracket for the first round.
+ */
+export function generateSingleEliminationStructure(
+	playerCount: number,
+	phaseId: string,
+	tournamentId: string,
+	startEventMatchId: number,
+	tiers: Array<{ round: number; setsToWin: number; legsPerSet: number }>,
+): GeneratorResult {
+	const n = playerCount
+	const totalRounds = Math.ceil(Math.log2(Math.max(n, 2)))
+
+	const infoIdTree: string[][] = []
+	for (let level = 0; level < totalRounds; level++) {
+		const count = 2 ** level
+		infoIdTree.push(Array.from({ length: count }, () => crypto.randomUUID()))
+	}
+
+	const getConfig = (
+		roundNumber: number,
+	): { setsToWin: number; legsPerSet: number } => {
+		const tier = tiers.find((t) => t.round === roundNumber)
+		if (tier) return { setsToWin: tier.setsToWin, legsPerSet: tier.legsPerSet }
+		const last = tiers[tiers.length - 1]
+		return { setsToWin: last.setsToWin, legsPerSet: last.legsPerSet }
+	}
+
+	const firstRoundPairings = getBracket(n)
+
+	const bracketInfos: BracketInfoInsertRow[] = []
+	const matches: MatchInsertRow[] = []
+	let nextEventMatchId = startEventMatchId
+
+	for (let level = 0; level < totalRounds; level++) {
+		const roundNumber = level
+		const isFirstRound = level === totalRounds - 1
+		const config = getConfig(roundNumber)
+		const levelInfoIds = infoIdTree[level]
+
+		for (let pos = 0; pos < levelInfoIds.length; pos++) {
+			const infoId = levelInfoIds[pos]
+
+			let winnerGoesToInfoId: string | null = null
+			let winnerGoesToSlot: "a" | "b" | null = null
+			if (level > 0) {
+				winnerGoesToInfoId = infoIdTree[level - 1][Math.floor(pos / 2)]
+				winnerGoesToSlot = pos % 2 === 0 ? "a" : "b"
+			}
+
+			let seedA: number | null = null
+			let seedB: number | null = null
+			if (isFirstRound) {
+				const [sA, sB] = firstRoundPairings[pos]
+				seedA = sA
+				seedB = sB
+			}
+
+			bracketInfos.push({
+				id: infoId,
+				tournament_id: tournamentId,
+				bracket: "W",
+				round_number: roundNumber,
+				position: pos,
+				group_number: null,
+				seed_a: seedA,
+				seed_b: seedB,
+				winner_goes_to_info_id: winnerGoesToInfoId,
+				winner_goes_to_slot: winnerGoesToSlot,
+				loser_goes_to_info_id: null,
+				loser_goes_to_slot: null,
+			})
+
+			matches.push({
+				id: crypto.randomUUID(),
+				phase_id: phaseId,
+				event_match_id: nextEventMatchId++,
+				team_a_id: null,
+				team_b_id: null,
+				referee_team_id: null,
+				status: "pending",
+				sets_to_win: config.setsToWin,
+				legs_per_set: config.legsPerSet,
+				round_robin_info_id: null,
+				bracket_info_id: infoId,
+			})
+		}
+	}
+
+	return { matches, roundRobinInfos: [], bracketInfos }
 }

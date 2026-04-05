@@ -1,6 +1,10 @@
 import {
-	type MatchInsertRow,
+	type BracketInfoInsertRow,
+	BracketInfoInsertRowSchema,
+	type GeneratorResult,
 	MatchInsertRowSchema,
+	type RoundRobinInfoInsertRow,
+	RoundRobinInfoInsertRowSchema,
 } from "@darts-management/domain"
 import { z } from "zod"
 import { sql as defaultSql } from "../client.js"
@@ -97,30 +101,70 @@ const internalLaunchRepo = {
 		return row.max_id
 	},
 
-	insertMatches: async (sql: Sql, matches: MatchInsertRow[]): Promise<void> => {
+	insertMatches: async (sql: Sql, result: GeneratorResult): Promise<void> => {
+		const { matches, roundRobinInfos, bracketInfos } = result
+
+		// ── 1. Insérer bracket_infos en ordre topologique ────────────────────────
+		// Une bracket_info doit être insérée AVANT celles qui la référencent via
+		// winner_goes_to_info_id / loser_goes_to_info_id.
+		// Le tri topologique (DFS) fonctionne quelle que soit la convention de
+		// numérotation des rounds (single elim : 0 = finale ; double elim : 1 = R1).
+		if (bracketInfos.length > 0) {
+			const validatedInfos = z
+				.array(BracketInfoInsertRowSchema)
+				.parse(bracketInfos)
+			const infoMap = new Map(validatedInfos.map((i) => [i.id, i]))
+			const visited = new Set<string>()
+			const ordered: BracketInfoInsertRow[] = []
+
+			const visit = (info: BracketInfoInsertRow): void => {
+				if (visited.has(info.id)) return
+				if (info.winner_goes_to_info_id) {
+					const dep = infoMap.get(info.winner_goes_to_info_id)
+					if (dep) visit(dep)
+				}
+				if (info.loser_goes_to_info_id) {
+					const dep = infoMap.get(info.loser_goes_to_info_id)
+					if (dep) visit(dep)
+				}
+				visited.add(info.id)
+				ordered.push(info)
+			}
+
+			for (const info of validatedInfos) {
+				visit(info)
+			}
+
+			for (const info of ordered) {
+				await insertBracketInfo(sql, info)
+			}
+		}
+
+		// ── 2. Insérer round_robin_infos ──────────────────────────────────────────
+		if (roundRobinInfos.length > 0) {
+			const validatedInfos = z
+				.array(RoundRobinInfoInsertRowSchema)
+				.parse(roundRobinInfos)
+			for (const info of validatedInfos) {
+				await insertRoundRobinInfo(sql, info)
+			}
+		}
+
+		// ── 3. Insérer les matchs ─────────────────────────────────────────────────
 		if (matches.length === 0) return
-
-		// Validate all matches
-		const validated = z.array(MatchInsertRowSchema).parse(matches)
-
-		// Sort by round_number descending — finals (round 0) first so FK advances_to_match_id is satisfied
-		const sorted = [...validated].sort(
-			(a, b) => a.round_number - b.round_number,
-		)
-
-		for (const m of sorted) {
+		const validatedMatches = z.array(MatchInsertRowSchema).parse(matches)
+		for (const m of validatedMatches) {
 			await sql`
 				INSERT INTO match (
-					id, phase_id, event_match_id, group_number, round_number, position,
+					id, phase_id, event_match_id,
 					team_a_id, team_b_id, referee_team_id,
-					advances_to_match_id, advances_to_slot,
-					status, sets_to_win, legs_per_set
+					status, sets_to_win, legs_per_set,
+					round_robin_info_id, bracket_info_id
 				) VALUES (
-					${m.id}, ${m.phase_id}, ${m.event_match_id}, ${m.group_number},
-					${m.round_number}, ${m.position},
+					${m.id}, ${m.phase_id}, ${m.event_match_id},
 					${m.team_a_id}, ${m.team_b_id}, ${m.referee_team_id},
-					${m.advances_to_match_id}, ${m.advances_to_slot},
-					${m.status}, ${m.sets_to_win}, ${m.legs_per_set}
+					${m.status}, ${m.sets_to_win}, ${m.legs_per_set},
+					${m.round_robin_info_id}, ${m.bracket_info_id}
 				)
 			`
 		}
@@ -130,6 +174,14 @@ const internalLaunchRepo = {
 		sql: Sql,
 		tournamentId: string,
 	): Promise<void> => {
+		// Les matchs sont supprimés par CASCADE depuis phase → tournament.
+		// Les infos sont supprimées par CASCADE depuis tournament_id.
+		await sql`
+			DELETE FROM round_robin_match_info WHERE tournament_id = ${tournamentId}
+		`
+		await sql`
+			DELETE FROM bracket_match_info WHERE tournament_id = ${tournamentId}
+		`
 		await sql`
 			DELETE FROM match
 			WHERE phase_id IN (
@@ -137,6 +189,41 @@ const internalLaunchRepo = {
 			)
 		`
 	},
+}
+
+async function insertBracketInfo(
+	sql: Sql,
+	info: BracketInfoInsertRow,
+): Promise<void> {
+	await sql`
+		INSERT INTO bracket_match_info (
+			id, tournament_id, bracket, round_number, position, group_number,
+			seed_a, seed_b,
+			winner_goes_to_info_id, winner_goes_to_slot,
+			loser_goes_to_info_id, loser_goes_to_slot
+		) VALUES (
+			${info.id}, ${info.tournament_id}, ${info.bracket},
+			${info.round_number}, ${info.position}, ${info.group_number},
+			${info.seed_a}, ${info.seed_b},
+			${info.winner_goes_to_info_id}, ${info.winner_goes_to_slot},
+			${info.loser_goes_to_info_id}, ${info.loser_goes_to_slot}
+		)
+	`
+}
+
+async function insertRoundRobinInfo(
+	sql: Sql,
+	info: RoundRobinInfoInsertRow,
+): Promise<void> {
+	await sql`
+		INSERT INTO round_robin_match_info (
+			id, tournament_id, group_number, round_number, position, slot_a, slot_b
+		) VALUES (
+			${info.id}, ${info.tournament_id}, ${info.group_number},
+			${info.round_number}, ${info.position},
+			${info.slot_a}, ${info.slot_b}
+		)
+	`
 }
 
 export const launchRepository = createRepository(defaultSql, internalLaunchRepo)
