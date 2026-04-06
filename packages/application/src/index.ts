@@ -1,9 +1,32 @@
+import { traced } from "@darts-management/logger"
+import { deleteEvent as _deleteEvent } from "./event/delete-event.js"
+import { publishEvent as _publishEvent } from "./event/publish-event.js"
+import { saveDraftEvent as _saveDraftEvent } from "./event/save-draft-event.js"
+import { createPlayerProfile as _createPlayerProfile } from "./player/createPlayerProfil.js"
+import { getOrCreatePlayer as _getOrCreatePlayer } from "./player/getOrCreatePlayer.js"
+import { cancelLaunch as _cancelLaunch } from "./tournament/cancel-launch.js"
+import { launchTournament as _launchTournament } from "./tournament/launch-tournament.js"
+import { registerTeam as _registerTeam } from "./tournament/register-team.js"
+
 export { ADMIN_ROLES, ORGANISABLE_ROLES } from "./event/constants.js"
-export { deleteEvent } from "./event/delete-event.js"
-export { publishEvent } from "./event/publish-event.js"
-export { saveDraftEvent } from "./event/save-draft-event.js"
-export { createPlayerProfile } from "./player/createPlayerProfil.js"
-export { getOrCreatePlayer } from "./player/getOrCreatePlayer.js"
-export { cancelLaunch } from "./tournament/cancel-launch.js"
-export { launchTournament } from "./tournament/launch-tournament.js"
-export { registerTeam } from "./tournament/register-team.js"
+
+// Wrap all exported functions in traced for automatic telemetry
+
+export const createPlayerProfile = traced(
+	"app.createPlayerProfile",
+	_createPlayerProfile,
+)
+export const deleteEvent = traced("app.deleteEvent", _deleteEvent)
+export const getOrCreatePlayer = traced(
+	"app.getOrCreatePlayer",
+	_getOrCreatePlayer,
+)
+export const publishEvent = traced("app.publishEvent", _publishEvent)
+export const saveDraftEvent = traced("app.saveDraftEvent", _saveDraftEvent)
+
+export const cancelLaunch = traced("app.cancelLaunch", _cancelLaunch)
+export const launchTournament = traced(
+	"app.launchTournament",
+	_launchTournament,
+)
+export const registerTeam = traced("app.registerTeam", _registerTeam)
