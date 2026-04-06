@@ -1,8 +1,8 @@
-import { sql } from "$lib/server/db"
-import { TournamentWithRegistrationSchema } from "$lib/server/schemas/event-schemas.js"
-import type { TournamentWithRegistration } from "$lib/server/schemas/event-schemas.js"
-import type { PageServerLoad } from "./$types"
 import { z } from "zod"
+import { sql } from "$lib/server/db"
+import type { TournamentWithRegistration } from "$lib/server/schemas/event-schemas.js"
+import { TournamentWithRegistrationSchema } from "$lib/server/schemas/event-schemas.js"
+import type { PageServerLoad } from "./$types"
 
 const OpenEventRowSchema = z.object({
 	event_id: z.uuid(),

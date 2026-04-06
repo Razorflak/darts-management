@@ -4,7 +4,10 @@ import { invalidateAll } from "$app/navigation"
 import { confirm } from "$lib/confirm.svelte.js"
 import { formatDate } from "$lib/date/utils.js"
 import { apiRoutes } from "$lib/fetch/api"
-import { EVENT_STATUS_COLORS, EVENT_STATUS_LABELS } from "$lib/tournament/labels"
+import {
+	EVENT_STATUS_COLORS,
+	EVENT_STATUS_LABELS,
+} from "$lib/tournament/labels"
 
 let { data } = $props()
 

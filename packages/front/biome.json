@@ -2,6 +2,6 @@
 	"root": false,
 	"extends": ["@darts-management/biome-config/biome"],
 	"files": {
-		"includes": ["**", "!dist/**", "!node_modules/**", "!.svelte-kit/**"]
+		"includes": ["**", "!dist", "!node_modules", "!.svelte-kit"]
 	}
 }

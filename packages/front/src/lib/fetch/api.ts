@@ -17,6 +17,10 @@ export const apiRoutes = {
 	TOURNAMENT_CANCEL: { method: ["POST"], path: "/api/tournament/cancel" },
 	TOURNAMENT_LAUNCH: { method: ["POST"], path: "/api/tournament/launch" },
 	TOURNAMENT_REGISTER: { method: ["POST"], path: "/api/tournament/register" },
+	TOURNAMENT_SEED_ORDER: {
+		method: ["PATCH"],
+		path: "/api/tournament/seed-order",
+	},
 	TOURNAMENT_STATUS: { method: ["PATCH"], path: "/api/tournament/status" },
 	TOURNAMENT_UNEREGISER: {
 		method: ["DELETE"],

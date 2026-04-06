@@ -17,8 +17,8 @@ import type {
 	CheckinPlayer,
 	CheckinRegistration,
 } from "$lib/server/schemas/event-schemas.js"
-import type { PageData } from "./$types"
 import RegistrationModal from "$lib/tournament/components/RegistrationModal.svelte"
+import type { PageData } from "./$types"
 
 let { data }: { data: PageData } = $props()
 

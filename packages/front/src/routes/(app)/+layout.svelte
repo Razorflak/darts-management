@@ -1,14 +1,14 @@
 <script lang="ts">
 import {
-	Navbar,
-	NavBrand,
-	NavHamburger,
-	NavUl,
-	NavLi,
 	Avatar,
 	Dropdown,
-	DropdownItem,
 	DropdownDivider,
+	DropdownItem,
+	NavBrand,
+	Navbar,
+	NavHamburger,
+	NavLi,
+	NavUl,
 } from "flowbite-svelte"
 import { page } from "$app/stores"
 import { authClient } from "$lib/auth-client"

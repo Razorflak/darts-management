@@ -1,6 +1,6 @@
 <script lang="ts">
-import { goto } from "$app/navigation"
 import { Card } from "flowbite-svelte"
+import { goto } from "$app/navigation"
 import { apiRoutes } from "$lib/fetch/api"
 import PlayerCreationForm from "$lib/tournament/components/PlayerCreationForm.svelte"
 import type { PageData } from "./$types"

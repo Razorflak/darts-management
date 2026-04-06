@@ -1,7 +1,7 @@
 <script lang="ts">
-import { enhance } from "$app/forms"
-import { Card, Label, Input, Button, Alert } from "flowbite-svelte"
+import { Alert, Button, Card, Input, Label } from "flowbite-svelte"
 import { InfoCircleSolid } from "flowbite-svelte-icons"
+import { enhance } from "$app/forms"
 
 let { form } = $props()
 </script>

@@ -12,14 +12,14 @@ import {
 import { goto } from "$app/navigation"
 import { confirm } from "$lib/confirm.svelte.js"
 import { apiRoutes } from "$lib/fetch/api"
+import type { CheckinDay } from "$lib/server/schemas/event-schemas.js"
+import RegistrationModal from "$lib/tournament/components/RegistrationModal.svelte"
 import {
 	CATEGORY_LABELS,
 	EVENT_DETAIL_STATUS_COLORS,
 	TOURNAMENT_STATUS_COLORS,
 	TOURNAMENT_STATUS_LABELS,
 } from "$lib/tournament/labels"
-import type { CheckinDay } from "$lib/server/schemas/event-schemas.js"
-import RegistrationModal from "$lib/tournament/components/RegistrationModal.svelte"
 import type { PageData } from "./$types"
 
 let { data }: { data: PageData } = $props()
@@ -47,7 +47,6 @@ async function startDayCheckin(day: CheckinDay) {
 	)
 	goto(`/admin/events/${data.event.id}/checkin?date=${day.date}`)
 }
-
 </script>
 
 <svelte:head>

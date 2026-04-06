@@ -1,12 +1,12 @@
 <script lang="ts">
-import { Badge, Button, Input, Label } from "flowbite-svelte"
-import { ChevronDownOutline, TrashBinOutline } from "flowbite-svelte-icons"
-import { isGroupPhase } from "@darts-management/domain"
 import type {
 	EliminationPhase,
 	GroupPhase,
 	Phase,
 } from "@darts-management/domain"
+import { isGroupPhase } from "@darts-management/domain"
+import { Badge, Button, Input, Label } from "flowbite-svelte"
+import { ChevronDownOutline, TrashBinOutline } from "flowbite-svelte-icons"
 import { PHASE_TYPE_LABELS } from "../../labels.js"
 import BracketTiers from "./BracketTiers.svelte"
 

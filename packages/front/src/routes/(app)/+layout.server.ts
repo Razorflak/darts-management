@@ -1,5 +1,5 @@
-import { getUserRoles } from "$lib/server/authz"
 import { redirect } from "@sveltejs/kit"
+import { getUserRoles } from "$lib/server/authz"
 import type { LayoutServerLoad } from "./$types"
 
 export const load: LayoutServerLoad = async ({ locals }) => {

@@ -52,10 +52,18 @@ async function confirm() {
 
 	const p1 = selected1
 		? { id: selected1.id }
-		: { first_name: new1.first_name, last_name: new1.last_name, department: new1.department }
+		: {
+				first_name: new1.first_name,
+				last_name: new1.last_name,
+				department: new1.department,
+			}
 	const p2 = selected2
 		? { id: selected2.id }
-		: { first_name: new2.first_name, last_name: new2.last_name, department: new2.department }
+		: {
+				first_name: new2.first_name,
+				last_name: new2.last_name,
+				department: new2.department,
+			}
 
 	const team = isDoubles ? [p1, p2] : [p1]
 
@@ -70,7 +78,8 @@ async function confirm() {
 		onRegistered()
 	} else {
 		const data = await res.json().catch(() => ({}))
-		errorMsg = (data as { message?: string }).message ?? "Erreur lors de l'inscription"
+		errorMsg =
+			(data as { message?: string }).message ?? "Erreur lors de l'inscription"
 	}
 }
 </script>

@@ -1,15 +1,16 @@
 // Server-only — never import this from +page.svelte or +layout.svelte
+
+import { createAuth } from "@darts-management/db"
 import {
 	BETTER_AUTH_SECRET,
 	BETTER_AUTH_URL,
+	EMAIL_FROM,
 	SMTP_HOST,
+	SMTP_PASS,
 	SMTP_PORT,
 	SMTP_SECURE,
 	SMTP_USER,
-	SMTP_PASS,
-	EMAIL_FROM,
 } from "$env/static/private"
-import { createAuth } from "@darts-management/db"
 import { sql } from "./db.js"
 
 export const auth = createAuth(sql, {

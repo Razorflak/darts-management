@@ -1,12 +1,12 @@
 import { error } from "@sveltejs/kit"
-import { sql } from "$lib/server/db"
-import { getUserRoles } from "$lib/server/authz"
-import type { PageServerLoad } from "./$types"
 import { z } from "zod"
+import { getUserRoles } from "$lib/server/authz"
+import { sql } from "$lib/server/db"
 import {
-	EntityRowSchema,
 	type EntityRow,
+	EntityRowSchema,
 } from "$lib/server/schemas/entity-schemas.js"
+import type { PageServerLoad } from "./$types"
 
 export const load: PageServerLoad = async ({ locals }) => {
 	if (!locals.user) error(401, "Non authentifié")

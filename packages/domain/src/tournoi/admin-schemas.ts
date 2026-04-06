@@ -25,6 +25,7 @@ export const AdminTournamentSchema = z.object({
 	event_name: z.string(),
 	status: z.enum(["ready", "check-in", "started", "finished"]),
 	entity_id: z.uuid(),
+	is_seeded: z.boolean(),
 })
 export type AdminTournament = z.infer<typeof AdminTournamentSchema>
 

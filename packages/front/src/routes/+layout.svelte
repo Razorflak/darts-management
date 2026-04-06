@@ -1,7 +1,7 @@
 <script lang="ts">
 import "./layout.css"
-import favicon from "$lib/assets/favicon.svg"
 import { Button, Modal } from "flowbite-svelte"
+import favicon from "$lib/assets/favicon.svg"
 import { confirmState, settle } from "$lib/confirm.svelte.js"
 
 let { children } = $props()

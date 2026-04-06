@@ -1,5 +1,5 @@
-import { auth } from "$lib/server/auth"
 import { fail } from "@sveltejs/kit"
+import { auth } from "$lib/server/auth"
 import type { Actions, PageServerLoad } from "./$types"
 
 export const load: PageServerLoad = async () => {

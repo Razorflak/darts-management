@@ -1,12 +1,12 @@
 import { redirect } from "@sveltejs/kit"
-import { sql } from "$lib/server/db"
-import { getUserRoles } from "$lib/server/authz"
-import type { PageServerLoad } from "./$types"
 import { z } from "zod"
+import { getUserRoles } from "$lib/server/authz"
+import { sql } from "$lib/server/db"
 import {
-	EventListItemSchema,
 	type EventListItem,
+	EventListItemSchema,
 } from "$lib/server/schemas/event-schemas.js"
+import type { PageServerLoad } from "./$types"
 
 export const load: PageServerLoad = async ({ locals }) => {
 	if (!locals.user) redirect(302, "/login")

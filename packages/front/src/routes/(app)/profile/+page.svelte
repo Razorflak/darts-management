@@ -6,7 +6,12 @@ let { data }: { data: PageData } = $props()
 
 function formatBirthDate(date: Date | null): string {
 	if (!date) return "Non renseignée"
-	return date.toLocaleDateString("fr-FR", { day: "numeric", month: "long", year: "numeric", timeZone: "UTC" })
+	return date.toLocaleDateString("fr-FR", {
+		day: "numeric",
+		month: "long",
+		year: "numeric",
+		timeZone: "UTC",
+	})
 }
 </script>
 

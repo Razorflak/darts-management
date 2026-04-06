@@ -42,6 +42,7 @@ export const RosterEntrySchema = z.object({
 	),
 	checked_in: z.boolean(),
 	registered_at: z.coerce.date(),
+	seed: z.number().int().nullable(),
 })
 export type RosterEntry = z.infer<typeof RosterEntrySchema>
 

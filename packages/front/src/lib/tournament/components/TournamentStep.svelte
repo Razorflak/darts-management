@@ -1,11 +1,11 @@
 <script lang="ts">
 import { Button } from "flowbite-svelte"
-import TournamentTabs from "./TournamentTabs.svelte"
-import TournamentForm from "./TournamentForm.svelte"
 import type {
 	DraftTournament,
 	Tournament,
 } from "$lib/server/schemas/event-schemas"
+import TournamentForm from "./TournamentForm.svelte"
+import TournamentTabs from "./TournamentTabs.svelte"
 
 interface Props {
 	tournaments: (Tournament | DraftTournament)[]

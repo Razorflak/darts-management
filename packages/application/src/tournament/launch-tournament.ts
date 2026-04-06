@@ -41,19 +41,10 @@ export const launchTournament = async (
 	)
 	if (!hasAccess) throw new Error("Forbidden")
 
-	let teamIds = await launchRepo.loadActiveRoster(
+	const teamIds = await launchRepo.loadActiveRoster(
 		tournamentId,
 		tournament.check_in_required,
 	)
-
-	if (tournament.is_seeded && tournament.seed_order.length > 0) {
-		const seedSet = new Set(tournament.seed_order)
-		const unseeded = teamIds.filter((id) => !seedSet.has(id))
-		teamIds = [
-			...tournament.seed_order.filter((id) => teamIds.includes(id)),
-			...unseeded,
-		]
-	}
 
 	// ── Génération des matchs (CPU, hors transaction) ─────────────────────────
 	function computePhaseQualifiers(

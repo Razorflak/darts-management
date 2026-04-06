@@ -12,7 +12,8 @@ import type { PageServerLoad } from "./$types"
 export const load: PageServerLoad = async ({ locals, params }) => {
 	const [tRow] = await sql<Record<string, unknown>[]>`
 		SELECT t.id, t.name, t.category, t.check_in_required,
-		       e.id AS event_id, e.name AS event_name, t.status, e.entity_id
+		       e.id AS event_id, e.name AS event_name, t.status, e.entity_id,
+		       t.is_seeded, t.seed_order
 		FROM tournament t JOIN event e ON e.id = t.event_id
 		WHERE t.id = ${params.tid} AND e.id = ${params.id}
 	`
@@ -42,6 +43,7 @@ export const load: PageServerLoad = async ({ locals, params }) => {
 			r.team_id,
 			r.checked_in,
 			r.registered_at,
+			r.seed,
 			json_agg(json_build_object(
 				'player_id', p.id,
 				'first_name', p.first_name,
@@ -52,7 +54,7 @@ export const load: PageServerLoad = async ({ locals, params }) => {
 		JOIN team_member tm ON tm.team_id = r.team_id
 		JOIN player p ON p.id = tm.player_id
 		WHERE r.tournament_id = ${params.tid}
-		GROUP BY r.id, r.team_id, r.checked_in, r.registered_at
+		GROUP BY r.id, r.team_id, r.checked_in, r.registered_at, r.seed
 		ORDER BY MIN(p.last_name), MIN(p.first_name)
 	`,
 		sql<Record<string, unknown>[]>`

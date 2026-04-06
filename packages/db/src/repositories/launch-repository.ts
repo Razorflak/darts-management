@@ -17,10 +17,6 @@ const TournamentForLaunchSchema = z.object({
 	status: z.string(),
 	auto_referee: z.boolean(),
 	is_seeded: z.boolean(),
-	seed_order: z.preprocess(
-		(val) => (typeof val === "string" ? JSON.parse(val) : val),
-		z.array(z.string()),
-	),
 	check_in_required: z.boolean(),
 })
 
@@ -54,7 +50,7 @@ const internalLaunchRepo = {
 			FROM tournament_registration r
 			WHERE r.tournament_id = ${tournamentId}
 			  AND (${checkInRequired} = false OR r.checked_in = true)
-			ORDER BY r.registered_at
+			ORDER BY r.seed NULLS LAST, r.registered_at
 		`
 		return rows.map((r) => r.team_id)
 	},
@@ -66,7 +62,7 @@ const internalLaunchRepo = {
 		const [row] = z.array(TournamentForLaunchSchema).parse(
 			await sql<Record<string, unknown>[]>`
 				SELECT t.id, t.event_id, e.entity_id, t.status, t.auto_referee,
-				       t.is_seeded, t.seed_order, t.check_in_required
+				       t.is_seeded, t.check_in_required
 				FROM tournament t
 				JOIN event e ON e.id = t.event_id
 				WHERE t.id = ${tournamentId}

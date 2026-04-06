@@ -1,12 +1,12 @@
+import { error, fail, redirect } from "@sveltejs/kit"
+import { z } from "zod"
 import { getUserRoles } from "$lib/server/authz"
 import { sql } from "$lib/server/db"
-import { error, fail, redirect } from "@sveltejs/kit"
-import type { Actions, PageServerLoad } from "./$types"
-import { z } from "zod"
 import {
-	EntityRowSchema,
 	type EntityRow,
+	EntityRowSchema,
 } from "$lib/server/schemas/entity-schemas.js"
+import type { Actions, PageServerLoad } from "./$types"
 
 const PARENT_TYPE: Record<string, string | null> = {
 	federation: null,

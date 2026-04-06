@@ -277,6 +277,23 @@ const internalRepoTournament = {
 	): Promise<void> => {
 		await sql`UPDATE tournament SET status = ${status}, updated_at = now() WHERE id = ${tournamentId}`
 	},
+
+	updateSeedOrder: async (
+		sql: Sql,
+		tournamentId: string,
+		seeds: { registration_id: string; seed: number }[],
+	): Promise<void> => {
+		if (seeds.length === 0) return
+		const ids = seeds.map((s) => s.registration_id)
+		const values = seeds.map((s) => s.seed)
+		await sql`
+			UPDATE tournament_registration AS r
+			SET seed = v.seed
+			FROM UNNEST(${ids}::uuid[], ${values}::int[]) AS v(id, seed)
+			WHERE r.id = v.id
+			  AND r.tournament_id = ${tournamentId}
+		`
+	},
 }
 
 export const tournamentRepository = createRepository(

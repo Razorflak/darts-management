@@ -1,5 +1,5 @@
-import { getUserRoles } from "$lib/server/authz"
 import { error } from "@sveltejs/kit"
+import { getUserRoles } from "$lib/server/authz"
 import type { PageServerLoad } from "./$types"
 
 export const load: PageServerLoad = async ({ locals }) => {

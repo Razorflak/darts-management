@@ -1,5 +1,4 @@
 <script lang="ts">
-import { isGroupPhase } from "@darts-management/domain"
 import type {
 	DraftEvent,
 	EliminationPhase,
@@ -7,12 +6,13 @@ import type {
 	GroupPhase,
 	Phase,
 } from "@darts-management/domain"
+import { isGroupPhase } from "@darts-management/domain"
+import { Badge, Button, Card } from "flowbite-svelte"
 import {
 	BRACKET_ROUND_LABELS,
 	CATEGORY_LABELS,
 	PHASE_TYPE_LABELS,
 } from "../labels.js"
-import { Badge, Button, Card } from "flowbite-svelte"
 
 function isEliminationPhase(p: Phase): p is EliminationPhase {
 	return p.type === "single_elimination" || p.type === "double_elimination"
