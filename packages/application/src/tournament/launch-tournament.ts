@@ -12,22 +12,25 @@ import {
 	generateSingleEliminationStructure,
 	PHASE_FORMAT_DEFAULTS,
 } from "@darts-management/domain"
+import { traced } from "@darts-management/logger"
+import { trace } from "@opentelemetry/api"
 
 type Sql = typeof sql
 
-export async function launchTournament(
-	tournamentId: string,
-	userRoles: Array<{ entityId: string; role: string }>,
-): Promise<void> {
-	await sql.begin(async (rawTx) => {
-		const tx = rawTx as unknown as Sql
-		const launchRepo = getLaunchRepositoryWithSql(tx)
-		const tournamentRepo = getTournamentRepositoryWithSql(tx)
+export const launchTournament = traced(
+	"api.launch",
+	async (
+		tournamentId: string,
+		userRoles: Array<{ entityId: string; role: string }>,
+	): Promise<void> => {
+		trace.getActiveSpan()?.setAttribute("tournament.id", tournamentId)
 
-		// 1. Load tournament (FOR UPDATE) — includes entity_id from joined event table
+		const launchRepo = getLaunchRepositoryWithSql(sql)
+
+		// ── Phase 1 : lectures hors transaction ──────────────────────────────────
+		// Pas de verrou — on charge les données pour la génération.
 		const tournament = await launchRepo.loadTournamentForLaunch(tournamentId)
 
-		// 2. Authz: check user has admin role on tournament's entity
 		const hasAccess = userRoles.some(
 			(r) =>
 				r.entityId === tournament.entity_id &&
@@ -41,21 +44,11 @@ export async function launchTournament(
 		)
 		if (!hasAccess) throw new Error("Forbidden")
 
-		// 3. Advisory lock on event to prevent concurrent launches with overlapping event_match_id
-		await tx`SELECT pg_advisory_xact_lock(hashtext(${tournament.event_id}))`
-
-		// 4. Guard: status must be 'ready' or 'check-in' — LAUNCH-01 lock enforcement
-		if (tournament.status !== "ready" && tournament.status !== "check-in") {
-			throw new Error("ALREADY_LAUNCHED")
-		}
-
-		// 5. Load active roster
 		let teamIds = await launchRepo.loadActiveRoster(
 			tournamentId,
 			tournament.check_in_required,
 		)
 
-		// Apply seed order if seeded
 		if (tournament.is_seeded && tournament.seed_order.length > 0) {
 			const seedSet = new Set(tournament.seed_order)
 			const unseeded = teamIds.filter((id) => !seedSet.has(id))
@@ -65,13 +58,7 @@ export async function launchTournament(
 			]
 		}
 
-		// 6. Get current event_match_id offset
-		const maxEventMatchId = await launchRepo.countEventMatches(
-			tournament.event_id,
-		)
-		let nextEventMatchId = maxEventMatchId + 1
-
-		// Helper: compute how many teams qualify out of a phase
+		// ── Génération des matchs (CPU, hors transaction) ─────────────────────────
 		function computePhaseQualifiers(
 			phase: (typeof tournament.phases)[number],
 			teamCount: number,
@@ -86,13 +73,15 @@ export async function launchTournament(
 			return 0
 		}
 
-		// 7. Generate matches for each phase in order
+		// Les matchs sont générés avec event_match_id démarrant à 1.
+		// L'offset réel (maxEventMatchId) est appliqué dans la transaction.
 		const combinedResult: GeneratorResult = {
 			matches: [],
 			roundRobinInfos: [],
 			bracketInfos: [],
 		}
 		let expectedQualifiers = teamIds.length
+		let nextEventMatchId = 1
 
 		for (
 			let phaseIndex = 0;
@@ -145,17 +134,15 @@ export async function launchTournament(
 						legsPerSet: tier.legs,
 					}
 				})
-				const effectiveTiers = tierConfig
 				if (tierConfig.length === 0) {
 					throw new Error("single_elimination phase must have tiers config")
 				}
-
 				phaseResult = generateSingleEliminationStructure(
 					expectedQualifiers,
 					phase.id,
 					tournamentId,
 					nextEventMatchId,
-					effectiveTiers,
+					tierConfig,
 				)
 			} else if (phase.type === "double_elimination") {
 				throw new Error(
@@ -175,7 +162,6 @@ export async function launchTournament(
 			combinedResult.bracketInfos.push(...phaseResult.bracketInfos)
 		}
 
-		// 8. Assign referees (stub — sera retravaillé)
 		if (tournament.auto_referee) {
 			combinedResult.matches = assignReferees(
 				combinedResult.matches,
@@ -184,10 +170,33 @@ export async function launchTournament(
 			)
 		}
 
-		// 9. Insert all matches and info rows
-		await launchRepo.insertMatches(combinedResult)
+		// ── Phase 2 : transaction courte — lock + écriture uniquement ────────────
+		await sql.begin(async (rawTx) => {
+			const tx = rawTx as unknown as Sql
+			const txLaunchRepo = getLaunchRepositoryWithSql(tx)
+			const txTournamentRepo = getTournamentRepositoryWithSql(tx)
 
-		// 10. Update tournament status to 'started'
-		await tournamentRepo.updateStatus(tournamentId, "started")
-	})
-}
+			// Re-vérifier le statut avec FOR UPDATE pour éviter les lancements concurrents
+			const status = await txLaunchRepo.lockTournamentStatus(tournamentId)
+			if (status !== "ready" && status !== "check-in") {
+				throw new Error("ALREADY_LAUNCHED")
+			}
+
+			// Advisory lock sur l'event pour garantir l'unicité des event_match_id
+			await tx`SELECT pg_advisory_xact_lock(hashtext(${tournament.event_id}))`
+
+			// Lire le max après le verrou, puis décaler les IDs générés
+			const maxEventMatchId = await txLaunchRepo.countEventMatches(
+				tournament.event_id,
+			)
+			if (maxEventMatchId > 0) {
+				for (const m of combinedResult.matches) {
+					m.event_match_id += maxEventMatchId
+				}
+			}
+
+			await txLaunchRepo.insertMatches(combinedResult)
+			await txTournamentRepo.updateStatus(tournamentId, "started")
+		})
+	},
+)

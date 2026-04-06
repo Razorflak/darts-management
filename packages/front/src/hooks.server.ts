@@ -1,3 +1,6 @@
+import "@darts-management/logger/tracing"
+
+import { logger } from "@darts-management/logger"
 import type { Handle } from "@sveltejs/kit"
 import { sequence } from "@sveltejs/kit/hooks"
 import { svelteKitHandler } from "better-auth/svelte-kit"
@@ -7,6 +10,8 @@ import { sql } from "$lib/server/db"
 import { PlayerSchema } from "$lib/server/schemas/event-schemas.js"
 
 const authHandle: Handle = async ({ event, resolve }) => {
+	const start = performance.now()
+
 	const sessionData = await auth.api.getSession({
 		headers: event.request.headers,
 	})
@@ -15,7 +20,17 @@ const authHandle: Handle = async ({ event, resolve }) => {
 
 	if (!event.locals.user) {
 		event.locals.player = null
-		return resolve(event)
+		const response = await resolve(event)
+		logger.info(
+			{
+				method: event.request.method,
+				path: event.url.pathname,
+				status: response.status,
+				duration_ms: Math.round(performance.now() - start),
+			},
+			"HTTP request",
+		)
+		return response
 	}
 
 	const userId = event.locals.user.id
@@ -29,7 +44,18 @@ const authHandle: Handle = async ({ event, resolve }) => {
 	`
 	event.locals.player = rows.length > 0 ? PlayerSchema.parse(rows[0]) : null
 
-	return resolve(event)
+	const response = await resolve(event)
+	logger.info(
+		{
+			method: event.request.method,
+			path: event.url.pathname,
+			status: response.status,
+			duration_ms: Math.round(performance.now() - start),
+			userId,
+		},
+		"HTTP request",
+	)
+	return response
 }
 
 const betterAuthHandle: Handle = ({ event, resolve }) =>

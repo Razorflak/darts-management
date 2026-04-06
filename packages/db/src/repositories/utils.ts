@@ -1,3 +1,4 @@
+import { traced } from "@darts-management/logger"
 import type { Sql } from "postgres"
 
 type RepositoryFn = (sql: Sql, ...args: any[]) => Promise<any>
@@ -16,7 +17,7 @@ export const createRepository = <T extends Repository>(
 ): BoundRepository<T> => {
 	const repo = {} as Record<string, (...args: any[]) => Promise<any>>
 	for (const [name, fn] of Object.entries(repositoryObject)) {
-		repo[name] = (...args: any[]) => fn(sql, ...args)
+		repo[name] = traced(`db.${name}`, (...args: any[]) => fn(sql, ...args))
 	}
 	return repo as BoundRepository<T>
 }

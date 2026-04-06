@@ -19,6 +19,7 @@
 		"@darts-management/application": "workspace:*",
 		"@darts-management/db": "workspace:*",
 		"@darts-management/domain": "workspace:*",
+		"@darts-management/logger": "workspace:*",
 		"better-auth": "^1.4.20",
 		"dayjs": "^1.11.19",
 		"dotenv": "^17.4.0",

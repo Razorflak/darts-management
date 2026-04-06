@@ -1,0 +1,21 @@
+{
+	"name": "@darts-management/scripts",
+	"private": true,
+	"version": "1.0.0",
+	"type": "module",
+	"scripts": {
+		"test": "vitest run --reporter=verbose",
+		"test:watch": "vitest --reporter=verbose",
+		"lint": "biome check ."
+	},
+	"dependencies": {
+		"@darts-management/db": "workspace:*"
+	},
+	"devDependencies": {
+		"@darts-management/biome-config": "workspace:*",
+		"@darts-management/typescript-config": "workspace:*",
+		"@types/node": "^25.5.0",
+		"dotenv": "^16.0.0",
+		"vitest": "^4.1.2"
+	}
+}

@@ -1,0 +1,68 @@
+# SigNoz CE — stack observabilité locale
+# Usage : docker compose -f docker-compose.observability.yml up -d
+# UI     : http://localhost:3301  (email: admin@admin.com / mdp: admin)
+# OTLP   : http://localhost:4318 (HTTP) | localhost:4317 (gRPC)
+
+services:
+  clickhouse:
+    image: clickhouse/clickhouse-server:24.1.2-alpine
+    container_name: darts-clickhouse
+    environment:
+      CLICKHOUSE_USER: admin
+      CLICKHOUSE_PASSWORD: 27ff0399-0d3a-4bd8-919d-17c2181e6fb9
+      CLICKHOUSE_DEFAULT_ACCESS_MANAGEMENT: "1"
+    volumes:
+      - signoz-clickhouse:/var/lib/clickhouse
+      - ./docker/clickhouse-config.xml:/etc/clickhouse-server/config.d/listen.xml
+    healthcheck:
+      test: ["CMD", "wget", "--spider", "-q", "127.0.0.1:8123/ping"]
+      interval: 10s
+      timeout: 5s
+      retries: 10
+      start_period: 60s
+
+  otel-collector:
+    image: signoz/signoz-otel-collector:0.102.10
+    container_name: darts-otel-collector
+    command:
+      - "--config=/etc/otel-collector-config.yaml"
+      - "--feature-gates=-pkg.translator.prometheus.NormalizeName"
+    volumes:
+      - ./docker/otel-collector-config.yaml:/etc/otel-collector-config.yaml
+    ports:
+      - "4317:4317"  # OTLP gRPC
+      - "4318:4318"  # OTLP HTTP
+    depends_on:
+      clickhouse:
+        condition: service_healthy
+    restart: on-failure
+
+  query-service:
+    image: signoz/query-service:0.52.0
+    container_name: darts-signoz-query
+    environment:
+      ClickHouseUrl: tcp://admin:27ff0399-0d3a-4bd8-919d-17c2181e6fb9@clickhouse:9000/
+      STORAGE: clickhouse
+      GODEBUG: netdns=go
+      TELEMETRY_ENABLED: "false"
+    volumes:
+      - signoz-sqlite:/var/lib/signoz
+    ports:
+      - "8080:8080"
+    depends_on:
+      clickhouse:
+        condition: service_healthy
+    restart: on-failure
+
+  frontend:
+    image: signoz/frontend:0.52.0
+    container_name: darts-signoz-ui
+    ports:
+      - "3301:3301"
+    depends_on:
+      - query-service
+    restart: on-failure
+
+volumes:
+  signoz-clickhouse:
+  signoz-sqlite:

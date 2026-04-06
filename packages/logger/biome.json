@@ -1,0 +1,7 @@
+{
+	"root": false,
+	"extends": ["@darts-management/biome-config/biome"],
+	"files": {
+		"includes": ["**", "!dist", "!node_modules"]
+	}
+}

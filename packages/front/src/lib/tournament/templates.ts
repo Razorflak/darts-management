@@ -18,8 +18,8 @@ const doubleKOPhase: Omit<GroupPhase, "position"> = {
 	type: "double_loss_groups",
 	players_per_group: 8,
 	qualifiers_per_group: 4,
-	sets_to_win: 2,
-	legs_per_set: 3,
+	sets_to_win: 1,
+	legs_per_set: 2,
 }
 
 const classicPoolPhase: Omit<GroupPhase, "position"> = {
@@ -28,8 +28,8 @@ const classicPoolPhase: Omit<GroupPhase, "position"> = {
 	type: "round_robin",
 	players_per_group: 8,
 	qualifiers_per_group: 4,
-	sets_to_win: 2,
-	legs_per_set: 3,
+	sets_to_win: 1,
+	legs_per_set: 2,
 }
 
 /** Arbre direct : 1/4 (3m) · 1/2 (4m) · Finale (5m) */

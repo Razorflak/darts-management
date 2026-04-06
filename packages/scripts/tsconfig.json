@@ -1,0 +1,7 @@
+{
+	"extends": "@darts-management/typescript-config/tsconfig.json",
+	"compilerOptions": {
+		"noEmit": true
+	},
+	"include": ["src/**/*.ts", "vitest.config.ts"]
+}
