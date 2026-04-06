@@ -1,7 +1,7 @@
 import { error } from "@sveltejs/kit"
 import { z } from "zod"
-import { sql } from "$lib/server/db"
 import { getUserRoles } from "$lib/server/authz"
+import { sql } from "$lib/server/db"
 import {
 	AdminTournamentSchema,
 	MatchDisplaySchema,
@@ -35,7 +35,8 @@ export const load: PageServerLoad = async ({ locals, params }) => {
 
 	const tournament = AdminTournamentSchema.parse(tRow)
 
-	const rosterRows = await sql<Record<string, unknown>[]>`
+	const [rosterRows, matchRows] = await Promise.all([
+		sql<Record<string, unknown>[]>`
 		SELECT
 			r.id AS registration_id,
 			r.team_id,
@@ -53,12 +54,8 @@ export const load: PageServerLoad = async ({ locals, params }) => {
 		WHERE r.tournament_id = ${params.tid}
 		GROUP BY r.id, r.team_id, r.checked_in, r.registered_at
 		ORDER BY MIN(p.last_name), MIN(p.first_name)
-	`
-	const roster = z.array(RosterEntrySchema).parse(rosterRows)
-
-	let matches: z.infer<typeof MatchDisplaySchema>[] = []
-	if (tournament.status === "started" || tournament.status === "finished") {
-		const matchRows = await sql<Record<string, unknown>[]>`
+	`,
+		sql<Record<string, unknown>[]>`
 			SELECT m.id, m.event_match_id,
 			       COALESCE(rri.group_number, bi.group_number)   AS group_number,
 			       COALESCE(rri.round_number, bi.round_number)   AS round_number,
@@ -80,7 +77,13 @@ export const load: PageServerLoad = async ({ locals, params }) => {
 			WHERE p.tournament_id = ${params.tid}
 			ORDER BY p.position, COALESCE(rri.group_number, bi.group_number) NULLS LAST,
 			         COALESCE(rri.round_number, bi.round_number), COALESCE(rri.position, bi.position)
-		`
+		`,
+	])
+
+	const roster = z.array(RosterEntrySchema).parse(rosterRows)
+
+	let matches: z.infer<typeof MatchDisplaySchema>[] = []
+	if (tournament.status === "started" || tournament.status === "finished") {
 		matches = z.array(MatchDisplaySchema).parse(matchRows)
 	}
 
