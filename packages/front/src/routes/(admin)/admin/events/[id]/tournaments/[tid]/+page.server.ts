@@ -59,7 +59,10 @@ export const load: PageServerLoad = async ({ locals, params }) => {
 	let matches: z.infer<typeof MatchDisplaySchema>[] = []
 	if (tournament.status === "started" || tournament.status === "finished") {
 		const matchRows = await sql<Record<string, unknown>[]>`
-			SELECT m.id, m.event_match_id, m.group_number, m.round_number, m.position,
+			SELECT m.id, m.event_match_id,
+			       COALESCE(rri.group_number, bi.group_number)   AS group_number,
+			       COALESCE(rri.round_number, bi.round_number)   AS round_number,
+			       COALESCE(rri.position,     bi.position)       AS position,
 			       m.status, m.phase_id, p.type AS phase_type, p.position AS phase_position,
 			       (SELECT string_agg(pl.first_name || ' ' || pl.last_name, ' / ' ORDER BY pl.last_name)
 			        FROM team_member tm2 JOIN player pl ON pl.id = tm2.player_id
@@ -72,8 +75,11 @@ export const load: PageServerLoad = async ({ locals, params }) => {
 			        WHERE tm2.team_id = m.referee_team_id) AS referee_name
 			FROM match m
 			JOIN phase p ON p.id = m.phase_id
+			LEFT JOIN round_robin_match_info rri ON rri.id = m.round_robin_info_id
+			LEFT JOIN bracket_match_info     bi  ON bi.id  = m.bracket_info_id
 			WHERE p.tournament_id = ${params.tid}
-			ORDER BY p.position, m.group_number NULLS LAST, m.round_number, m.position
+			ORDER BY p.position, COALESCE(rri.group_number, bi.group_number) NULLS LAST,
+			         COALESCE(rri.round_number, bi.round_number), COALESCE(rri.position, bi.position)
 		`
 		matches = z.array(MatchDisplaySchema).parse(matchRows)
 	}
