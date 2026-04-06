@@ -136,7 +136,14 @@ Plans:
   2. An admin tournoi can record a forfait or walkover for a match, and the present player advances as if they had won
   3. After a result is saved, the winning player automatically appears in the next bracket slot (advances_to_match_id target) without manual intervention
   4. When all matches of a group phase are complete, qualifiers are seeded into the next phase's bracket automatically
-**Plans**: TBD
+**Plans**: 5 plans
+
+Plans:
+- [ ] 05-01-PLAN.md — Domain TDD: scoring.ts (validateScore, SCORING_RULES, computeStandings, breakTie)
+- [ ] 05-02-PLAN.md — Domain TDD: generateDoubleEliminationStructure adapter + wire launch-tournament
+- [ ] 05-03-PLAN.md — match-repository.ts + submit-match-result.ts orchestration (application layer)
+- [ ] 05-04-PLAN.md — API endpoints POST /api/match/result + GET /api/match/lookup + MatchDisplaySchema update
+- [ ] 05-05-PLAN.md — UI: ScoreModal, QuickScoreCard, StandingsTable + human verify
 
 ### Phase 6: Views and Dashboard
 **Goal**: Standings, bracket progressions, and the day-overview dashboard are visible to any visitor without login, refreshed on demand
