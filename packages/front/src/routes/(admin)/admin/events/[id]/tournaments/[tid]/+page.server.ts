@@ -1,5 +1,6 @@
 import { error } from "@sveltejs/kit"
 import { z } from "zod"
+import { computeStandings } from "@darts-management/domain"
 import { getUserRoles } from "$lib/server/authz"
 import { sql } from "$lib/server/db"
 import {
@@ -92,5 +93,55 @@ export const load: PageServerLoad = async ({ locals, params }) => {
 		matches = z.array(MatchDisplaySchema).parse(matchRows)
 	}
 
-	return { tournament, roster, matches }
+	// Build teamNames map from roster
+	const teamNames = new Map<string, string>()
+	for (const r of roster) {
+		const name = r.members
+			.map((m) => `${m.first_name} ${m.last_name}`)
+			.join(" / ")
+		teamNames.set(r.team_id, name)
+	}
+
+	// Compute standings for round_robin phases
+	const standingsByPhase = new Map<
+		string,
+		ReturnType<typeof computeStandings>
+	>()
+	if (matches.length > 0) {
+		const rrPhases = new Set(
+			matches
+				.filter(
+					(m) =>
+						m.phase_type === "round_robin" ||
+						m.phase_type === "double_loss_groups",
+				)
+				.map((m) => m.phase_id),
+		)
+		for (const phaseId of rrPhases) {
+			const phaseMatches = matches.filter((m) => m.phase_id === phaseId)
+			const groups = new Set(phaseMatches.map((m) => m.group_number))
+			for (const groupNum of groups) {
+				const groupMatches = phaseMatches.filter(
+					(m) => m.group_number === groupNum,
+				)
+				const standingsInput = groupMatches.map((m) => ({
+					team_a_id: m.team_a_id,
+					team_b_id: m.team_b_id,
+					score_a: m.score_a,
+					score_b: m.score_b,
+					status: m.status,
+				}))
+				const standings = computeStandings(standingsInput)
+				standingsByPhase.set(`${phaseId}-${groupNum}`, standings)
+			}
+		}
+	}
+
+	return {
+		tournament,
+		roster,
+		matches,
+		standingsByPhase: Object.fromEntries(standingsByPhase),
+		teamNames: Object.fromEntries(teamNames),
+	}
 }

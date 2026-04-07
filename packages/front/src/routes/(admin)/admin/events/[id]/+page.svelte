@@ -21,6 +21,7 @@ import {
 	TOURNAMENT_STATUS_LABELS,
 } from "$lib/tournament/labels"
 import type { PageData } from "./$types"
+import QuickScoreCard from "./QuickScoreCard.svelte"
 
 let { data }: { data: PageData } = $props()
 
@@ -52,6 +53,10 @@ async function startDayCheckin(day: CheckinDay) {
 <svelte:head>
 	<title>{data.event.name} — Administration</title>
 </svelte:head>
+
+{#if data.hasStartedTournament}
+	<QuickScoreCard eventId={data.event.id} />
+{/if}
 
 <!-- Breadcrumb -->
 <nav class="mb-4 text-sm text-gray-500">

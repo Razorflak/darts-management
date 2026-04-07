@@ -21,9 +21,12 @@ import {
 	TOURNAMENT_STATUS_NEXT,
 	TOURNAMENT_STATUS_PREV,
 } from "$lib/tournament/labels"
+import type { MatchDisplay } from "$lib/server/schemas/event-schemas.js"
 import type { PageData } from "./$types"
 import PhaseMatchTable from "./PhaseMatchTable.svelte"
 import RegistrationModal from "./RegistrationModal.svelte"
+import ScoreModal from "./ScoreModal.svelte"
+import StandingsTable from "./StandingsTable.svelte"
 
 let { data }: { data: PageData } = $props()
 
@@ -107,6 +110,24 @@ let filteredRoster = $derived(
 
 // Modal state
 let showAddModal = $state(false)
+
+// Score modal state
+let scoreModalOpen = $state(false)
+let selectedMatch = $state<MatchDisplay | null>(null)
+
+function handleMatchAreaClick(e: MouseEvent) {
+	const row = (e.target as HTMLElement).closest("tr")
+	if (!row) return
+	const firstCell = row.querySelector("td")
+	if (!firstCell) return
+	const eventMatchId = Number.parseInt(firstCell.textContent?.trim() ?? "", 10)
+	if (Number.isNaN(eventMatchId)) return
+	const m = data.matches.find((m) => m.event_match_id === eventMatchId)
+	if (m) {
+		selectedMatch = m
+		scoreModalOpen = true
+	}
+}
 
 async function changeStatus(newStatus: string) {
 	const res = await fetch(apiRoutes.TOURNAMENT_STATUS.path, {
@@ -339,7 +360,18 @@ async function cancelLaunch() {
 	{:else}
 		<section class="mb-6">
 			<h2 class="mb-4 text-base font-semibold text-gray-800">Matchs générés</h2>
-			<PhaseMatchTable matches={data.matches} />
+			<!-- svelte-ignore a11y_click_events_have_key_events a11y_no_static_element_interactions -->
+			<div onclick={handleMatchAreaClick} class="cursor-pointer">
+				<PhaseMatchTable matches={data.matches} />
+			</div>
+			{#if data.standingsByPhase}
+				{#each Object.entries(data.standingsByPhase) as [key, standings]}
+					<div class="mt-4">
+						<h3 class="mb-2 text-sm font-semibold text-gray-700">Classement — Groupe {key.split("-").at(-1)}</h3>
+						<StandingsTable {standings} teamNames={new Map(Object.entries(data.teamNames))} />
+					</div>
+				{/each}
+			{/if}
 		</section>
 	{/if}
 {/if}
@@ -352,6 +384,8 @@ async function cancelLaunch() {
 		onRegistered={async () => { await invalidateAll() }}
 	/>
 {/if}
+
+<ScoreModal bind:open={scoreModalOpen} match={selectedMatch} eventId={data.tournament.event_id} />
 
 {#if isLaunched && data.matches.length === 0}
 	<Alert color="yellow" class="mt-4">

@@ -45,6 +45,7 @@ export const load: PageServerLoad = async ({ locals, params }) => {
 	const tournamentRows = await sql<Record<string, unknown>[]>`
 		SELECT t.id, t.name, t.category, t.check_in_required,
 		       e.id AS event_id, e.name AS event_name, t.status, e.entity_id,
+		       t.is_seeded,
 		       COUNT(r.id)::int AS registration_count,
 		       t.start_at::text AS start_at
 		FROM tournament t
@@ -93,5 +94,6 @@ export const load: PageServerLoad = async ({ locals, params }) => {
 		.sort(([a], [b]) => a.localeCompare(b))
 		.map(([date, d]) => CheckinDaySchema.parse({ date, ...d }))
 
-	return { event, tournaments, checkinDays }
+	const hasStartedTournament = tournaments.some((t) => t.status === "started")
+	return { event, tournaments, checkinDays, hasStartedTournament }
 }
