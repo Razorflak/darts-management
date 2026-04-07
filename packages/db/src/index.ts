@@ -24,3 +24,7 @@ export {
 	getTournamentRepositoryWithSql,
 	tournamentRepository,
 } from "./repositories/tournament-repository.js"
+export {
+	getMatchRepositoryWithSql,
+	matchRepository,
+} from "./repositories/match-repository.js"
