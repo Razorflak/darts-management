@@ -7,6 +7,7 @@ import {
 	assignReferees,
 	assignTeamsToPhase0,
 	type GeneratorResult,
+	generateDoubleEliminationStructure,
 	generateDoubleKoStructure,
 	generateRoundRobinStructure,
 	generateSingleEliminationStructure,
@@ -132,8 +133,16 @@ export const launchTournament = async (
 				tierConfig,
 			)
 		} else if (phase.type === "double_elimination") {
-			throw new Error(
-				"double_elimination phase type not supported yet — deferred",
+			phaseResult = generateDoubleEliminationStructure(
+				expectedQualifiers,
+				phase.id,
+				tournamentId,
+				nextEventMatchId,
+				{
+					setsToWin: phase.sets_to_win ?? defaults.single_elimination.setsToWin,
+					legsPerSet:
+						phase.legs_per_set ?? defaults.single_elimination.legsPerSet,
+				},
 			)
 		}
 
