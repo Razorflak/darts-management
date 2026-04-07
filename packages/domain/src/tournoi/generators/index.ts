@@ -1,4 +1,5 @@
 export { assignTeamsToPhase0, PHASE_FORMAT_DEFAULTS } from "./defaults.js"
+export { generateDoubleEliminationStructure } from "./double-elimination.js"
 export { generateDoubleKoStructure } from "./double-ko-group.js"
 export { assignReferees } from "./referee-assignment.js"
 export {
