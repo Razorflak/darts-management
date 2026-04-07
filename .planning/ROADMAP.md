@@ -139,7 +139,7 @@ Plans:
 **Plans**: 5 plans
 
 Plans:
-- [ ] 05-01-PLAN.md — Domain TDD: scoring.ts (validateScore, SCORING_RULES, computeStandings, breakTie)
+- [x] 05-01-PLAN.md — Domain TDD: scoring.ts (validateScore, SCORING_RULES, computeStandings, breakTie)
 - [ ] 05-02-PLAN.md — Domain TDD: generateDoubleEliminationStructure adapter + wire launch-tournament
 - [ ] 05-03-PLAN.md — match-repository.ts + submit-match-result.ts orchestration (application layer)
 - [ ] 05-04-PLAN.md — API endpoints POST /api/match/result + GET /api/match/lookup + MatchDisplaySchema update

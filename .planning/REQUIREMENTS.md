@@ -44,8 +44,8 @@
 
 ### RESULT — Saisie & Avancement
 
-- [ ] **RESULT-01**: L'admin tournoi peut saisir le résultat d'un match (score sets/manches)
-- [ ] **RESULT-02**: L'admin tournoi peut enregistrer un forfait ou walkover
+- [x] **RESULT-01**: L'admin tournoi peut saisir le résultat d'un match (score sets/manches)
+- [x] **RESULT-02**: L'admin tournoi peut enregistrer un forfait ou walkover
 - [ ] **RESULT-03**: Après saisie d'un résultat, le système avance automatiquement les joueurs vers les cases suivantes
 - [ ] **RESULT-04**: Quand tous les matchs d'une phase sont terminés, la phase suivante est déclenchée automatiquement
 
@@ -106,8 +106,8 @@
 | LAUNCH-03 | Phase 4 — Launch and Match Generation | Complete |
 | LAUNCH-04 | Phase 4 — Launch and Match Generation | Complete |
 | LAUNCH-05 | Phase 4 — Launch and Match Generation | Complete |
-| RESULT-01 | Phase 5 — Results and Advancement | Pending |
-| RESULT-02 | Phase 5 — Results and Advancement | Pending |
+| RESULT-01 | Phase 5 — Results and Advancement | Complete |
+| RESULT-02 | Phase 5 — Results and Advancement | Complete |
 | RESULT-03 | Phase 5 — Results and Advancement | Pending |
 | RESULT-04 | Phase 5 — Results and Advancement | Pending |
 | VIEW-01 | Phase 6 — Views and Dashboard | Pending |
