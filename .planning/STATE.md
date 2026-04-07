@@ -3,8 +3,8 @@ gsd_state_version: 1.0
 milestone: v1.0
 milestone_name: milestone
 status: executing
-stopped_at: Completed 05-02-PLAN.md
-last_updated: "2026-04-07T20:51:54.146Z"
+stopped_at: Completed 05-01-PLAN.md, 05-02-PLAN.md
+last_updated: "2026-04-07T20:52:01.483Z"
 last_activity: 2026-04-07
 progress:
   total_phases: 8
@@ -73,6 +73,7 @@ Progress: [████░░░░░░] 60% (24/40 plans estimated)
 | Phase 04 P02 | 9 | 3 tasks | 12 files |
 | Phase 04 P06 | 2 | 1 tasks | 5 files |
 | Phase 04 P03 | 4 | 2 tasks | 8 files |
+| Phase 05-results-and-advancement P01 | 3 | 1 tasks | 3 files |
 | Phase 05-results-and-advancement P02 | 3 | 2 tasks | 4 files |
 
 ## Accumulated Context
@@ -172,6 +173,8 @@ Progress: [████░░░░░░] 60% (24/40 plans estimated)
 - [Phase 04-03]: loadTournamentForLaunch JOINs event table to get entity_id — authz check in single query
 - [Phase 04-03]: insertMatches sorts by round_number ascending — finals inserted first to satisfy advances_to_match_id FK constraint
 - [Phase 04-03]: double_elimination throws explicit error — deferred to Phase 5+ (not silently mapped)
+- [Phase 05-01]: validateScore in legs-only mode uses Math.ceil(legs_per_set/2) as required win count — no ties possible
+- [Phase 05-01]: computeStandings walkover field resolves winner — legs are 0-0 for walkover matches
 - [Phase 05-02]: generateDoubleEliminationStructure falls back to single_elimination defaults for sets_to_win/legs_per_set — no dedicated double_elimination defaults yet
 
 ### Roadmap Evolution
@@ -209,6 +212,6 @@ Progress: [████░░░░░░] 60% (24/40 plans estimated)
 
 ## Session Continuity
 
-Last session: 2026-04-07T20:51:54.142Z
-Stopped at: Completed 05-02-PLAN.md
+Last session: 2026-04-07T20:52:01.483Z
+Stopped at: Completed 05-01-PLAN.md, 05-02-PLAN.md
 Resume file: None
