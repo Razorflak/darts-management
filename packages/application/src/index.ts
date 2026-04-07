@@ -7,6 +7,7 @@ import { getOrCreatePlayer as _getOrCreatePlayer } from "./player/getOrCreatePla
 import { cancelLaunch as _cancelLaunch } from "./tournament/cancel-launch.js"
 import { launchTournament as _launchTournament } from "./tournament/launch-tournament.js"
 import { registerTeam as _registerTeam } from "./tournament/register-team.js"
+import { submitMatchResult as _submitMatchResult } from "./tournament/submit-match-result.js"
 
 export { ADMIN_ROLES, ORGANISABLE_ROLES } from "./event/constants.js"
 
@@ -30,3 +31,7 @@ export const launchTournament = traced(
 	_launchTournament,
 )
 export const registerTeam = traced("app.registerTeam", _registerTeam)
+export const submitMatchResult = traced(
+	"app.submitMatchResult",
+	_submitMatchResult,
+)
