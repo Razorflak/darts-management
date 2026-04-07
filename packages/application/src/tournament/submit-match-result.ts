@@ -1,5 +1,8 @@
 import { getMatchRepositoryWithSql, sql } from "@darts-management/db"
-import { type MatchResultPayload, validateScore } from "@darts-management/domain"
+import {
+	type MatchResultPayload,
+	validateScore,
+} from "@darts-management/domain"
 import { trace } from "@opentelemetry/api"
 
 type Sql = typeof sql
@@ -61,14 +64,22 @@ export async function submitMatchResult(
 			scoreB = 0
 			status = "walkover"
 			// walkover 'a' means team_a forfeited → team_b wins
-			winnerTeamId = payload.walkover === "a" ? (match.team_b_id ?? "") : (match.team_a_id ?? "")
-			loserTeamId = payload.walkover === "a" ? (match.team_a_id ?? "") : (match.team_b_id ?? "")
+			winnerTeamId =
+				payload.walkover === "a"
+					? (match.team_b_id ?? "")
+					: (match.team_a_id ?? "")
+			loserTeamId =
+				payload.walkover === "a"
+					? (match.team_a_id ?? "")
+					: (match.team_b_id ?? "")
 		} else {
 			scoreA = payload.score_a
 			scoreB = payload.score_b
 			status = "done"
-			winnerTeamId = scoreA > scoreB ? (match.team_a_id ?? "") : (match.team_b_id ?? "")
-			loserTeamId = scoreA > scoreB ? (match.team_b_id ?? "") : (match.team_a_id ?? "")
+			winnerTeamId =
+				scoreA > scoreB ? (match.team_a_id ?? "") : (match.team_b_id ?? "")
+			loserTeamId =
+				scoreA > scoreB ? (match.team_b_id ?? "") : (match.team_a_id ?? "")
 		}
 
 		await matchRepo.updateMatchResult(matchId, scoreA, scoreB, status)
@@ -96,14 +107,17 @@ export async function submitMatchResult(
 		}
 
 		// 7. Check if phase is complete → seed next phase
-		const { total, finished } = await matchRepo.checkPhaseComplete(match.phase_id)
+		const { total, finished } = await matchRepo.checkPhaseComplete(
+			match.phase_id,
+		)
 		if (total > 0 && total === finished) {
 			if (match.round_robin_info_id) {
 				// Round-robin: compute standings and take top qualifiers per group
 				const phaseConfig = await tx`
 					SELECT qualifiers_per_group FROM phase WHERE id = ${match.phase_id}
 				`
-				const qualifiersPerGroup = (phaseConfig[0]?.qualifiers_per_group as number | null) ?? 1
+				const qualifiersPerGroup =
+					(phaseConfig[0]?.qualifiers_per_group as number | null) ?? 1
 				const qualifiedTeams = await matchRepo.getPhaseQualifiers(
 					match.phase_id,
 					qualifiersPerGroup,

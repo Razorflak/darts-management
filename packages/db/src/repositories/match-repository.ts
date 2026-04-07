@@ -195,8 +195,9 @@ const internalMatchRepo = {
 			WHERE m.phase_id = ${phaseId}
 		`
 
+		type RoundRobinMatchRow = (typeof rows)[number]
 		// Group by group_number
-		const byGroup = new Map<number, typeof rows>()
+		const byGroup = new Map<number, RoundRobinMatchRow[]>()
 		for (const row of rows) {
 			const group = byGroup.get(row.group_number) ?? []
 			group.push(row)
@@ -318,7 +319,11 @@ const internalMatchRepo = {
 	getMatchBracketInfo: async (
 		sql: Sql,
 		matchId: string,
-	): Promise<{ bracket: string; info_id: string; winner_goes_to_info_id: string | null } | null> => {
+	): Promise<{
+		bracket: string
+		info_id: string
+		winner_goes_to_info_id: string | null
+	} | null> => {
 		const rows = z.array(BracketInfoSchema).parse(
 			await sql<Record<string, unknown>[]>`
 				SELECT bi.bracket, bi.id AS info_id, bi.winner_goes_to_info_id
@@ -344,7 +349,12 @@ const internalMatchRepo = {
 
 		// Read phase_id and current GF bracket_info for wiring
 		const [gfMatch] = await sql<
-			{ phase_id: string; bracket_info_id: string; event_match_id: number; tournament_id: string }[]
+			{
+				phase_id: string
+				bracket_info_id: string
+				event_match_id: number
+				tournament_id: string
+			}[]
 		>`
 			SELECT m.phase_id, m.bracket_info_id, m.event_match_id,
 			       t.id AS tournament_id
@@ -393,7 +403,9 @@ const internalMatchRepo = {
 		// The LB winner (who won GF) will be in team_a of the reset match
 		// The WB winner (who lost GF) will be in team_b of the reset match
 		// Advance the WB winner (loser of GF) to the reset match as team_b
-		const [gfRow] = await sql<{ team_a_id: string | null; team_b_id: string | null }[]>`
+		const [gfRow] = await sql<
+			{ team_a_id: string | null; team_b_id: string | null }[]
+		>`
 			SELECT team_a_id, team_b_id FROM match WHERE id = ${gfMatchId}
 		`
 		if (gfRow) {

@@ -34,4 +34,6 @@ export const apiRoutes = {
 		method: ["PUT"],
 		path: "/api/players/profile",
 	},
+	MATCH_RESULT: { method: ["POST"], path: "/api/match/result" },
+	MATCH_LOOKUP: { method: ["GET"], path: "/api/match/lookup" },
 }

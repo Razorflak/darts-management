@@ -13,7 +13,7 @@ export const load: PageServerLoad = async ({ locals, params }) => {
 	const [tRow] = await sql<Record<string, unknown>[]>`
 		SELECT t.id, t.name, t.category, t.check_in_required,
 		       e.id AS event_id, e.name AS event_name, t.status, e.entity_id,
-		       t.is_seeded, t.seed_order
+		       t.is_seeded
 		FROM tournament t JOIN event e ON e.id = t.event_id
 		WHERE t.id = ${params.tid} AND e.id = ${params.id}
 	`
@@ -62,6 +62,9 @@ export const load: PageServerLoad = async ({ locals, params }) => {
 			       COALESCE(rri.group_number, bi.group_number)   AS group_number,
 			       COALESCE(rri.round_number, bi.round_number)   AS round_number,
 			       COALESCE(rri.position,     bi.position)       AS position,
+			       m.team_a_id, m.team_b_id,
+			       m.score_a, m.score_b,
+			       m.sets_to_win, m.legs_per_set,
 			       m.status, m.phase_id, p.type AS phase_type, p.position AS phase_position,
 			       (SELECT string_agg(pl.first_name || ' ' || pl.last_name, ' / ' ORDER BY pl.last_name)
 			        FROM team_member tm2 JOIN player pl ON pl.id = tm2.player_id
