@@ -141,7 +141,7 @@ Plans:
 Plans:
 - [x] 05-01-PLAN.md — Domain TDD: scoring.ts (validateScore, SCORING_RULES, computeStandings, breakTie)
 - [x] 05-02-PLAN.md — Domain TDD: generateDoubleEliminationStructure adapter + wire launch-tournament
-- [ ] 05-03-PLAN.md — match-repository.ts + submit-match-result.ts orchestration (application layer)
+- [x] 05-03-PLAN.md — match-repository.ts + submit-match-result.ts orchestration (application layer)
 - [ ] 05-04-PLAN.md — API endpoints POST /api/match/result + GET /api/match/lookup + MatchDisplaySchema update
 - [ ] 05-05-PLAN.md — UI: ScoreModal, QuickScoreCard, StandingsTable + human verify
 
@@ -169,5 +169,5 @@ Phases execute in numeric order: 1 → 2 → 3 → 4 → 5 → 6
 | 03.1. Teams and Doubles | 4/4 | Complete   | 2026-03-08 |
 | 03.2. Player Profile | 3/3 | Complete   | 2026-03-13 |
 | 4. Launch and Match Generation | 4/6 | In Progress|  |
-| 5. Results and Advancement | 1/5 | In Progress|  |
+| 5. Results and Advancement | 3/5 | In Progress|  |
 | 6. Views and Dashboard | 0/? | Not started | - |
