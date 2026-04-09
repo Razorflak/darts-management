@@ -1,6 +1,5 @@
 <script lang="ts">
 import { CompressOutline, ExpandOutline } from "flowbite-svelte-icons"
-import { onMount } from "svelte"
 import type { MatchDisplay } from "$lib/server/schemas/event-schemas.js"
 import BracketSection from "./BracketSection.svelte"
 import { buildBracketLayout, isMatchHighlighted } from "./bracket-utils.js"
@@ -14,23 +13,6 @@ type Props = {
 }
 
 let { matches, phaseName, stickyHeader = true, onMatchClick }: Props = $props()
-
-// ─── Plein écran ─────────────────────────────────────────────────────────────
-
-let fullscreen = $state(false)
-
-function toggleFullscreen() {
-	fullscreen = !fullscreen
-}
-
-function handleKeydown(e: KeyboardEvent) {
-	if (e.key === "Escape" && fullscreen) fullscreen = false
-}
-
-onMount(() => {
-	document.addEventListener("keydown", handleKeydown)
-	return () => document.removeEventListener("keydown", handleKeydown)
-})
 
 // ─── Recherche ───────────────────────────────────────────────────────────────
 
@@ -96,37 +78,11 @@ const MIN_HEIGHT = 150
 
 let containerHeight = $state(DEFAULT_HEIGHT)
 let isResizing = $state(false)
-
-function startResize(e: MouseEvent | TouchEvent) {
-	if (fullscreen) return
-	isResizing = true
-	const startY = "touches" in e ? e.touches[0].clientY : e.clientY
-	const startHeight = containerHeight
-
-	function onMove(ev: MouseEvent | TouchEvent) {
-		const y = "touches" in ev ? ev.touches[0].clientY : ev.clientY
-		containerHeight = Math.max(MIN_HEIGHT, startHeight + (y - startY))
-	}
-
-	function onUp() {
-		isResizing = false
-		window.removeEventListener("mousemove", onMove)
-		window.removeEventListener("mouseup", onUp)
-		window.removeEventListener("touchmove", onMove)
-		window.removeEventListener("touchend", onUp)
-	}
-
-	window.addEventListener("mousemove", onMove)
-	window.addEventListener("mouseup", onUp)
-	window.addEventListener("touchmove", onMove)
-	window.addEventListener("touchend", onUp)
-}
 </script>
 
 <!-- Conteneur principal -->
 <div
 	class="bracket-root flex flex-col rounded-lg border border-gray-200 bg-white"
-	class:bracket-fullscreen={fullscreen}
 	class:select-none={isResizing}
 >
 	<!-- Header -->
@@ -139,7 +95,8 @@ function startResize(e: MouseEvent | TouchEvent) {
 		<div class="min-w-0 flex-1">
 			<span class="font-semibold text-gray-800">{phaseName}</span>
 			<span class="ml-2 text-sm text-gray-500"
-				>{layout.finishedMatches}/{layout.totalMatches} matchs terminés</span
+				>{layout.finishedMatches}/{layout.totalMatches}
+				matchs terminés</span
 			>
 		</div>
 
@@ -150,7 +107,7 @@ function startResize(e: MouseEvent | TouchEvent) {
 				placeholder="Rechercher une équipe…"
 				bind:value={searchQuery}
 				class="w-44 rounded border border-gray-300 px-2 py-1 text-sm focus:outline-none focus:ring-1 focus:ring-blue-400"
-			/>
+			>
 			{#if searchQuery.trim() && searchResultCount > 0}
 				{#if searchIndex >= 0}
 					<span class="text-xs text-gray-500 tabular-nums">
@@ -162,36 +119,25 @@ function startResize(e: MouseEvent | TouchEvent) {
 					onclick={handleSearchPrev}
 					class="rounded px-1 py-0.5 text-gray-500 hover:bg-gray-100"
 					title="Résultat précédent"
-				>‹</button>
+				>
+					‹
+				</button>
 				<button
 					type="submit"
 					class="rounded px-1 py-0.5 text-gray-500 hover:bg-gray-100"
 					title="Résultat suivant"
-				>›</button>
+				>
+					›
+				</button>
 			{/if}
 		</form>
-
-		<!-- Bouton plein écran -->
-		<button
-			type="button"
-			onclick={toggleFullscreen}
-			class="rounded p-1 text-gray-500 hover:bg-gray-100"
-			title={fullscreen ? "Quitter le plein écran" : "Plein écran"}
-		>
-			{#if fullscreen}
-				<CompressOutline class="h-4 w-4" />
-			{:else}
-				<ExpandOutline class="h-4 w-4" />
-			{/if}
-		</button>
 	</div>
 
 	<!-- Zone scrollable -->
 	<div
 		bind:this={scrollContainer}
 		class="overflow-auto p-4"
-		style={fullscreen ? "" : `height: ${containerHeight}px`}
-		class:flex-1={fullscreen}
+		style={`height: ${containerHeight}px`}
 	>
 		{#if layout.isSE}
 			<!-- Single Elimination : une seule section WB -->
@@ -226,26 +172,4 @@ function startResize(e: MouseEvent | TouchEvent) {
 			/>
 		{/if}
 	</div>
-
-	<!-- Handle de resize (masqué en plein écran) -->
-	{#if !fullscreen}
-		<div
-			class="resize-handle group flex cursor-ns-resize items-center justify-center border-t border-gray-200 py-1 hover:bg-gray-50 active:bg-gray-100"
-			onmousedown={startResize}
-			ontouchstart={startResize}
-			role="separator"
-			aria-label="Redimensionner le bracket"
-		>
-			<div class="h-1 w-8 rounded-full bg-gray-300 group-hover:bg-gray-400"></div>
-		</div>
-	{/if}
 </div>
-
-<style>
-.bracket-fullscreen {
-	position: fixed;
-	inset: 0;
-	z-index: 50;
-	border-radius: 0;
-}
-</style>

@@ -20,7 +20,7 @@ function matchesForColumn(col: BracketColumn): MatchDisplay[] {
 const showConnectors = $derived(bracketFilter === "W")
 </script>
 
-<div class="flex flex-row items-stretch">
+<div class="flex flex-row items-stretch min-w-max">
 	{#each columns as col, colIdx}
 		{@const colMatches = matchesForColumn(col)}
 		{@const isLastColWithMatch = [...columns]
@@ -30,8 +30,7 @@ const showConnectors = $derived(bracketFilter === "W")
 
 		<!-- Colonne de matchs -->
 		<div
-			class="flex flex-col self-stretch w-80"
-            id="titi"
+			class="flex flex-col self-stretch w-80 shrink-0"
 		>
 			<!-- Header de colonne -->
 			<div

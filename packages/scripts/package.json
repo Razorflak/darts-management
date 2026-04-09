@@ -8,12 +8,13 @@
 		"test:watch": "vitest --reporter=verbose",
 		"lint": "biome check ."
 	},
-	"dependencies": {
-		"@darts-management/db": "workspace:*"
-	},
+	"dependencies": {},
 	"devDependencies": {
+		"@darts-management/db": "workspace:*",
+		"@darts-management/application": "workspace:*",
 		"@darts-management/biome-config": "workspace:*",
 		"@darts-management/typescript-config": "workspace:*",
+		"@faker-js/faker": "^10.4.0",
 		"@types/node": "^25.5.0",
 		"dotenv": "^16.0.0",
 		"vitest": "^4.1.2"

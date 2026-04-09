@@ -2,6 +2,7 @@ import { setDefaultResultOrder } from "node:dns"
 import {
 	createSql,
 	getLaunchRepositoryWithSql,
+	getPlayerRepositoryWithSql,
 	getTournamentRepositoryWithSql,
 } from "@darts-management/db"
 
@@ -15,3 +16,4 @@ if (!url) {
 export const sql = createSql(url)
 export const launchRepo = getLaunchRepositoryWithSql(sql)
 export const tournamentRepo = getTournamentRepositoryWithSql(sql)
+export const registerRepo = getPlayerRepositoryWithSql(sql)

@@ -30,6 +30,10 @@
 			}
 		}
 	},
+	"html": {
+		"formatter": { "enabled": true },
+		"experimentalFullSupportEnabled": true
+	},
 	"css": {
 		"parser": {
 			"tailwindDirectives": true

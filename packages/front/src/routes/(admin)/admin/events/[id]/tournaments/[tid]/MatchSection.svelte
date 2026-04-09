@@ -28,16 +28,40 @@ const BRACKET_TYPES = new Set([
 	"double_loss_groups",
 ])
 
-// Grouper les matchs par phase
+function groupLabel(n: number): string {
+	return String.fromCharCode(65 + n)
+}
+
+// Grouper les matchs par phase, puis par group_number
 const phaseGroups = $derived.by(() => {
-	const map = new Map<string, MatchDisplay[]>()
+	const phaseMap = new Map<
+		string,
+		{
+			phaseType: string
+			phasePosition: number
+			groups: Map<number | null, MatchDisplay[]>
+		}
+	>()
 	for (const m of matches) {
-		if (!map.has(m.phase_id)) map.set(m.phase_id, [])
-		map.get(m.phase_id)!.push(m)
+		if (!phaseMap.has(m.phase_id)) {
+			phaseMap.set(m.phase_id, {
+				phaseType: m.phase_type,
+				phasePosition: m.phase_position,
+				groups: new Map(),
+			})
+		}
+		const phase = phaseMap.get(m.phase_id)!
+		if (!phase.groups.has(m.group_number)) phase.groups.set(m.group_number, [])
+		phase.groups.get(m.group_number)!.push(m)
 	}
-	return [...map.entries()].sort(
-		([, a], [, b]) => a[0].phase_position - b[0].phase_position,
-	)
+	return [...phaseMap.entries()]
+		.sort(([, a], [, b]) => a.phasePosition - b.phasePosition)
+		.map(([phaseId, { phaseType, phasePosition, groups }]) => ({
+			phaseId,
+			phaseType,
+			phasePosition,
+			groups: [...groups.entries()].sort(([a], [b]) => (a ?? -1) - (b ?? -1)),
+		}))
 })
 
 function openScoreModal(m: MatchDisplay) {
@@ -68,35 +92,43 @@ function handleMatchAreaClick(e: MouseEvent) {
 	<section class="mb-6">
 		<h2 class="mb-4 text-base font-semibold text-gray-800">Matchs générés</h2>
 
-		{#each phaseGroups as [phaseId, phaseMatches]}
-			{@const phaseType = phaseMatches[0].phase_type}
-			{@const phaseName = `Phase ${phaseMatches[0].phase_position + 1}`}
+		{#each phaseGroups as { phaseId, phaseType, phasePosition, groups }}
+			{@const baseLabel = `Phase ${phasePosition + 1}`}
+			{@const multipleGroups = groups.length > 1}
 
-			{#if BRACKET_TYPES.has(phaseType)}
-				<div class="mb-6">
-					<BracketView
-						matches={phaseMatches}
-						{phaseName}
-						{eventId}
-						onMatchClick={openScoreModal}
-					/>
-				</div>
-			{:else}
-				<!-- svelte-ignore a11y_click_events_have_key_events a11y_no_static_element_interactions -->
-				<div onclick={handleMatchAreaClick} class="cursor-pointer">
-					<PhaseMatchTable matches={phaseMatches} />
-				</div>
-				{#if standingsByPhase}
-					{#each Object.entries(standingsByPhase).filter(([key]) => key.startsWith(phaseId)) as [key, standings]}
-						<div class="mt-4">
-							<h3 class="mb-2 text-sm font-semibold text-gray-700">
-								Classement — Groupe {key.split("-").at(-1)}
-							</h3>
-							<StandingsTable {standings} teamNames={new Map(Object.entries(teamNames))} />
-						</div>
-					{/each}
+			{#each groups as [groupNumber, groupMatches]}
+				{@const phaseName = groupNumber !== null && multipleGroups
+					? `${baseLabel} — Groupe ${groupLabel(groupNumber)}`
+					: baseLabel}
+
+				{#if BRACKET_TYPES.has(phaseType)}
+					<div class="mb-6">
+						<BracketView
+							matches={groupMatches}
+							{phaseName}
+							{eventId}
+							onMatchClick={openScoreModal}
+						/>
+					</div>
+				{:else}
+					<!-- svelte-ignore a11y_click_events_have_key_events a11y_no_static_element_interactions -->
+					<div onclick={handleMatchAreaClick} class="cursor-pointer">
+						<PhaseMatchTable matches={groupMatches} />
+					</div>
+					{#if standingsByPhase && groupNumber !== null}
+						{@const standingKey = `${phaseId}-${groupNumber}`}
+						{@const standings = standingsByPhase[standingKey]}
+						{#if standings}
+							<div class="mt-4">
+								<h3 class="mb-2 text-sm font-semibold text-gray-700">
+									Classement — Groupe {groupLabel(groupNumber)}
+								</h3>
+								<StandingsTable {standings} teamNames={new Map(Object.entries(teamNames))} />
+							</div>
+						{/if}
+					{/if}
 				{/if}
-			{/if}
+			{/each}
 		{/each}
 	</section>
 {/if}
