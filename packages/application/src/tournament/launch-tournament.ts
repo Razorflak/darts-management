@@ -7,10 +7,9 @@ import {
 	assignReferees,
 	assignTeamsToPhase0,
 	type GeneratorResult,
-	generateDoubleEliminationStructure,
+	generateBracket,
 	generateDoubleKoStructure,
 	generateRoundRobinStructure,
-	generateSingleEliminationStructure,
 	PHASE_FORMAT_DEFAULTS,
 } from "@darts-management/domain"
 import { trace } from "@opentelemetry/api"
@@ -125,25 +124,30 @@ export const launchTournament = async (
 			if (tierConfig.length === 0) {
 				throw new Error("single_elimination phase must have tiers config")
 			}
-			phaseResult = generateSingleEliminationStructure(
-				expectedQualifiers,
-				phase.id,
+			phaseResult = generateBracket({
+				mode: "single",
+				participantCount: expectedQualifiers,
+				phaseId: phase.id,
 				tournamentId,
-				nextEventMatchId,
-				tierConfig,
-			)
+				startEventMatchId: nextEventMatchId,
+				tiers: tierConfig,
+				defaultFormat: tierConfig[tierConfig.length - 1],
+			})
 		} else if (phase.type === "double_elimination") {
-			phaseResult = generateDoubleEliminationStructure(
-				expectedQualifiers,
-				phase.id,
+			const fmt = {
+				setsToWin: phase.sets_to_win ?? defaults.single_elimination.setsToWin,
+				legsPerSet:
+					phase.legs_per_set ?? defaults.single_elimination.legsPerSet,
+			}
+			phaseResult = generateBracket({
+				mode: "double",
+				participantCount: expectedQualifiers,
+				phaseId: phase.id,
 				tournamentId,
-				nextEventMatchId,
-				{
-					setsToWin: phase.sets_to_win ?? defaults.single_elimination.setsToWin,
-					legsPerSet:
-						phase.legs_per_set ?? defaults.single_elimination.legsPerSet,
-				},
-			)
+				startEventMatchId: nextEventMatchId,
+				tiers: [],
+				defaultFormat: fmt,
+			})
 		}
 
 		if (phaseIndex === 0) {

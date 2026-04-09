@@ -1,4 +1,5 @@
 <script lang="ts">
+import type { StandingEntry } from "@darts-management/domain"
 import {
 	Table,
 	TableBody,
@@ -7,7 +8,6 @@ import {
 	TableHead,
 	TableHeadCell,
 } from "flowbite-svelte"
-import type { StandingEntry } from "@darts-management/domain"
 
 type Props = {
 	standings: StandingEntry[]

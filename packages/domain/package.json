@@ -12,10 +12,12 @@
 		"format": "biome format --write ."
 	},
 	"dependencies": {
+		"uuid": "^13.0.0",
 		"zod": "^4.3.6"
 	},
 	"devDependencies": {
 		"@darts-management/biome-config": "workspace:*",
-		"@darts-management/typescript-config": "workspace:*"
+		"@darts-management/typescript-config": "workspace:*",
+		"@types/uuid": "^11.0.0"
 	}
 }

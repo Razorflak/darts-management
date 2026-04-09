@@ -25,10 +25,10 @@ let errorMsg = $state("")
 let submitting = $state(false)
 let phase = $state<"input-id" | "input-score" | "confirm">("input-id")
 
-let inputIdEl = $state<HTMLInputElement | undefined>(undefined)
-let inputScoreAEl = $state<HTMLInputElement | undefined>(undefined)
-let inputScoreBEl = $state<HTMLInputElement | undefined>(undefined)
-let validerEl = $state<HTMLButtonElement | undefined>(undefined)
+let inputIdWrapper = $state<HTMLElement | undefined>(undefined)
+let inputScoreAWrapper = $state<HTMLElement | undefined>(undefined)
+let inputScoreBWrapper = $state<HTMLElement | undefined>(undefined)
+let validerWrapper = $state<HTMLElement | undefined>(undefined)
 
 function resetTile() {
 	eventMatchId = ""
@@ -53,7 +53,7 @@ async function lookupMatch() {
 		}
 		phase = "input-score"
 		await tick()
-		inputScoreAEl?.focus()
+		inputScoreAWrapper?.querySelector("input")?.focus()
 	} else {
 		errorMsg = "Match introuvable"
 	}
@@ -104,7 +104,7 @@ async function onIdKeydown(e: KeyboardEvent) {
 async function onScoreAKeydown(e: KeyboardEvent) {
 	if (e.key === "Enter") {
 		await tick()
-		inputScoreBEl?.focus()
+		inputScoreBWrapper?.querySelector("input")?.focus()
 	}
 }
 
@@ -112,7 +112,7 @@ async function onScoreBKeydown(e: KeyboardEvent) {
 	if (e.key === "Enter") {
 		phase = "confirm"
 		await tick()
-		validerEl?.focus()
+		validerWrapper?.querySelector("button")?.focus()
 	}
 }
 </script>
@@ -122,15 +122,16 @@ async function onScoreBKeydown(e: KeyboardEvent) {
 
 	{#if phase === "input-id"}
 		<div class="flex items-center gap-2">
-			<Input
-				bind:ref={inputIdEl}
-				type="number"
-				min="1"
-				placeholder="N° de match"
-				bind:value={eventMatchId}
-				onkeydown={onIdKeydown}
-				class="w-36"
-			/>
+			<div bind:this={inputIdWrapper}>
+				<Input
+					type="number"
+					min="1"
+					placeholder="N° de match"
+					bind:value={eventMatchId}
+					onkeydown={onIdKeydown}
+					class="w-36"
+				/>
+			</div>
 			<Button size="sm" color="primary" onclick={lookupMatch}>Chercher</Button>
 		</div>
 	{/if}
@@ -149,37 +150,35 @@ async function onScoreBKeydown(e: KeyboardEvent) {
 		</div>
 
 		<div class="mb-3 flex items-center gap-3">
-			<Input
-				bind:ref={inputScoreAEl}
-				type="number"
-				min="0"
-				placeholder={matchInfo.team_a_name ?? "Éq. A"}
-				bind:value={scoreA}
-				onkeydown={onScoreAKeydown}
-				class="w-24"
-			/>
+			<div bind:this={inputScoreAWrapper}>
+				<Input
+					type="number"
+					min="0"
+					placeholder={matchInfo.team_a_name ?? "Éq. A"}
+					bind:value={scoreA}
+					onkeydown={onScoreAKeydown}
+					class="w-24"
+				/>
+			</div>
 			<span class="text-gray-400">–</span>
-			<Input
-				bind:ref={inputScoreBEl}
-				type="number"
-				min="0"
-				placeholder={matchInfo.team_b_name ?? "Éq. B"}
-				bind:value={scoreB}
-				onkeydown={onScoreBKeydown}
-				class="w-24"
-			/>
+			<div bind:this={inputScoreBWrapper}>
+				<Input
+					type="number"
+					min="0"
+					placeholder={matchInfo.team_b_name ?? "Éq. B"}
+					bind:value={scoreB}
+					onkeydown={onScoreBKeydown}
+					class="w-24"
+				/>
+			</div>
 		</div>
 
 		<div class="flex flex-wrap gap-2">
-			<Button
-				bind:ref={validerEl}
-				color="primary"
-				size="sm"
-				disabled={submitting}
-				onclick={submitScore}
-			>
-				Valider
-			</Button>
+			<div bind:this={validerWrapper}>
+				<Button color="primary" size="sm" disabled={submitting} onclick={submitScore}>
+					Valider
+				</Button>
+			</div>
 			<Button
 				color="alternative"
 				size="sm"

@@ -3,7 +3,7 @@ import { SpanStatusCode, trace } from "@opentelemetry/api"
 import postgres from "postgres"
 
 // Résout les soucis de perf vers supaBase
-setDefaultResultOrder("ipv6first")
+// setDefaultResultOrder("ipv6first")
 
 const tracer = trace.getTracer("darts-management/db")
 

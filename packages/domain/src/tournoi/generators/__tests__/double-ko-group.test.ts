@@ -28,6 +28,21 @@ describe("generateDoubleKoStructure — 8 players, 2 qualifiers", () => {
 		expect(result.matches).toHaveLength(13)
 		expect(result.bracketInfos).toHaveLength(13)
 	})
+	it("produces 10 matches (WB R1:4 + WB R2:2 + WB Final:1 - LB R1:2 + LB drop-in:1)", () => {
+		const result = generateDoubleKoStructure(
+			8,
+			8,
+			4,
+			phaseId,
+			tournamentId,
+			1,
+			config,
+		)
+		// 8 players, 4 qualifiers → N-K = 4 LB matches kept.
+		// WB R1 (4) + WB Semis (2) + LB R1 (2) + LB drop-in from Semis (2) = 10
+		expect(result.matches).toHaveLength(10)
+		expect(result.bracketInfos).toHaveLength(10)
+	})
 
 	it("no GF bracket in the infos", () => {
 		const result = generateDoubleKoStructure(

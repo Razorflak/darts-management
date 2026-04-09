@@ -1,6 +1,7 @@
 import { getMatchRepositoryWithSql, sql } from "@darts-management/db"
 import {
 	type MatchResultPayload,
+	resolveMatchResult,
 	validateScore,
 } from "@darts-management/domain"
 import { trace } from "@opentelemetry/api"
@@ -11,10 +12,10 @@ export async function submitMatchResult(
 	matchId: string,
 	payload: MatchResultPayload,
 	userRoles: Array<{ entityId: string; role: string }>,
-): Promise<void> {
+): Promise<{ phaseId: string; winnerTeamId: string }> {
 	trace.getActiveSpan()?.setAttribute("match.id", matchId)
 
-	await sql.begin(async (rawTx) => {
+	return await sql.begin(async (rawTx) => {
 		const tx = rawTx as unknown as Sql
 		const matchRepo = getMatchRepositoryWithSql(tx)
 
@@ -52,35 +53,9 @@ export async function submitMatchResult(
 			payload,
 		)
 
-		// 4. Determine winner/loser and update match
-		let scoreA: number
-		let scoreB: number
-		let status: "done" | "walkover"
-		let winnerTeamId: string
-		let loserTeamId: string
-
-		if ("walkover" in payload) {
-			scoreA = 0
-			scoreB = 0
-			status = "walkover"
-			// walkover 'a' means team_a forfeited → team_b wins
-			winnerTeamId =
-				payload.walkover === "a"
-					? (match.team_b_id ?? "")
-					: (match.team_a_id ?? "")
-			loserTeamId =
-				payload.walkover === "a"
-					? (match.team_a_id ?? "")
-					: (match.team_b_id ?? "")
-		} else {
-			scoreA = payload.score_a
-			scoreB = payload.score_b
-			status = "done"
-			winnerTeamId =
-				scoreA > scoreB ? (match.team_a_id ?? "") : (match.team_b_id ?? "")
-			loserTeamId =
-				scoreA > scoreB ? (match.team_b_id ?? "") : (match.team_a_id ?? "")
-		}
+		// 4. Resolve winner/loser, scores and status
+		const { scoreA, scoreB, status, winnerTeamId, loserTeamId } =
+			resolveMatchResult(match, payload)
 
 		await matchRepo.updateMatchResult(matchId, scoreA, scoreB, status)
 
@@ -106,31 +81,6 @@ export async function submitMatchResult(
 			}
 		}
 
-		// 7. Check if phase is complete → seed next phase
-		const { total, finished } = await matchRepo.checkPhaseComplete(
-			match.phase_id,
-		)
-		if (total > 0 && total === finished) {
-			if (match.round_robin_info_id) {
-				// Round-robin: compute standings and take top qualifiers per group
-				const phaseConfig = await tx`
-					SELECT qualifiers_per_group FROM phase WHERE id = ${match.phase_id}
-				`
-				const qualifiersPerGroup =
-					(phaseConfig[0]?.qualifiers_per_group as number | null) ?? 1
-				const qualifiedTeams = await matchRepo.getPhaseQualifiers(
-					match.phase_id,
-					qualifiersPerGroup,
-				)
-				if (qualifiedTeams.length > 0) {
-					await matchRepo.seedNextPhase(match.phase_id, qualifiedTeams)
-				}
-			} else if (match.bracket_info_id) {
-				// Bracket phase: the winner of the final advances to next phase (if any)
-				if (winnerTeamId) {
-					await matchRepo.seedNextPhase(match.phase_id, [winnerTeamId])
-				}
-			}
-		}
+		return { phaseId: match.phase_id, winnerTeamId }
 	})
 }

@@ -1,4 +1,4 @@
-import { submitMatchResult } from "@darts-management/application"
+import { advancePhase, submitMatchResult } from "@darts-management/application"
 import { error, json } from "@sveltejs/kit"
 import { getUserRoles } from "$lib/server/authz"
 import { SubmitMatchResultRequestSchema } from "$lib/server/schemas/request-schemas.js"
@@ -21,7 +21,12 @@ export const POST: RequestHandler = async ({ request, locals }) => {
 	const roles = await getUserRoles(locals.user.id)
 
 	try {
-		await submitMatchResult(match_id, payload, roles)
+		const { phaseId, winnerTeamId } = await submitMatchResult(
+			match_id,
+			payload,
+			roles,
+		)
+		await advancePhase(phaseId, winnerTeamId)
 		return json({ ok: true })
 	} catch (err) {
 		const msg = err instanceof Error ? err.message : ""

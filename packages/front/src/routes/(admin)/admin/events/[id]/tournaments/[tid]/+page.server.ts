@@ -1,6 +1,6 @@
+import { computeStandings } from "@darts-management/domain"
 import { error } from "@sveltejs/kit"
 import { z } from "zod"
-import { computeStandings } from "@darts-management/domain"
 import { getUserRoles } from "$lib/server/authz"
 import { sql } from "$lib/server/db"
 import {
@@ -67,6 +67,8 @@ export const load: PageServerLoad = async ({ locals, params }) => {
 			       m.score_a, m.score_b,
 			       m.sets_to_win, m.legs_per_set,
 			       m.status, m.phase_id, p.type AS phase_type, p.position AS phase_position,
+			       bi.bracket,
+			       lm.event_match_id AS loser_goes_to_event_match_id,
 			       (SELECT string_agg(pl.first_name || ' ' || pl.last_name, ' / ' ORDER BY pl.last_name)
 			        FROM team_member tm2 JOIN player pl ON pl.id = tm2.player_id
 			        WHERE tm2.team_id = m.team_a_id) AS team_a_name,
@@ -80,6 +82,7 @@ export const load: PageServerLoad = async ({ locals, params }) => {
 			JOIN phase p ON p.id = m.phase_id
 			LEFT JOIN round_robin_match_info rri ON rri.id = m.round_robin_info_id
 			LEFT JOIN bracket_match_info     bi  ON bi.id  = m.bracket_info_id
+			LEFT JOIN match                  lm  ON lm.bracket_info_id = bi.loser_goes_to_info_id
 			WHERE p.tournament_id = ${params.tid}
 			ORDER BY p.position, COALESCE(rri.group_number, bi.group_number) NULLS LAST,
 			         COALESCE(rri.round_number, bi.round_number), COALESCE(rri.position, bi.position)

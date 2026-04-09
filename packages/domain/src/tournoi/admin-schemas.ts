@@ -49,6 +49,8 @@ export const MatchDisplaySchema = z.object({
 	phase_id: z.uuid(),
 	phase_type: z.string(),
 	phase_position: z.number().int(),
+	bracket: z.enum(["W", "L", "GF"]).nullable(),
+	loser_goes_to_event_match_id: z.number().int().nullable(),
 })
 export type MatchDisplay = z.infer<typeof MatchDisplaySchema>
 

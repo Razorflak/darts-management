@@ -4,6 +4,7 @@ import { publishEvent as _publishEvent } from "./event/publish-event.js"
 import { saveDraftEvent as _saveDraftEvent } from "./event/save-draft-event.js"
 import { createPlayerProfile as _createPlayerProfile } from "./player/createPlayerProfil.js"
 import { getOrCreatePlayer as _getOrCreatePlayer } from "./player/getOrCreatePlayer.js"
+import { advancePhase as _advancePhase } from "./tournament/advance-phase.js"
 import { cancelLaunch as _cancelLaunch } from "./tournament/cancel-launch.js"
 import { launchTournament as _launchTournament } from "./tournament/launch-tournament.js"
 import { registerTeam as _registerTeam } from "./tournament/register-team.js"
@@ -31,6 +32,7 @@ export const launchTournament = traced(
 	_launchTournament,
 )
 export const registerTeam = traced("app.registerTeam", _registerTeam)
+export const advancePhase = traced("app.advancePhase", _advancePhase)
 export const submitMatchResult = traced(
 	"app.submitMatchResult",
 	_submitMatchResult,

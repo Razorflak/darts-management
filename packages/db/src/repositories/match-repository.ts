@@ -1,4 +1,8 @@
-import { computeStandings } from "@darts-management/domain"
+import {
+	computeStandings,
+	type Qualifier,
+	separateGroupsForBracket,
+} from "@darts-management/domain"
 import { z } from "zod"
 import { sql as defaultSql } from "../client.js"
 import { createRepository } from "./utils.js"
@@ -177,7 +181,7 @@ const internalMatchRepo = {
 		sql: Sql,
 		phaseId: string,
 		qualifiersPerGroup: number,
-	): Promise<string[]> => {
+	): Promise<Qualifier[]> => {
 		const rows = await sql<
 			{
 				team_a_id: string | null
@@ -213,12 +217,12 @@ const internalMatchRepo = {
 		})
 
 		// Interleave: group0-rank1, group1-rank1, group0-rank2, ...
-		const result: string[] = []
+		const result: Qualifier[] = []
 		for (let rank = 0; rank < qualifiersPerGroup; rank++) {
-			for (const standings of standingsPerGroup) {
-				const entry = standings[rank]
+			for (let gi = 0; gi < standingsPerGroup.length; gi++) {
+				const entry = standingsPerGroup[gi][rank]
 				if (entry) {
-					result.push(entry.team_id)
+					result.push({ teamId: entry.team_id, groupId: sortedGroupNums[gi] })
 				}
 			}
 		}
@@ -234,7 +238,7 @@ const internalMatchRepo = {
 	seedNextPhase: async (
 		sql: Sql,
 		phaseId: string,
-		teamIds: string[],
+		qualifiers: Qualifier[],
 	): Promise<void> => {
 		// Find next phase by position
 		const nextPhaseRows = await sql<{ id: string; type: string }[]>`
@@ -264,7 +268,8 @@ const internalMatchRepo = {
 		`
 
 		if (bracketMatches.length > 0) {
-			// Bracket phase — assign by seed number (1-based)
+			// Bracket phase — réordonner pour séparer les joueurs de la même poule
+			const teamIds = separateGroupsForBracket(qualifiers)
 			for (const bm of bracketMatches) {
 				if (bm.seed_a !== null) {
 					const teamId = teamIds[bm.seed_a - 1]
@@ -288,7 +293,8 @@ const internalMatchRepo = {
 			return
 		}
 
-		// Round-robin phase — assign by slot_a/slot_b (1-based)
+		// Round-robin phase — assign by slot_a/slot_b (1-based), ordre interleacé conservé
+		const teamIds = qualifiers.map((q) => q.teamId)
 		const rrMatches = await sql<
 			{ match_id: string; slot_a: number; slot_b: number }[]
 		>`

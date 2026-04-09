@@ -10,7 +10,6 @@ const PublishPayloadSchema = EventSchema.omit({ status: true })
 export const POST: RequestHandler = async ({ request, locals }) => {
 	if (!locals.user) return error(401, getJsonStringError(errors.ERR_0005))
 	const body = await request.json()
-	console.log("JTA body", body.tournaments[0])
 	const parsed = PublishPayloadSchema.safeParse(body)
 	if (!parsed.success)
 		return json(getJsonStringError(errors.ERR_0002, parsed.error.message), {

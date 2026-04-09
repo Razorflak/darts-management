@@ -34,7 +34,7 @@ export const load: PageServerLoad = async ({ locals, params }) => {
 	if (!hasAccess) error(403, "Accès refusé")
 
 	const rosterRows = await sql<Record<string, unknown>[]>`
-		SELECT r.id AS registration_id, r.team_id, r.checked_in, r.registered_at,
+		SELECT r.id AS registration_id, r.team_id, r.checked_in, r.registered_at, r.seed,
 			json_agg(json_build_object(
 				'player_id', p.id,
 				'first_name', p.first_name,

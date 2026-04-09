@@ -29,8 +29,6 @@ export const POST: RequestHandler = async ({ request, locals }) => {
 		if (msg.startsWith("double_elimination"))
 			return json({ error: msg }, { status: 501 })
 
-		console.error("JTA", err)
-
 		return json(
 			{ error: "Le lancement a echoue. Veuillez reessayer." },
 			{ status: 500 },
