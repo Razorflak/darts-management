@@ -22,9 +22,6 @@ const isDone = $derived(
 	m.status === "done" || m.status === "walkover" || m.status === "bye",
 )
 
-$effect(() => {
-	console.log("JTA", isFirstColWithMatch, m)
-})
 const isBye = $derived(m.status === "bye")
 </script>
 

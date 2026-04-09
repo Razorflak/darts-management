@@ -35,28 +35,99 @@ onMount(() => {
 // ─── Recherche ───────────────────────────────────────────────────────────────
 
 let searchQuery = $state("")
+let searchIndex = $state(0)
 let scrollContainer: HTMLElement | undefined = $state()
 
-function handleSearch(e: Event) {
-	e.preventDefault()
-	if (!scrollContainer || !searchQuery.trim()) return
-	const first = scrollContainer.querySelector<HTMLElement>("[data-highlighted]")
-	first?.scrollIntoView({
+$effect(() => {
+	// reset l'index quand la query change
+	searchQuery
+	searchIndex = -1
+})
+
+function getResults(): HTMLElement[] {
+	if (!scrollContainer) return []
+	return Array.from(
+		scrollContainer.querySelectorAll<HTMLElement>("[data-highlighted]"),
+	)
+}
+
+function scrollToIndex(idx: number) {
+	const results = getResults()
+	if (!results.length) return
+	const clamped = ((idx % results.length) + results.length) % results.length
+	searchIndex = clamped
+	results[clamped]?.scrollIntoView({
 		behavior: "smooth",
 		block: "center",
 		inline: "center",
 	})
 }
 
+function handleSearch(e: Event) {
+	e.preventDefault()
+	scrollToIndex(searchIndex + 1)
+}
+
+function handleSearchNext() {
+	scrollToIndex(searchIndex + 1)
+}
+
+function handleSearchPrev() {
+	scrollToIndex(searchIndex - 1)
+}
+
+let searchResultCount = $state(0)
+
+$effect(() => {
+	// dépendance réactive sur searchQuery — s'exécute après le rendu
+	searchQuery
+	searchResultCount =
+		scrollContainer?.querySelectorAll("[data-highlighted]").length ?? 0
+})
+
 // ─── Layout ──────────────────────────────────────────────────────────────────
 
 let layout = $derived(buildBracketLayout(matches))
+
+// ─── Resize ──────────────────────────────────────────────────────────────────
+
+const DEFAULT_HEIGHT = 400
+const MIN_HEIGHT = 150
+
+let containerHeight = $state(DEFAULT_HEIGHT)
+let isResizing = $state(false)
+
+function startResize(e: MouseEvent | TouchEvent) {
+	if (fullscreen) return
+	isResizing = true
+	const startY = "touches" in e ? e.touches[0].clientY : e.clientY
+	const startHeight = containerHeight
+
+	function onMove(ev: MouseEvent | TouchEvent) {
+		const y = "touches" in ev ? ev.touches[0].clientY : ev.clientY
+		containerHeight = Math.max(MIN_HEIGHT, startHeight + (y - startY))
+	}
+
+	function onUp() {
+		isResizing = false
+		window.removeEventListener("mousemove", onMove)
+		window.removeEventListener("mouseup", onUp)
+		window.removeEventListener("touchmove", onMove)
+		window.removeEventListener("touchend", onUp)
+	}
+
+	window.addEventListener("mousemove", onMove)
+	window.addEventListener("mouseup", onUp)
+	window.addEventListener("touchmove", onMove)
+	window.addEventListener("touchend", onUp)
+}
 </script>
 
 <!-- Conteneur principal -->
 <div
 	class="bracket-root flex flex-col rounded-lg border border-gray-200 bg-white"
 	class:bracket-fullscreen={fullscreen}
+	class:select-none={isResizing}
 >
 	<!-- Header -->
 	<div
@@ -80,6 +151,24 @@ let layout = $derived(buildBracketLayout(matches))
 				bind:value={searchQuery}
 				class="w-44 rounded border border-gray-300 px-2 py-1 text-sm focus:outline-none focus:ring-1 focus:ring-blue-400"
 			/>
+			{#if searchQuery.trim() && searchResultCount > 0}
+				{#if searchIndex >= 0}
+					<span class="text-xs text-gray-500 tabular-nums">
+						{searchIndex + 1}/{searchResultCount}
+					</span>
+				{/if}
+				<button
+					type="button"
+					onclick={handleSearchPrev}
+					class="rounded px-1 py-0.5 text-gray-500 hover:bg-gray-100"
+					title="Résultat précédent"
+				>‹</button>
+				<button
+					type="submit"
+					class="rounded px-1 py-0.5 text-gray-500 hover:bg-gray-100"
+					title="Résultat suivant"
+				>›</button>
+			{/if}
 		</form>
 
 		<!-- Bouton plein écran -->
@@ -101,6 +190,7 @@ let layout = $derived(buildBracketLayout(matches))
 	<div
 		bind:this={scrollContainer}
 		class="overflow-auto p-4"
+		style={fullscreen ? "" : `height: ${containerHeight}px`}
 		class:flex-1={fullscreen}
 	>
 		{#if layout.isSE}
@@ -136,6 +226,19 @@ let layout = $derived(buildBracketLayout(matches))
 			/>
 		{/if}
 	</div>
+
+	<!-- Handle de resize (masqué en plein écran) -->
+	{#if !fullscreen}
+		<div
+			class="resize-handle group flex cursor-ns-resize items-center justify-center border-t border-gray-200 py-1 hover:bg-gray-50 active:bg-gray-100"
+			onmousedown={startResize}
+			ontouchstart={startResize}
+			role="separator"
+			aria-label="Redimensionner le bracket"
+		>
+			<div class="h-1 w-8 rounded-full bg-gray-300 group-hover:bg-gray-400"></div>
+		</div>
+	{/if}
 </div>
 
 <style>

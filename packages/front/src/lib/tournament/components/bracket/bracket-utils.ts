@@ -72,7 +72,6 @@ export function columnGap(roundIndex: number): number {
 const DONE_STATUSES = new Set(["done", "walkover", "bye"])
 
 export function buildBracketLayout(matches: MatchDisplay[]): BracketLayout {
-	console.log("JTA", { matches })
 	const isSE = detectBracketMode(matches) === "SE"
 
 	const wbMatches = matches.filter(
@@ -131,7 +130,6 @@ export function buildBracketLayout(matches: MatchDisplay[]): BracketLayout {
 			allDone,
 		}
 	})
-	console.log("JTA", { columns })
 
 	const playableAll = matches.filter((m) => m.status !== "bye")
 	return {
