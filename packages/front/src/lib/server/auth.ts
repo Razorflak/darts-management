@@ -1,27 +1,18 @@
 // Server-only — never import this from +page.svelte or +layout.svelte
 
 import { createAuth } from "@darts-management/db"
-import {
-	BETTER_AUTH_SECRET,
-	BETTER_AUTH_URL,
-	EMAIL_FROM,
-	SMTP_HOST,
-	SMTP_PASS,
-	SMTP_PORT,
-	SMTP_SECURE,
-	SMTP_USER,
-} from "$env/static/private"
+import { env } from "$env/dynamic/private"
 import { sql } from "./db.js"
 
 export const auth = createAuth(sql, {
-	secret: BETTER_AUTH_SECRET,
-	baseURL: BETTER_AUTH_URL,
+	secret: env.BETTER_AUTH_SECRET,
+	baseURL: env.BETTER_AUTH_URL,
 	smtp: {
-		host: SMTP_HOST ?? "localhost",
-		port: Number(SMTP_PORT ?? "1025"),
-		secure: SMTP_SECURE === "true",
-		user: SMTP_USER || undefined,
-		pass: SMTP_PASS || undefined,
-		from: EMAIL_FROM ?? "noreply@ffd.fr",
+		host: env.SMTP_HOST ?? "localhost",
+		port: Number(env.SMTP_PORT ?? "1025"),
+		secure: env.SMTP_SECURE === "true",
+		user: env.SMTP_USER || undefined,
+		pass: env.SMTP_PASS || undefined,
+		from: env.EMAIL_FROM ?? "noreply@ffd.fr",
 	},
 })
