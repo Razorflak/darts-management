@@ -6,15 +6,21 @@ import devtoolsJson from "vite-plugin-devtools-json"
 import { defineConfig } from "vitest/config"
 
 export default defineConfig(({ mode }) => {
-	// Injecte les variables du fichier .env dans process.env pour que les packages
-	// non-SvelteKit (db, auth) puissent y accéder via process.env au runtime dev.
-	// En production (Railway), process.env est déjà peuplé par l'hôte.
-	const env = loadEnv(mode, process.cwd(), "")
-	Object.assign(process.env, env)
-	console.log("Loaded environment variables", env)
-
 	return {
-		plugins: [tailwindcss(), sveltekit(), devtoolsJson()],
+		plugins: [
+			tailwindcss(),
+			sveltekit(),
+			devtoolsJson(),
+			{
+				name: "load-env-into-process",
+				// configureServer ne s'exécute qu'au démarrage du serveur dev,
+				// jamais pendant vite build — les vars sont donc lues au runtime.
+				configureServer() {
+					const env = loadEnv(mode, process.cwd(), "")
+					Object.assign(process.env, env)
+				},
+			},
+		],
 		server: {
 			allowedHosts: ["sveltekit-production.up.railway.app", "localhost"],
 		},
