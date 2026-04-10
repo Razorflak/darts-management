@@ -1,9 +1,13 @@
+import { resolve } from "node:path"
 import { sveltekit } from "@sveltejs/kit/vite"
 import tailwindcss from "@tailwindcss/vite"
 import { playwright } from "@vitest/browser-playwright"
 import { loadEnv } from "vite"
 import devtoolsJson from "vite-plugin-devtools-json"
 import { defineConfig } from "vitest/config"
+
+// packages/front/ est à 2 niveaux sous la racine du monorepo
+const monorepoRoot = resolve(import.meta.dirname, "../..")
 
 export default defineConfig(({ mode }) => {
 	return {
@@ -17,7 +21,7 @@ export default defineConfig(({ mode }) => {
 				// jamais pendant vite build — les vars sont donc lues au runtime.
 				configureServer() {
 					console.log("[vite] loading .env variables into process.env")
-					const env = loadEnv(mode, process.cwd(), "")
+					const env = loadEnv(mode, monorepoRoot, "")
 					Object.assign(process.env, env)
 					console.log(
 						"[vite] loaded env variables:",
