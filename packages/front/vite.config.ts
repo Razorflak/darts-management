@@ -11,6 +11,7 @@ export default defineConfig(({ mode }) => {
 	// En production (Railway), process.env est déjà peuplé par l'hôte.
 	const env = loadEnv(mode, process.cwd(), "")
 	Object.assign(process.env, env)
+	console.log("Loaded environment variables", env)
 
 	return {
 		plugins: [tailwindcss(), sveltekit(), devtoolsJson()],
