@@ -9,6 +9,9 @@ import "dotenv/config"
 
 export default defineConfig({
 	plugins: [tailwindcss(), sveltekit(), devtoolsJson()],
+	server: {
+		allowedHosts: ["sveltekit-production.up.railway.app", "localhost"],
+	},
 	test: {
 		expect: { requireAssertions: true },
 		projects: [
