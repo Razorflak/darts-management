@@ -6,7 +6,7 @@
 	"scripts": {
 		"build": "turbo run build",
 		"dev": "turbo run dev",
-		"prod": "turbo run prod",
+		"prod": "node packages/front/build/index.js",
 		"lint": "turbo run lint",
 		"test": "turbo run test",
 		"typecheck": "turbo run typecheck"
