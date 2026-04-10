@@ -16,8 +16,13 @@ export default defineConfig(({ mode }) => {
 				// configureServer ne s'exécute qu'au démarrage du serveur dev,
 				// jamais pendant vite build — les vars sont donc lues au runtime.
 				configureServer() {
+					console.log("[vite] loading .env variables into process.env")
 					const env = loadEnv(mode, process.cwd(), "")
 					Object.assign(process.env, env)
+					console.log(
+						"[vite] loaded env variables:",
+						Object.keys(env).join(", "),
+					)
 				},
 			},
 		],
