@@ -1,8 +1,4 @@
-import {
-	computeStandings,
-	type Qualifier,
-	separateGroupsForBracket,
-} from "@darts-management/domain"
+import type { MatchForGroupStandings } from "@darts-management/domain"
 import { z } from "zod"
 import { sql as defaultSql } from "../client.js"
 import { createRepository } from "./utils.js"
@@ -173,149 +169,31 @@ const internalMatchRepo = {
 	},
 
 	/**
-	 * Get qualified teams from a round-robin phase.
-	 * Groups matches by group_number, computes standings, returns top N per group.
-	 * Teams are interleaved: group0-rank1, group1-rank1, group0-rank2, etc.
+	 * Récupère les matches d'une phase avec leur numéro de groupe.
+	 * La logique de calcul des qualifiants est dans domain (computePhaseQualifiers).
 	 */
-	getPhaseQualifiers: async (
+	getPhaseMatchesForQualifiers: async (
 		sql: Sql,
 		phaseId: string,
-		qualifiersPerGroup: number,
-	): Promise<Qualifier[]> => {
-		const rows = await sql<
-			{
-				team_a_id: string | null
-				team_b_id: string | null
-				score_a: number | null
-				score_b: number | null
-				status: string
-				group_number: number
-			}[]
-		>`
-			SELECT m.team_a_id, m.team_b_id, m.score_a, m.score_b, m.status,
-			       rri.group_number
-			FROM match m
-			JOIN round_robin_match_info rri ON rri.id = m.round_robin_info_id
-			WHERE m.phase_id = ${phaseId}
-		`
-
-		type RoundRobinMatchRow = (typeof rows)[number]
-		// Group by group_number
-		const byGroup = new Map<number, RoundRobinMatchRow[]>()
-		for (const row of rows) {
-			const group = byGroup.get(row.group_number) ?? []
-			group.push(row)
-			byGroup.set(row.group_number, group)
-		}
-
-		const sortedGroupNums = Array.from(byGroup.keys()).sort((a, b) => a - b)
-
-		// Compute standings per group
-		const standingsPerGroup = sortedGroupNums.map((gNum) => {
-			const groupMatches = byGroup.get(gNum) ?? []
-			return computeStandings(groupMatches)
+	): Promise<MatchForGroupStandings[]> => {
+		const RowSchema = z.object({
+			team_a_id: z.string().nullable(),
+			team_b_id: z.string().nullable(),
+			score_a: z.number().int().nullable(),
+			score_b: z.number().int().nullable(),
+			status: z.string(),
+			group_number: z.number().int(),
 		})
-
-		// Interleave: group0-rank1, group1-rank1, group0-rank2, ...
-		const result: Qualifier[] = []
-		for (let rank = 0; rank < qualifiersPerGroup; rank++) {
-			for (let gi = 0; gi < standingsPerGroup.length; gi++) {
-				const entry = standingsPerGroup[gi][rank]
-				if (entry) {
-					result.push({ teamId: entry.team_id, groupId: sortedGroupNums[gi] })
-				}
-			}
-		}
-
-		return result
-	},
-
-	/**
-	 * Seed qualified teams into the next phase's first-round matches.
-	 * For bracket phases: matches seed_a/seed_b in bracket_match_info.
-	 * For round-robin phases: matches slot_a/slot_b in round_robin_match_info.
-	 */
-	seedNextPhase: async (
-		sql: Sql,
-		phaseId: string,
-		qualifiers: Qualifier[],
-	): Promise<void> => {
-		// Find next phase by position
-		const nextPhaseRows = await sql<{ id: string; type: string }[]>`
-			SELECT p2.id, p2.type
-			FROM phase p1
-			JOIN phase p2 ON p2.tournament_id = p1.tournament_id
-			  AND p2.position = p1.position + 1
-			WHERE p1.id = ${phaseId}
-		`
-
-		if (nextPhaseRows.length === 0) {
-			// No next phase — this is the final phase
-			return
-		}
-
-		const nextPhase = nextPhaseRows[0]
-
-		// Check if next phase is bracket or round-robin
-		const bracketMatches = await sql<
-			{ match_id: string; seed_a: number | null; seed_b: number | null }[]
-		>`
-			SELECT m.id AS match_id, bi.seed_a, bi.seed_b
-			FROM match m
-			JOIN bracket_match_info bi ON bi.id = m.bracket_info_id
-			WHERE m.phase_id = ${nextPhase.id}
-			  AND (bi.seed_a IS NOT NULL OR bi.seed_b IS NOT NULL)
-		`
-
-		if (bracketMatches.length > 0) {
-			// Bracket phase — réordonner pour séparer les joueurs de la même poule
-			const teamIds = separateGroupsForBracket(qualifiers)
-			for (const bm of bracketMatches) {
-				if (bm.seed_a !== null) {
-					const teamId = teamIds[bm.seed_a - 1]
-					if (teamId) {
-						await sql`
-							UPDATE match SET team_a_id = ${teamId}
-							WHERE id = ${bm.match_id}
-						`
-					}
-				}
-				if (bm.seed_b !== null) {
-					const teamId = teamIds[bm.seed_b - 1]
-					if (teamId) {
-						await sql`
-							UPDATE match SET team_b_id = ${teamId}
-							WHERE id = ${bm.match_id}
-						`
-					}
-				}
-			}
-			return
-		}
-
-		// Round-robin phase — assign by slot_a/slot_b (1-based), ordre interleacé conservé
-		const teamIds = qualifiers.map((q) => q.teamId)
-		const rrMatches = await sql<
-			{ match_id: string; slot_a: number; slot_b: number }[]
-		>`
-			SELECT m.id AS match_id, rri.slot_a, rri.slot_b
-			FROM match m
-			JOIN round_robin_match_info rri ON rri.id = m.round_robin_info_id
-			WHERE m.phase_id = ${nextPhase.id}
-		`
-
-		for (const rm of rrMatches) {
-			const teamA = teamIds[rm.slot_a - 1]
-			const teamB = teamIds[rm.slot_b - 1]
-			if (teamA !== undefined || teamB !== undefined) {
-				await sql`
-					UPDATE match
-					SET team_a_id = COALESCE(${teamA ?? null}, team_a_id),
-					    team_b_id = COALESCE(${teamB ?? null}, team_b_id)
-					WHERE id = ${rm.match_id}
-				`
-			}
-		}
+		return z.array(RowSchema).parse(
+			await sql<Record<string, unknown>[]>`
+				SELECT m.team_a_id, m.team_b_id, m.score_a, m.score_b, m.status,
+				       COALESCE(rri.group_number, bi.group_number) AS group_number
+				FROM match m
+				LEFT JOIN round_robin_match_info rri ON rri.id = m.round_robin_info_id
+				LEFT JOIN bracket_match_info bi ON bi.id = m.bracket_info_id
+				WHERE m.phase_id = ${phaseId}
+			`,
+		)
 	},
 
 	/**
@@ -460,6 +338,96 @@ const internalMatchRepo = {
 			`,
 		)
 		return rows[0] ?? null
+	},
+
+	getByPhaseId: async (sql: Sql, phaseId: string) => {
+		const rows = await sql`
+		SELECT 
+			m.id, 
+			m.bracket_info_id,
+			bi.tournament_id AS bi_tournament_id,
+			bi.seed_a, bi.seed_b,
+			m.round_robin_info_id,
+			rri.slot_a, rri.slot_b
+		FROM match m
+		LEFT JOIN bracket_match_info bi ON bi.id = m.bracket_info_id
+		LEFT JOIN round_robin_match_info rri ON rri.id = m.round_robin_info_id
+		WHERE m.phase_id = ${phaseId}
+		ORDER BY m.event_match_id
+	`
+
+		const PhaseMatchRawSchema = z.object({
+			id: z.string(),
+			bracket_info_id: z.string().nullable(),
+			bi_tournament_id: z.string().nullable(),
+			seed_a: z.number().int().nullable(),
+			seed_b: z.number().int().nullable(),
+			round_robin_info_id: z.string().nullable(),
+			slot_a: z.number().int().nullable(),
+			slot_b: z.number().int().nullable(),
+		})
+
+		const validated = z.array(PhaseMatchRawSchema).parse(rows)
+
+		return validated.map((row) => ({
+			id: row.id,
+			bracketInfo:
+				row.bracket_info_id !== null
+					? {
+							id: row.bracket_info_id,
+							// biome-ignore lint/style/noNonNullAssertion: guaranteed non-null when bracket_info_id is set
+							tournament_id: row.bi_tournament_id!,
+							seed_a: row.seed_a,
+							seed_b: row.seed_b,
+						}
+					: null,
+			roundRobinInfo:
+				row.round_robin_info_id !== null
+					? {
+							id: row.round_robin_info_id,
+							// biome-ignore lint/style/noNonNullAssertion: guaranteed non-null when round_robin_info_id is set
+							slot_a: row.slot_a!,
+							// biome-ignore lint/style/noNonNullAssertion: guaranteed non-null when round_robin_info_id is set
+							slot_b: row.slot_b!,
+						}
+					: null,
+		}))
+	},
+
+	/**
+	 * Bulk update team assignments for multiple matches.
+	 * Updates team_a_id and team_b_id for each match in a single transaction.
+	 */
+	bulkUpdateTeams: async (
+		sql: Sql,
+		updates: Array<{
+			matchId: string
+			teamAId: string | null
+			teamBId: string | null
+		}>,
+	): Promise<void> => {
+		if (updates.length === 0) return
+
+		const validUpdates = updates.filter((u) => u.matchId !== undefined)
+		if (validUpdates.length === 0) return
+
+		console.log("bulkUpdateTeamsTEST", validUpdates)
+
+		const matchIds = validUpdates.map((u) => u.matchId)
+		const teamAIds = validUpdates.map((u) => u.teamAId ?? null)
+		const teamBIds = validUpdates.map((u) => u.teamBId ?? null)
+
+		await sql`
+		UPDATE match
+		SET team_a_id = updates.team_a_id,
+		    team_b_id = updates.team_b_id
+		FROM unnest(
+			${sql.array(matchIds)}::uuid[],
+			${sql.array(teamAIds)}::uuid[],
+			${sql.array(teamBIds)}::uuid[]
+		) AS updates(match_id, team_a_id, team_b_id)
+		WHERE match.id = updates.match_id
+	`
 	},
 }
 

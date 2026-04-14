@@ -6,9 +6,7 @@ import { enhance } from "$app/forms"
 let { form } = $props()
 </script>
 
-<svelte:head>
-	<title>Mot de passe oublié — FFD Darts</title>
-</svelte:head>
+<svelte:head> <title>Mot de passe oublié — FFD Darts</title> </svelte:head>
 
 <Card class="w-full">
 	<h2 class="text-2xl font-bold text-gray-900 dark:text-white mb-6">
@@ -17,17 +15,23 @@ let { form } = $props()
 
 	{#if form?.sent}
 		<Alert color="green">
-			{#snippet icon()}<CheckCircleSolid class="w-5 h-5" />{/snippet}
-			Si un compte existe pour <strong>{form.email}</strong>, vous recevrez
-			un email avec les instructions de réinitialisation.
+			{#snippet icon()}
+				<CheckCircleSolid class="w-5 h-5" />
+			{/snippet}
+			Si un compte existe pour <strong>{form.email}</strong>, vous recevrez un
+			email avec les instructions de réinitialisation.
 		</Alert>
 		<p class="mt-4 text-sm text-center text-gray-600">
-			<a href="/login" class="text-blue-600 hover:underline">Retour à la connexion</a>
+			<a href="/login" class="text-blue-600 hover:underline"
+				>Retour à la connexion</a
+			>
 		</p>
 	{:else}
 		{#if form?.error}
 			<Alert color="red" class="mb-4">
-				{#snippet icon()}<InfoCircleSolid class="w-5 h-5" />{/snippet}
+				{#snippet icon()}
+					<InfoCircleSolid class="w-5 h-5" />
+				{/snippet}
 				{form.error}
 			</Alert>
 		{/if}
@@ -45,10 +49,14 @@ let { form } = $props()
 				/>
 			</div>
 
-			<Button type="submit" class="w-full">Envoyer le lien de réinitialisation</Button>
+			<Button type="submit" class="w-full"
+				>Envoyer le lien de réinitialisation</Button
+			>
 
 			<p class="text-sm text-center text-gray-600">
-				<a href="/login" class="text-blue-600 hover:underline">Retour à la connexion</a>
+				<a href="/login" class="text-blue-600 hover:underline"
+					>Retour à la connexion</a
+				>
 			</p>
 		</form>
 	{/if}

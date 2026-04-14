@@ -13,6 +13,7 @@ type Props = {
 
 let { columns, bracketFilter, searchQuery, onMatchClick }: Props = $props()
 
+// biome-ignore lint/correctness/noUnusedVariables: used in Svelte template
 function matchesForColumn(col: BracketColumn): MatchDisplay[] {
 	return bracketFilter === "W" ? col.wbMatches : col.lbMatches
 }
@@ -26,12 +27,10 @@ const showConnectors = $derived(bracketFilter === "W")
 		{@const isLastColWithMatch = [...columns]
             .reverse()
             .find((c) => matchesForColumn(c).length > 0) === col}
-        {@const isFirstColWithMatch = [...columns].find((c) => matchesForColumn(c).length > 0) === col}
+		{@const isFirstColWithMatch = [...columns].find((c) => matchesForColumn(c).length > 0) === col}
 
 		<!-- Colonne de matchs -->
-		<div
-			class="flex flex-col self-stretch w-80 shrink-0"
-		>
+		<div class="flex flex-col self-stretch w-80 shrink-0">
 			<!-- Header de colonne -->
 			<div
 				class="mb-2 text-center text-xs font-semibold"
@@ -44,21 +43,20 @@ const showConnectors = $derived(bracketFilter === "W")
 			</div>
 
 			<!-- Cartes de match (ou vide si aucun match pour ce bracket dans cette colonne) -->
-            <div class="flex grow flex-col justify-around" id="toto">
-			{#each colMatches as m}
-				<MatchCard
-					match={m}
-					highlighted={isMatchHighlighted(m, searchQuery)}
-					{isLastColWithMatch}
-                    {isFirstColWithMatch}
-					{onMatchClick}
-				/>
-			{/each}
-            </div>
+			<div class="flex grow flex-col justify-around" id="toto">
+				{#each colMatches as m}
+					<MatchCard
+						match={m}
+						highlighted={isMatchHighlighted(m, searchQuery)}
+						{isLastColWithMatch}
+						{isFirstColWithMatch}
+						{onMatchClick}
+					/>
+				{/each}
+			</div>
 		</div>
-
-		<!-- Connecteur vertical entre deux colonnes (seulement pour WB) -->
-		<!-- {#if showConnectors && colIdx < columns.length - 1}
+	<!-- Connecteur vertical entre deux colonnes (seulement pour WB) -->
+	<!-- {#if showConnectors && colIdx < columns.length - 1}
 			{@const nextColMatches = matchesForColumn(columns[colIdx + 1])}
 			{#if colMatches.length > 0 && nextColMatches.length > 0}
 				<div

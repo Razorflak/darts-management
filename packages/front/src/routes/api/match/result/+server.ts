@@ -1,4 +1,4 @@
-import { advancePhase, submitMatchResult } from "@darts-management/application"
+import { submitMatchResult } from "@darts-management/application"
 import { error, json } from "@sveltejs/kit"
 import { getUserRoles } from "$lib/server/authz"
 import { SubmitMatchResultRequestSchema } from "$lib/server/schemas/request-schemas.js"
@@ -16,17 +16,13 @@ export const POST: RequestHandler = async ({ request, locals }) => {
 	const payload =
 		walkover !== undefined
 			? { walkover }
+			// biome-ignore lint/style/noNonNullAssertion: score_a/score_b are required when walkover is absent (validated by Zod schema)
 			: { score_a: score_a!, score_b: score_b! }
 
 	const roles = await getUserRoles(locals.user.id)
 
 	try {
-		const { phaseId, winnerTeamId } = await submitMatchResult(
-			match_id,
-			payload,
-			roles,
-		)
-		await advancePhase(phaseId, winnerTeamId)
+		await submitMatchResult(match_id, payload, roles)
 		return json({ ok: true })
 	} catch (err) {
 		const msg = err instanceof Error ? err.message : ""

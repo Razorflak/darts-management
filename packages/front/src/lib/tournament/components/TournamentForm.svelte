@@ -72,7 +72,7 @@ const categories: Category[] = [
 		</Label>
 		<Select
 			bind:value={tournament.category}
-			disabled={disabled}
+			{disabled}
 			onchange={(e) => {
 				updateCategory((e.target as HTMLSelectElement).value as Category)
 			}}
@@ -94,7 +94,7 @@ const categories: Category[] = [
 			<div class="flex-1">
 				<Datepicker
 					bind:value={startDateObj}
-					disabled={disabled}
+					{disabled}
 					locale="fr-FR"
 					firstDayOfWeek={1}
 					placeholder="jj/mm/aaaa"
@@ -111,19 +111,35 @@ const categories: Category[] = [
 
 	<!-- Arbitrage automatique -->
 	<div class="flex items-center gap-3">
-		<Toggle id="auto-referee-{tournament.id}" bind:checked={tournament.auto_referee} {disabled} />
-		<Label for="auto-referee-{tournament.id}">Assignation automatique des arbitres</Label>
+		<Toggle
+			id="auto-referee-{tournament.id}"
+			bind:checked={tournament.auto_referee}
+			{disabled}
+		/>
+		<Label for="auto-referee-{tournament.id}"
+			>Assignation automatique des arbitres</Label
+		>
 	</div>
 
 	<!-- Check-in requis -->
 	<div class="flex items-center gap-3">
-		<Toggle id="check-in-{tournament.id}" bind:checked={tournament.check_in_required} {disabled} />
-		<Label for="check-in-{tournament.id}">Check-in requis avant le lancement</Label>
+		<Toggle
+			id="check-in-{tournament.id}"
+			bind:checked={tournament.check_in_required}
+			{disabled}
+		/>
+		<Label for="check-in-{tournament.id}"
+			>Check-in requis avant le lancement</Label
+		>
 	</div>
 
 	<!-- Phases -->
 	<div>
 		<h3 class="mb-3 font-semibold text-gray-700">Phases</h3>
-		<PhasesBuilder bind:phases={tournament.phases} tournament_id={tournament.id} {disabled} />
+		<PhasesBuilder
+			bind:phases={tournament.phases}
+			tournament_id={tournament.id}
+			{disabled}
+		/>
 	</div>
 </div>

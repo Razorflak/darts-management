@@ -80,9 +80,7 @@ const phaseTypeLabel = (type: string): string =>
 	PHASE_TYPE_LABELS[type as keyof typeof PHASE_TYPE_LABELS] ?? type
 </script>
 
-<svelte:head>
-	<title>Lancer {data.tournament.name}</title>
-</svelte:head>
+<svelte:head> <title>Lancer {data.tournament.name}</title> </svelte:head>
 
 <!-- Breadcrumb -->
 <nav class="mb-4 text-sm text-gray-500">
@@ -109,17 +107,22 @@ const phaseTypeLabel = (type: string): string =>
 {:else}
 	<!-- Section 1: Récapitulatif des inscrits -->
 	<section class="mb-6">
-		<h2 class="mb-3 text-base font-semibold text-gray-800">Récapitulatif des inscrits</h2>
+		<h2 class="mb-3 text-base font-semibold text-gray-800">
+			Récapitulatif des inscrits
+		</h2>
 		<div class="flex items-center gap-3">
 			<Badge color="blue" class="text-base">
-				{data.totalCount} équipe{data.totalCount !== 1 ? "s" : ""} inscrite{data.totalCount !==
+				{data.totalCount}
+				équipe{data.totalCount !== 1 ? "s" : ""}
+				inscrite{data.totalCount !==
 				1
 					? "s"
 					: ""}
 			</Badge>
 			{#if data.tournament.check_in_required}
 				<span class="text-sm text-gray-600">
-					{data.checkedInCount} / {data.totalCount} présents
+					{data.checkedInCount}
+					/ {data.totalCount} présents
 				</span>
 			{/if}
 		</div>
@@ -145,7 +148,9 @@ const phaseTypeLabel = (type: string): string =>
 	<!-- Section 3: Structure générée -->
 	{#if data.phases.length > 0}
 		<section class="mb-6">
-			<h2 class="mb-3 text-base font-semibold text-gray-800">Structure générée</h2>
+			<h2 class="mb-3 text-base font-semibold text-gray-800">
+				Structure générée
+			</h2>
 			<div class="flex flex-col gap-3">
 				{#each data.phases as phase, i}
 					{@const groupCount = estimateGroupCount(phase, data.totalCount)}
@@ -160,8 +165,16 @@ const phaseTypeLabel = (type: string): string =>
 								<span>{phase.players_per_group ?? "?"} équipes / poule</span>
 							{/if}
 							<span>~{matchCount} match{matchCount !== 1 ? "s" : ""}</span>
-							<span>{phase.sets_to_win} set{phase.sets_to_win !== 1 ? "s" : ""} pour gagner</span>
-							<span>{phase.legs_per_set} jambe{phase.legs_per_set !== 1 ? "s" : ""} / set</span>
+							<span
+								>{phase.sets_to_win}
+								set{phase.sets_to_win !== 1 ? "s" : ""}
+								pour gagner</span
+							>
+							<span
+								>{phase.legs_per_set}
+								jambe{phase.legs_per_set !== 1 ? "s" : ""}
+								/ set</span
+							>
 						</div>
 					</div>
 				{/each}
@@ -179,11 +192,7 @@ const phaseTypeLabel = (type: string): string =>
 		class="sticky bottom-0 flex items-center gap-4 border-t border-gray-200 bg-white py-4"
 	>
 		{#if launchState === "error"}
-			<Button
-				color="primary"
-				class="min-h-[44px]"
-				onclick={confirmLaunch}
-			>
+			<Button color="primary" class="min-h-[44px]" onclick={confirmLaunch}>
 				Réessayer
 			</Button>
 		{:else}

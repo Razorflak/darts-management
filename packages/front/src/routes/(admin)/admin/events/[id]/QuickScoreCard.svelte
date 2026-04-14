@@ -139,13 +139,17 @@ async function onScoreBKeydown(e: KeyboardEvent) {
 	{#if matchInfo && phase !== "input-id"}
 		<div class="mb-3">
 			<p class="text-sm font-medium text-gray-800">
-				Match #{eventMatchId} — {matchInfo.team_a_name ?? "Éq. A"} vs {matchInfo.team_b_name ?? "Éq. B"}
+				Match #{eventMatchId}
+				— {matchInfo.team_a_name ?? "Éq. A"} vs
+				{matchInfo.team_b_name ?? "Éq. B"}
 			</p>
 			{#if matchInfo.referee_name}
 				<p class="text-xs text-gray-500">Arbitre : {matchInfo.referee_name}</p>
 			{/if}
 			<p class="text-xs text-gray-500">
-				Format : {matchInfo.sets_to_win} set(s) / {matchInfo.legs_per_set} leg(s)
+				Format : {matchInfo.sets_to_win} set(s) /
+				{matchInfo.legs_per_set}
+				leg(s)
 			</p>
 		</div>
 
@@ -175,7 +179,12 @@ async function onScoreBKeydown(e: KeyboardEvent) {
 
 		<div class="flex flex-wrap gap-2">
 			<div bind:this={validerWrapper}>
-				<Button color="primary" size="sm" disabled={submitting} onclick={submitScore}>
+				<Button
+					color="primary"
+					size="sm"
+					disabled={submitting}
+					onclick={submitScore}
+				>
 					Valider
 				</Button>
 			</div>

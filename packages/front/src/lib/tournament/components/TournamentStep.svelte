@@ -45,23 +45,38 @@ function updateTournament(updated: Tournament | DraftTournament) {
 
 <div class="space-y-5">
 	<!-- Tabs -->
-	<TournamentTabs bind:tournaments {activeId} onSelect={(id) => (activeId = id)} />
+	<TournamentTabs
+		bind:tournaments
+		{activeId}
+		onSelect={(id) => (activeId = id)}
+	/>
 
 	<!-- Active tournament form -->
 	{#if activeTournament !== undefined && activeIndex !== -1}
 		<div class="rounded-card shadow-card border border-gray-200 bg-white p-5">
-			<TournamentForm bind:tournament={activeTournament} onUpdate={updateTournament} />
+			<TournamentForm
+				bind:tournament={activeTournament}
+				onUpdate={updateTournament}
+			/>
 		</div>
 	{:else}
-		<div class="rounded-card border-2 border-dashed border-gray-200 p-8 text-center">
-			<p class="text-sm text-gray-400">Ajoutez au moins un tournoi pour continuer.</p>
+		<div
+			class="rounded-card border-2 border-dashed border-gray-200 p-8 text-center"
+		>
+			<p class="text-sm text-gray-400">
+				Ajoutez au moins un tournoi pour continuer.
+			</p>
 		</div>
 	{/if}
 
 	<!-- Actions -->
 	<div class="flex justify-between pt-2">
 		<Button color="alternative" pill onclick={onPrev}>← Précédent</Button>
-		<Button color="blue" pill onclick={onNext} disabled={tournaments.length === 0}
+		<Button
+			color="blue"
+			pill
+			onclick={onNext}
+			disabled={tournaments.length === 0}
 			>Suivant →</Button
 		>
 	</div>

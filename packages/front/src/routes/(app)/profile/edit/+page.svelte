@@ -48,12 +48,14 @@ async function handleSubmit(event: SubmitEvent) {
 }
 </script>
 
-<svelte:head>
-	<title>Modifier mon profil — FFD Darts</title>
-</svelte:head>
+<svelte:head> <title>Modifier mon profil — FFD Darts</title> </svelte:head>
 
 <div class="mx-auto max-w-lg">
-	<p class="mb-1 text-xs font-semibold uppercase tracking-widest text-primary-500">Profil</p>
+	<p
+		class="mb-1 text-xs font-semibold uppercase tracking-widest text-primary-500"
+	>
+		Profil
+	</p>
 	<h1 class="mb-6 text-3xl font-bold text-gray-900">Modifier mon profil</h1>
 
 	<Card class="w-full">
@@ -72,7 +74,9 @@ async function handleSubmit(event: SubmitEvent) {
 		</form>
 
 		<div class="mt-4 border-t border-gray-100 pt-4">
-			<a href="/profile" class="text-sm text-gray-500 hover:underline">Retour au profil</a>
+			<a href="/profile" class="text-sm text-gray-500 hover:underline"
+				>Retour au profil</a
+			>
 		</div>
 	</Card>
 </div>

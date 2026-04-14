@@ -26,9 +26,9 @@ const isBye = $derived(m.status === "bye")
 </script>
 
 <!-- Wrapper match + connecteur horizontal -->
-<div class="relative flex items-center {(!isFirstColWithMatch && m.bracket === "W") ? "border-l-black border-l-2" : ""}" id="wrapper-match">
+<div class="relative flex items-center {(!isFirstColWithMatch && m.bracket === 'W') ? 'border-l-black border-l-2' : ''}" id="wrapper-match">
 		<div
-			class="flex-1 h-0.5 w-1/10 {!isFirstColWithMatch ? 'bg-black' : ""}"
+			class="flex-1 h-0.5 w-1/10 {!isFirstColWithMatch ? 'bg-black' : ''}"
 		></div>
 	<!-- Carte de match -->
 	<button
@@ -45,6 +45,7 @@ const isBye = $derived(m.status === "bye")
 		class:cursor-default={isBye}
 		disabled={isBye}
 		style="height: {CARD_HEIGHT}px; text-align: left;"
+		data-match-id={m.event_match_id}
 		data-highlighted={highlighted ? "" : undefined}
 		onclick={isBye ? undefined : () => onMatchClick(m)}
 	>
@@ -90,7 +91,7 @@ const isBye = $derived(m.status === "bye")
 
 	<!-- Trait horizontal vers la colonne suivante -->
 		<div
-			class="flex-1 h-0.5 w-1/10 {!isLastColWithMatch ? 'bg-black' : ""}"
+			class="flex-1 h-0.5 w-1/10 {!isLastColWithMatch ? 'bg-black' : ''}"
 		></div>
 </div>
 

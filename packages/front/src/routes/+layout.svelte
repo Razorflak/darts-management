@@ -7,7 +7,7 @@ import { confirmState, settle } from "$lib/confirm.svelte.js"
 let { children } = $props()
 </script>
 
-<svelte:head><link rel="icon" href={favicon} /></svelte:head>
+<svelte:head><link rel="icon" href={favicon}></svelte:head>
 {@render children()}
 
 <Modal bind:open={confirmState.open} size="xs" outsideclose>

@@ -24,7 +24,9 @@ async function handleSignOut() {
 <Navbar>
 	{#snippet children({ toggle })}
 		<NavBrand href="/">
-			<span class="self-center whitespace-nowrap text-xl font-semibold dark:text-white">
+			<span
+				class="self-center whitespace-nowrap text-xl font-semibold dark:text-white"
+			>
 				FFD Darts
 			</span>
 		</NavBrand>
@@ -51,6 +53,4 @@ async function handleSignOut() {
 	{/snippet}
 </Navbar>
 
-<main class="container mx-auto px-4 py-6">
-	{@render children()}
-</main>
+<main class="container mx-auto px-4 py-6">{@render children()}</main>

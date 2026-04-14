@@ -36,10 +36,15 @@ function toggle(tid: string) {
 			{#if player.department}
 				<span class="text-sm text-gray-500">({player.department})</span>
 			{/if}
-			<Button size="xs" color="light" onclick={() => { player = null }}>Changer</Button>
+			<Button size="xs" color="light" onclick={() => { player = null }}
+				>Changer</Button
+			>
 		</div>
 	{:else if !showCreate}
-		<PlayerSearch mode="all" onSelect={(p) => { player = p; showCreate = false }} />
+		<PlayerSearch
+			mode="all"
+			onSelect={(p) => { player = p; showCreate = false }}
+		/>
 	{/if}
 	{#if !player}
 		<div class="mt-3">
@@ -62,13 +67,15 @@ function toggle(tid: string) {
 	{#if tournaments.length > 0}
 		<div class="mt-3 space-y-1">
 			{#each tournaments as t (t.id)}
-				<label class="flex cursor-pointer items-center gap-2 text-sm text-gray-700">
+				<label
+					class="flex cursor-pointer items-center gap-2 text-sm text-gray-700"
+				>
 					<input
 						type="checkbox"
 						class="rounded"
 						checked={selectedTournamentIds.has(t.id)}
 						onchange={() => toggle(t.id)}
-					/>
+					>
 					{t.name}
 				</label>
 			{/each}

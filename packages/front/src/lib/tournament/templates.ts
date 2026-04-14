@@ -2,7 +2,6 @@ import type {
 	Category,
 	DraftEvent,
 	EliminationPhase,
-	Event,
 	GroupPhase,
 	Phase,
 	Tournament,

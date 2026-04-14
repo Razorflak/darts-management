@@ -18,8 +18,12 @@ export function computeGroupSizes(
 	const groupCount = Math.ceil(playerCount / playersPerGroup)
 	const baseSize = Math.floor(playerCount / groupCount)
 	const remainder = playerCount - baseSize * groupCount
-	const sizes = Array.from({ length: groupCount }, () => baseSize)
-	if (remainder > 0) sizes[groupCount - 1] += remainder
+
+	// Distribue le reste sur les `remainder` premiers groupes
+	const sizes = Array.from({ length: groupCount }, (_, i) =>
+		i < remainder ? baseSize + 1 : baseSize,
+	)
+
 	return sizes
 }
 

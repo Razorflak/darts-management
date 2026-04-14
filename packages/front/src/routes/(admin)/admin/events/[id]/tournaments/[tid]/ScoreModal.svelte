@@ -89,7 +89,9 @@ function handleValider() {
 			{#if isReadOnly}
 				<p class="mt-2 text-sm font-medium text-green-700">
 					Résultat : {match.score_a} – {match.score_b}
-					{#if match.status === "walkover"}(walkover){/if}
+					{#if match.status === "walkover"}
+						(walkover)
+					{/if}
 				</p>
 			{/if}
 		</div>
@@ -99,28 +101,58 @@ function handleValider() {
 				<!-- Legs-only mode -->
 				<div class="flex items-center justify-center gap-4">
 					<div class="text-center">
-						<p class="mb-1 text-xs text-gray-500">{match.team_a_name ?? "Équipe A"}</p>
-						<Input type="number" min="0" bind:value={legA} class="w-20 text-center" placeholder="0" />
+						<p class="mb-1 text-xs text-gray-500">
+							{match.team_a_name ?? "Équipe A"}
+						</p>
+						<Input
+							type="number"
+							min="0"
+							bind:value={legA}
+							class="w-20 text-center"
+							placeholder="0"
+						/>
 					</div>
 					<span class="text-xl text-gray-400">–</span>
 					<div class="text-center">
-						<p class="mb-1 text-xs text-gray-500">{match.team_b_name ?? "Équipe B"}</p>
-						<Input type="number" min="0" bind:value={legB} class="w-20 text-center" placeholder="0" />
+						<p class="mb-1 text-xs text-gray-500">
+							{match.team_b_name ?? "Équipe B"}
+						</p>
+						<Input
+							type="number"
+							min="0"
+							bind:value={legB}
+							class="w-20 text-center"
+							placeholder="0"
+						/>
 					</div>
 				</div>
 			{:else}
 				<!-- Set-by-set mode -->
 				<div class="space-y-2">
-					<div class="grid grid-cols-3 gap-2 text-center text-xs font-medium text-gray-500">
+					<div
+						class="grid grid-cols-3 gap-2 text-center text-xs font-medium text-gray-500"
+					>
 						<span>{match.team_a_name ?? "Éq. A"}</span>
 						<span>Set</span>
 						<span>{match.team_b_name ?? "Éq. B"}</span>
 					</div>
 					{#each sets as s, i}
 						<div class="grid grid-cols-3 items-center gap-2">
-							<Input type="number" min="0" bind:value={s.a} class="text-center" placeholder="0" />
+							<Input
+								type="number"
+								min="0"
+								bind:value={s.a}
+								class="text-center"
+								placeholder="0"
+							/>
 							<span class="text-center text-xs text-gray-400">Set {i + 1}</span>
-							<Input type="number" min="0" bind:value={s.b} class="text-center" placeholder="0" />
+							<Input
+								type="number"
+								min="0"
+								bind:value={s.b}
+								class="text-center"
+								placeholder="0"
+							/>
 						</div>
 					{/each}
 				</div>

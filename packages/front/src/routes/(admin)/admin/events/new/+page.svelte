@@ -100,9 +100,7 @@ async function publish() {
 }
 </script>
 
-<svelte:head>
-	<title>Créer un événement — FFD</title>
-</svelte:head>
+<svelte:head> <title>Créer un événement — FFD</title> </svelte:head>
 
 <div class="bg-surface min-h-screen px-4 py-8 sm:px-6">
 	<div class="mx-auto max-w-3xl">
@@ -118,7 +116,13 @@ async function publish() {
 
 			<div class="flex items-center justify-between">
 				<h1 class="mb-6 text-2xl font-bold text-gray-900">Nouvel événement</h1>
-				<Button color="alternative" size="sm" pill onclick={saveDraft} disabled={saving}>
+				<Button
+					color="alternative"
+					size="sm"
+					pill
+					onclick={saveDraft}
+					disabled={saving}
+				>
 					{saving ? "Enregistrement..." : "Enregistrer"}
 				</Button>
 			</div>
@@ -133,8 +137,12 @@ async function publish() {
 		<!-- Step content -->
 		<div class="rounded-card border-border shadow-card border bg-white p-6">
 			{#if step === 1}
-				<div class="mb-5 flex items-center justify-between border-b border-gray-100 pb-4">
-					<p class="text-sm text-gray-500">Remplissez les informations de l'événement</p>
+				<div
+					class="mb-5 flex items-center justify-between border-b border-gray-100 pb-4"
+				>
+					<p class="text-sm text-gray-500">
+						Remplissez les informations de l'événement
+					</p>
 					<Button
 						color="alternative"
 						size="sm"

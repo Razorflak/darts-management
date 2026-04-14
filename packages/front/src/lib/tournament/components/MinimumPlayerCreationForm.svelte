@@ -17,8 +17,8 @@ const inputClass =
 </script>
 
 <div class="mt-3 grid grid-cols-2 gap-3">
-	<input class={inputClass} placeholder="Prénom *" bind:value={first_name} />
-	<input class={inputClass} placeholder="Nom *" bind:value={last_name} />
+	<input class={inputClass} placeholder="Prénom *" bind:value={first_name}>
+	<input class={inputClass} placeholder="Nom *" bind:value={last_name}>
 	<div class="col-span-2">
 		<DepartmentSelect bind:value={department} placeholder="Département*" />
 	</div>

@@ -26,6 +26,7 @@ export const load: PageServerLoad = async ({ locals, params }) => {
 	const event = AdminEventDetailSchema.parse(eventRows[0])
 
 	// Check access: must be organizer or have an admin role on the entity
+	// biome-ignore lint/style/noNonNullAssertion: (admin) layout guarantees locals.user is defined
 	const roles = await getUserRoles(locals.user!.id)
 	const hasAccess = roles.some(
 		(r) =>
@@ -39,6 +40,7 @@ export const load: PageServerLoad = async ({ locals, params }) => {
 				"organisateur",
 			].includes(r.role),
 	)
+	// biome-ignore lint/style/noNonNullAssertion: (admin) layout guarantees locals.user is defined
 	const isOrganizer = event.organizer_id === locals.user!.id
 	if (!hasAccess && !isOrganizer) error(403, "Accès refusé")
 
@@ -84,6 +86,7 @@ export const load: PageServerLoad = async ({ locals, params }) => {
 				any_checkin: false,
 			})
 		}
+		// biome-ignore lint/style/noNonNullAssertion: entry just set above if missing
 		const day = dayMap.get(dateKey)!
 		day.tournament_ids.push(t.id)
 		day.tournament_names.push(t.name)

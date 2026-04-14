@@ -61,7 +61,9 @@ function isEliminationPhase(p: Phase): p is EliminationPhase {
 					onclick={() => (expanded = !expanded)}
 					aria-label={expanded ? "Réduire" : "Développer"}
 				>
-					<ChevronDownOutline class={["h-4 w-4 transition-transform", expanded ? "rotate-180" : ""].join(" ")} />
+					<ChevronDownOutline
+						class={["h-4 w-4 transition-transform", expanded ? "rotate-180" : ""].join(" ")}
+					/>
 				</Button>
 			{/if}
 			<Button
@@ -70,7 +72,7 @@ function isEliminationPhase(p: Phase): p is EliminationPhase {
 				outline
 				pill
 				onclick={onDelete}
-				disabled={disabled}
+				{disabled}
 				aria-label="Supprimer la phase"
 			>
 				<TrashBinOutline class="h-4 w-4" />
@@ -83,25 +85,28 @@ function isEliminationPhase(p: Phase): p is EliminationPhase {
 		<div class="border-t border-gray-200 px-4 pt-3 pb-4">
 			<div class="grid grid-cols-2 gap-4">
 				<div>
-					<Label for="phase-ppg-{phase.id}" class="mb-2">Joueurs par poule</Label>
+					<Label for="phase-ppg-{phase.id}" class="mb-2"
+						>Joueurs par poule</Label
+					>
 					<Input
 						id="phase-ppg-{phase.id}"
 						type="number"
 						bind:value={phase.players_per_group}
 						min="2"
-						disabled={disabled}
+						{disabled}
 						class="text-center"
 					/>
 				</div>
 				<div>
-					<Label for="phase-qualifiers-{phase.id}" class="mb-2">Qualifiés par poule</Label
+					<Label for="phase-qualifiers-{phase.id}" class="mb-2"
+						>Qualifiés par poule</Label
 					>
 					<Input
 						id="phase-qualifiers-{phase.id}"
 						type="number"
 						bind:value={phase.qualifiers_per_group}
 						min="1"
-						disabled={disabled}
+						{disabled}
 						class="text-center"
 					/>
 				</div>
@@ -116,7 +121,7 @@ function isEliminationPhase(p: Phase): p is EliminationPhase {
 						bind:value={phase.sets_to_win}
 						min="1"
 						max="5"
-						disabled={disabled}
+						{disabled}
 						class="text-center"
 					/>
 				</div>
@@ -128,7 +133,7 @@ function isEliminationPhase(p: Phase): p is EliminationPhase {
 						bind:value={phase.legs_per_set}
 						min="1"
 						max="9"
-						disabled={disabled}
+						{disabled}
 						class="text-center"
 					/>
 				</div>
@@ -141,14 +146,16 @@ function isEliminationPhase(p: Phase): p is EliminationPhase {
 		<div class="space-y-3 border-t border-gray-200 px-4 pt-3 pb-4">
 			{#if !isLast}
 				<div class="flex items-center gap-3">
-					<Label for="phase-elim-qual-{phase.id}">Qualifiés pour la suite</Label>
+					<Label for="phase-elim-qual-{phase.id}"
+						>Qualifiés pour la suite</Label
+					>
 					<Input
 						id="phase-elim-qual-{phase.id}"
 						type="number"
 						bind:value={phase.qualifiers_count}
 						min="1"
 						size="sm"
-						disabled={disabled}
+						{disabled}
 						class="w-24 text-center"
 					/>
 				</div>

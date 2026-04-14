@@ -1,11 +1,18 @@
 <script lang="ts">
 import type { StandingEntry } from "@darts-management/domain"
 import { Alert } from "flowbite-svelte"
+import { ChevronDownOutline, ChevronRightOutline } from "flowbite-svelte-icons"
+import { tick, untrack } from "svelte"
+import { apiRoutes } from "$lib/fetch/api"
 import type { MatchDisplay } from "$lib/server/schemas/event-schemas.js"
+import {
+	DONE_STATUSES,
+	isMatchHighlighted,
+} from "$lib/tournament/components/bracket/bracket-utils.js"
 import { BracketView } from "$lib/tournament/components/bracket/index.js"
-import PhaseMatchTable from "./PhaseMatchTable.svelte"
+import { PHASE_TYPE_LABELS } from "$lib/tournament/labels"
+import RoundRobinGroupView from "./RoundRobinGroupView.svelte"
 import ScoreModal from "./ScoreModal.svelte"
-import StandingsTable from "./StandingsTable.svelte"
 
 let {
 	matches,
@@ -32,7 +39,20 @@ function groupLabel(n: number): string {
 	return String.fromCharCode(65 + n)
 }
 
-// Grouper les matchs par phase, puis par group_number
+// ─── État par phase ───────────────────────────────────────────────────────────
+
+let phaseOpen = $state<Record<string, boolean>>({})
+let phaseSelectedGroup = $state<Record<string, number | null>>({})
+let phaseSearchQuery = $state<Record<string, string>>({})
+let phaseSearchIndex = $state<Record<string, number>>({})
+let bracketScrollTrigger = $state<
+	Record<string, { matchId: number; nonce: number } | null>
+>({})
+let phaseContainerEls: Record<string, HTMLElement> = {}
+let scrollNonce = 0
+
+// ─── Groupage des matchs par phase puis par groupe ────────────────────────────
+
 const phaseGroups = $derived.by(() => {
 	const phaseMap = new Map<
 		string,
@@ -50,9 +70,10 @@ const phaseGroups = $derived.by(() => {
 				groups: new Map(),
 			})
 		}
-		const phase = phaseMap.get(m.phase_id)!
+		const phase = phaseMap.get(m.phase_id)
+		if (!phase) continue
 		if (!phase.groups.has(m.group_number)) phase.groups.set(m.group_number, [])
-		phase.groups.get(m.group_number)!.push(m)
+		phase.groups.get(m.group_number)?.push(m)
 	}
 	return [...phaseMap.entries()]
 		.sort(([, a], [, b]) => a.phasePosition - b.phasePosition)
@@ -64,20 +85,92 @@ const phaseGroups = $derived.by(() => {
 		}))
 })
 
+// Initialisation de l'état pour chaque phase découverte
+$effect(() => {
+	for (const { phaseId, groups } of phaseGroups) {
+		const isFirst = phaseId === phaseGroups[0]?.phaseId
+		if (!untrack(() => phaseId in phaseOpen)) {
+			phaseOpen[phaseId] = isFirst
+		}
+		if (!untrack(() => phaseId in phaseSelectedGroup)) {
+			phaseSelectedGroup[phaseId] = groups[0]?.[0] ?? null
+		}
+	}
+})
+
+// ─── Helpers ─────────────────────────────────────────────────────────────────
+
+// Comptage done/total par phaseId (évite les faux positifs Biome sur usage template)
+const phaseMatchCounts = $derived(
+	Object.fromEntries(
+		phaseGroups.map(({ phaseId, groups }) => {
+			const all = groups.flatMap(([, ms]) => ms)
+			const playable = all.filter((m) => m.status !== "bye")
+			const done = playable.filter((m) => DONE_STATUSES.has(m.status)).length
+			return [phaseId, { done, total: playable.length }]
+		}),
+	),
+)
+
+// Comptage des résultats de recherche par phaseId
+const phaseSearchResultCounts = $derived(
+	Object.fromEntries(
+		phaseGroups.map(({ phaseId, groups }) => {
+			const query = phaseSearchQuery[phaseId] ?? ""
+			if (!query.trim()) return [phaseId, 0]
+			const count = groups.reduce(
+				(acc, [, ms]) =>
+					acc + ms.filter((m) => isMatchHighlighted(m, query)).length,
+				0,
+			)
+			return [phaseId, count]
+		}),
+	),
+)
+
+// ─── Navigation de recherche cross-groupe ────────────────────────────────────
+
+async function navigateSearch(phaseId: string, direction: 1 | -1) {
+	const phase = phaseGroups.find((p) => p.phaseId === phaseId)
+	if (!phase) return
+
+	const query = phaseSearchQuery[phaseId] ?? ""
+	if (!query.trim()) return
+
+	const allHighlighted = phase.groups.flatMap(([groupNumber, groupMatches]) =>
+		groupMatches
+			.filter((m) => isMatchHighlighted(m, query))
+			.map((m) => ({ groupNumber, matchId: m.event_match_id })),
+	)
+	if (!allHighlighted.length) return
+
+	const currentIdx = phaseSearchIndex[phaseId] ?? -1
+	const len = allHighlighted.length
+	const newIdx = (((currentIdx + direction) % len) + len) % len
+	phaseSearchIndex[phaseId] = newIdx
+
+	const { groupNumber, matchId } = allHighlighted[newIdx]
+
+	// Changer de groupe si nécessaire puis attendre le rendu
+	if (phaseSelectedGroup[phaseId] !== groupNumber) {
+		phaseSelectedGroup[phaseId] = groupNumber
+		await tick()
+	}
+
+	if (BRACKET_TYPES.has(phase.phaseType)) {
+		bracketScrollTrigger[phaseId] = { matchId, nonce: scrollNonce++ }
+	} else {
+		const container = phaseContainerEls[phaseId]
+		const el = container?.querySelector(`[data-match-id="${matchId}"]`)
+		el?.scrollIntoView({ behavior: "smooth", block: "nearest" })
+	}
+}
+
+// ─── ScoreModal ───────────────────────────────────────────────────────────────
+
 function openScoreModal(m: MatchDisplay) {
 	selectedMatch = m
 	scoreModalOpen = true
-}
-
-function handleMatchAreaClick(e: MouseEvent) {
-	const row = (e.target as HTMLElement).closest("tr")
-	if (!row) return
-	const firstCell = row.querySelector("td")
-	if (!firstCell) return
-	const eventMatchId = Number.parseInt(firstCell.textContent?.trim() ?? "", 10)
-	if (Number.isNaN(eventMatchId)) return
-	const m = matches.find((match) => match.event_match_id === eventMatchId)
-	if (m) openScoreModal(m)
 }
 </script>
 
@@ -86,49 +179,174 @@ function handleMatchAreaClick(e: MouseEvent) {
 		Les matchs seront affichés après le lancement du tournoi.
 	</p>
 	<Alert color="yellow" class="mt-4">
-		Aucun match généré. Le lancement semble avoir échoué. Essayez d'annuler et relancer.
+		Aucun match généré. Le lancement semble avoir échoué. Essayez d'annuler et
+		relancer.
 	</Alert>
 {:else}
 	<section class="mb-6">
 		<h2 class="mb-4 text-base font-semibold text-gray-800">Matchs générés</h2>
 
-		{#each phaseGroups as { phaseId, phaseType, phasePosition, groups }}
-			{@const baseLabel = `Phase ${phasePosition + 1}`}
-			{@const multipleGroups = groups.length > 1}
+		{#each phaseGroups as { phaseId, phaseType, phasePosition, groups }, phaseIdx}
+			{@const open = phaseOpen[phaseId] ?? phaseIdx === 0}
+			{@const selectedGroup = phaseSelectedGroup[phaseId] ?? groups[0]?.[0] ?? null}
+			{@const typeLabel =
+				PHASE_TYPE_LABELS[phaseType as keyof typeof PHASE_TYPE_LABELS] ??
+				phaseType}
+			{@const counts = phaseMatchCounts[phaseId] ?? { done: 0, total: 0 }}
+			{@const searchQuery = phaseSearchQuery[phaseId] ?? ""}
+			{@const resultCount = phaseSearchResultCounts[phaseId] ?? 0}
+			{@const searchIdx = phaseSearchIndex[phaseId] ?? -1}
+			{@const currentGroupMatches =
+				groups.find(([n]) => n === selectedGroup)?.[1] ?? groups[0]?.[1] ?? []}
 
-			{#each groups as [groupNumber, groupMatches]}
-				{@const phaseName = groupNumber !== null && multipleGroups
-					? `${baseLabel} — Groupe ${groupLabel(groupNumber)}`
-					: baseLabel}
-
-				{#if BRACKET_TYPES.has(phaseType)}
-					<div class="mb-6">
-						<BracketView
-							matches={groupMatches}
-							{phaseName}
-							{eventId}
-							onMatchClick={openScoreModal}
-						/>
-					</div>
-				{:else}
-					<!-- svelte-ignore a11y_click_events_have_key_events a11y_no_static_element_interactions -->
-					<div onclick={handleMatchAreaClick} class="cursor-pointer">
-						<PhaseMatchTable matches={groupMatches} />
-					</div>
-					{#if standingsByPhase && groupNumber !== null}
-						{@const standingKey = `${phaseId}-${groupNumber}`}
-						{@const standings = standingsByPhase[standingKey]}
-						{#if standings}
-							<div class="mt-4">
-								<h3 class="mb-2 text-sm font-semibold text-gray-700">
-									Classement — Groupe {groupLabel(groupNumber)}
-								</h3>
-								<StandingsTable {standings} teamNames={new Map(Object.entries(teamNames))} />
-							</div>
+			<div
+				class="mb-3 overflow-hidden rounded-lg border border-gray-200 bg-white"
+			>
+				<!-- Header accordéon -->
+				<button
+					type="button"
+					onclick={() => {
+						phaseOpen[phaseId] = !open
+					}}
+					class="flex w-full items-center justify-between px-4 py-3 text-left hover:bg-gray-50"
+				>
+					<span class="font-semibold text-gray-800">
+						Phase {phasePosition + 1} : {typeLabel}
+					</span>
+					<span class="flex items-center gap-2 text-sm text-gray-500">
+						{counts.done}/{counts.total}
+						matchs terminés
+						{#if open}
+							<ChevronDownOutline class="h-4 w-4" />
+						{:else}
+							<ChevronRightOutline class="h-4 w-4" />
 						{/if}
-					{/if}
+					</span>
+				</button>
+
+				<!-- Contenu de l'accordéon -->
+				{#if open}
+					<div
+						class="overflow-y-auto border-t border-gray-100"
+						style="max-height: 65vh"
+						bind:this={phaseContainerEls[phaseId]}
+					>
+						<!-- Toolbar sticky (recherche + boutons groupes) -->
+						<div
+							class="sticky top-0 z-10 flex flex-wrap items-center gap-2 border-b border-gray-100 bg-white px-4 py-2"
+						>
+							<!-- Recherche -->
+							<form
+								onsubmit={(e) => {
+									e.preventDefault()
+									navigateSearch(phaseId, 1)
+								}}
+								class="flex items-center gap-1"
+							>
+								<input
+									type="search"
+									placeholder="Rechercher une équipe…"
+									value={searchQuery}
+									oninput={(e) => {
+										phaseSearchQuery[phaseId] = e.currentTarget.value
+										phaseSearchIndex[phaseId] = -1
+									}}
+									class="w-44 rounded border border-gray-300 px-2 py-1 text-sm focus:outline-none focus:ring-1 focus:ring-blue-400"
+								>
+								{#if searchQuery.trim() && resultCount > 0}
+									{#if searchIdx >= 0}
+										<span class="text-xs text-gray-500 tabular-nums">
+											{searchIdx + 1}/{resultCount}
+										</span>
+									{/if}
+									<button
+										type="button"
+										onclick={() => navigateSearch(phaseId, -1)}
+										class="rounded px-1 py-0.5 text-gray-500 hover:bg-gray-100"
+										title="Résultat précédent"
+									>
+										‹
+									</button>
+									<button
+										type="submit"
+										class="rounded px-1 py-0.5 text-gray-500 hover:bg-gray-100"
+										title="Résultat suivant"
+									>
+										›
+									</button>
+								{/if}
+							</form>
+
+							<!-- Boutons groupes -->
+							{#if groups.length > 1}
+								<div class="flex gap-1">
+									{#each groups as [ groupNumber ]}
+										<button
+											type="button"
+											onclick={() => {
+												phaseSelectedGroup[phaseId] = groupNumber
+											}}
+											class="rounded border px-3 py-1 text-sm transition-colors"
+											class:bg-blue-600={selectedGroup === groupNumber}
+											class:text-white={selectedGroup === groupNumber}
+											class:border-blue-600={selectedGroup === groupNumber}
+											class:border-gray-300={selectedGroup !== groupNumber}
+											class:text-gray-700={selectedGroup !== groupNumber}
+											class:hover:bg-gray-50={selectedGroup !== groupNumber}
+										>
+											Groupe {groupLabel(groupNumber ?? 0)}
+										</button>
+									{/each}
+								</div>
+							{/if}
+						</div>
+
+						<!-- Matchs du groupe sélectionné -->
+						<div class="p-4">
+							{#if BRACKET_TYPES.has(phaseType)}
+								<BracketView
+									matches={currentGroupMatches}
+									phaseName={`Phase ${phasePosition + 1}`}
+									{eventId}
+									onMatchClick={openScoreModal}
+									{searchQuery}
+									scrollTrigger={bracketScrollTrigger[phaseId] ?? null}
+								/>
+							{:else}
+								<RoundRobinGroupView
+									matches={currentGroupMatches}
+									standings={standingsByPhase?.[`${phaseId}-${selectedGroup}`]}
+									teamNames={new Map(Object.entries(teamNames))}
+									{searchQuery}
+									onMatchClick={openScoreModal}
+								/>
+							{/if}
+
+							<!-- Passer à la phase suivante -->
+							<div class="mt-4 border-t border-gray-100 pt-3">
+								<button
+									type="button"
+									class="text-sm text-blue-600 hover:underline"
+									onclick={() =>
+										fetch(apiRoutes.TOURNAMENT_ADVANCE_PHASE.path, {
+											body: JSON.stringify({
+												phase_id: phaseId,
+												event_id: eventId,
+											}),
+											method: "POST",
+											headers: { "Content-Type": "application/json" },
+										}).then((res) => {
+											if (!res.ok)
+												alert("Erreur lors du passage à la phase suivante")
+										})}
+								>
+									Passer à la phase suivante
+								</button>
+							</div>
+						</div>
+					</div>
 				{/if}
-			{/each}
+			</div>
 		{/each}
 	</section>
 {/if}

@@ -50,9 +50,7 @@ async function startDayCheckin(day: CheckinDay) {
 }
 </script>
 
-<svelte:head>
-	<title>{data.event.name} — Administration</title>
-</svelte:head>
+<svelte:head> <title>{data.event.name} — Administration</title> </svelte:head>
 
 {#if data.hasStartedTournament}
 	<QuickScoreCard eventId={data.event.id} />
@@ -69,25 +67,42 @@ async function startDayCheckin(day: CheckinDay) {
 <div class="mb-6 flex items-start justify-between">
 	<div>
 		<h1 class="text-2xl font-bold text-gray-900">{data.event.name}</h1>
-		<p class="mt-1 text-sm text-gray-500">{data.event.entity_name} · {data.event.location}</p>
+		<p class="mt-1 text-sm text-gray-500">
+			{data.event.entity_name}
+			· {data.event.location}
+		</p>
 		<div class="mt-2">
-			<Badge color={EVENT_DETAIL_STATUS_COLORS[data.event.status]}>{data.event.status}</Badge>
+			<Badge color={EVENT_DETAIL_STATUS_COLORS[data.event.status]}
+				>{data.event.status}</Badge
+			>
 		</div>
 	</div>
 	<div class="flex gap-2">
-		<Button onclick={() => (registrationModalOpen = true)} color="primary" size="sm">Inscrire un joueur</Button>
-		<Button href="/admin/events/{data.event.id}/edit" color="light" size="sm">Modifier l'événement</Button>
+		<Button
+			onclick={() => (registrationModalOpen = true)}
+			color="primary"
+			size="sm"
+			>Inscrire un joueur</Button
+		>
+		<Button href="/admin/events/{data.event.id}/edit" color="light" size="sm"
+			>Modifier l'événement</Button
+		>
 	</div>
 </div>
 
 <!-- Day check-in buttons -->
 {#if registrationModalOpen}
-	<RegistrationModal bind:open={registrationModalOpen} eventTournaments={data.tournaments} />
+	<RegistrationModal
+		bind:open={registrationModalOpen}
+		eventTournaments={data.tournaments}
+	/>
 {/if}
 
 {#if data.checkinDays.length > 0}
 	<div class="mb-6">
-		<h2 class="mb-3 text-base font-semibold text-gray-800">Check-in par journée</h2>
+		<h2 class="mb-3 text-base font-semibold text-gray-800">
+			Check-in par journée
+		</h2>
 		<div class="flex flex-wrap gap-3">
 			{#each data.checkinDays as day (day.date)}
 				{#if day.any_ready || day.any_checkin}
@@ -96,7 +111,8 @@ async function startDayCheckin(day: CheckinDay) {
 						color={day.any_checkin ? "yellow" : "primary"}
 						size="sm"
 					>
-						Check-in {new Date(day.date).toLocaleDateString("fr-FR", {
+						Check-in
+						{new Date(day.date).toLocaleDateString("fr-FR", {
 							day: "numeric",
 							month: "long",
 						})}
@@ -108,10 +124,14 @@ async function startDayCheckin(day: CheckinDay) {
 {/if}
 
 <!-- Tournaments table -->
-<h2 class="mb-3 text-base font-semibold text-gray-800">Tournois ({data.tournaments.length})</h2>
+<h2 class="mb-3 text-base font-semibold text-gray-800">
+	Tournois ({data.tournaments.length})
+</h2>
 
 {#if data.tournaments.length === 0}
-	<p class="text-sm text-gray-500">Aucun tournoi configuré pour cet événement.</p>
+	<p class="text-sm text-gray-500">
+		Aucun tournoi configuré pour cet événement.
+	</p>
 {:else}
 	<Table>
 		<TableHead>
@@ -139,13 +159,15 @@ async function startDayCheckin(day: CheckinDay) {
 							<Button
 								href="/admin/events/{data.event.id}/tournaments/{t.id}"
 								size="xs"
-								color="light">Gérer le roster</Button
+								color="light"
+								>Gérer le roster</Button
 							>
 							{#if t.status === "ready" || t.status === "check-in"}
 								<Button
 									href="/admin/events/{data.event.id}/tournaments/{t.id}/launch"
 									size="xs"
-									color="primary">Lancer le tournoi</Button
+									color="primary"
+									>Lancer le tournoi</Button
 								>
 							{/if}
 						</div>

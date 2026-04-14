@@ -58,7 +58,7 @@ function handleSubmit(e: SubmitEvent) {
 			disabled={readonly}
 			placeholder="ex : Comité Berry Mai 2026"
 			class="block w-full rounded-lg border border-gray-300 bg-gray-50 p-2.5 text-gray-900 focus:border-blue-500 focus:ring-blue-500 disabled:cursor-not-allowed disabled:opacity-60"
-		/>
+		>
 	</div>
 
 	<!-- Entité -->
@@ -120,7 +120,9 @@ function handleSubmit(e: SubmitEvent) {
 	<!-- Ouverture des inscriptions -->
 	<div>
 		<Label class="mb-2">Ouverture des inscriptions</Label>
-		<p class="mb-2 text-xs text-gray-400">Optionnel — si vide, ouvertes dès la publication</p>
+		<p class="mb-2 text-xs text-gray-400">
+			Optionnel — si vide, ouvertes dès la publication
+		</p>
 		<Datepicker
 			bind:value={event.registration_opens_at}
 			locale="fr-FR"
@@ -143,12 +145,14 @@ function handleSubmit(e: SubmitEvent) {
 			disabled={readonly}
 			placeholder="ex : Bourges"
 			class="block w-full rounded-lg border border-gray-300 bg-gray-50 p-2.5 text-gray-900 focus:border-blue-500 focus:ring-blue-500 disabled:cursor-not-allowed disabled:opacity-60"
-		/>
+		>
 	</div>
 
 	<!-- Actions -->
 	<div class="flex justify-between pt-2">
-		<Button type="button" color="alternative" pill onclick={onCancel}>Annuler</Button>
+		<Button type="button" color="alternative" pill onclick={onCancel}
+			>Annuler</Button
+		>
 		<Button type="submit" color="blue" pill>Suivant →</Button>
 	</div>
 </form>

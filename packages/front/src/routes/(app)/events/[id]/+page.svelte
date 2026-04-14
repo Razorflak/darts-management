@@ -66,13 +66,20 @@ function statusLabel(status: string) {
 	<!-- Event header -->
 	<div class="mb-6">
 		<div class="mb-2 flex items-center gap-3">
-			<h1 class="text-3xl font-bold text-gray-900 dark:text-white">{data.event.name}</h1>
-			<Badge color={statusColor(data.event.status)}>{statusLabel(data.event.status)}</Badge>
+			<h1 class="text-3xl font-bold text-gray-900 dark:text-white">
+				{data.event.name}
+			</h1>
+			<Badge color={statusColor(data.event.status)}
+				>{statusLabel(data.event.status)}</Badge
+			>
 		</div>
 		<p class="text-gray-600 dark:text-gray-400">{data.event.entity.name}</p>
-		<div class="mt-2 flex flex-wrap gap-4 text-sm text-gray-500 dark:text-gray-400">
+		<div
+			class="mt-2 flex flex-wrap gap-4 text-sm text-gray-500 dark:text-gray-400"
+		>
 			<span>
-				Du {data.event.starts_at.toLocaleDateString("fr-FR")} au {data.event.ends_at.toLocaleDateString(
+				Du {data.event.starts_at.toLocaleDateString("fr-FR")} au
+				{data.event.ends_at.toLocaleDateString(
 					"fr-FR"
 				)}
 			</span>
@@ -80,7 +87,8 @@ function statusLabel(status: string) {
 		</div>
 		{#if data.event.registration_opens_at}
 			<p class="mt-1 text-sm text-gray-500 dark:text-gray-400">
-				Inscriptions ouvertes à partir du {data.event.registration_opens_at.toLocaleDateString(
+				Inscriptions ouvertes à partir du
+				{data.event.registration_opens_at.toLocaleDateString(
 					"fr-FR"
 				)}
 			</p>
@@ -90,20 +98,26 @@ function statusLabel(status: string) {
 	{#if data.user && !data.player}
 		<div class="mb-4 rounded-lg border border-red-200 bg-red-50 p-4">
 			<p class="text-sm text-red-700">
-				Vous devez compléter votre profil joueur pour vous inscrire à un tournoi.
+				Vous devez compléter votre profil joueur pour vous inscrire à un
+				tournoi.
 				<a
 					href="/profile/create?redirectTo={encodeURIComponent(page.url.pathname)}"
 					class="font-medium underline"
-				>Créer mon profil</a>
+					>Créer mon profil</a
+				>
 			</p>
 		</div>
 	{/if}
 
 	<!-- Tournament list -->
-	<h2 class="mb-4 text-xl font-semibold text-gray-800 dark:text-white">Tournois</h2>
+	<h2 class="mb-4 text-xl font-semibold text-gray-800 dark:text-white">
+		Tournois
+	</h2>
 
 	{#if tournaments.length === 0}
-		<p class="text-gray-500 dark:text-gray-400">Aucun tournoi disponible pour cet événement.</p>
+		<p class="text-gray-500 dark:text-gray-400">
+			Aucun tournoi disponible pour cet événement.
+		</p>
 	{:else}
 		<div class="flex flex-wrap gap-3 *:min-w-100">
 			{#each tournaments as tournament (tournament.id)}
@@ -115,7 +129,9 @@ function statusLabel(status: string) {
 							{CATEGORY_LABELS[tournament.category]}
 						</h3>
 						<p class="mt-0.5 text-xs text-gray-400">
-							{tournament.start_at.toLocaleDateString("fr-FR")} à {tournament.start_at.toLocaleTimeString(
+							{tournament.start_at.toLocaleDateString("fr-FR")}
+							à
+							{tournament.start_at.toLocaleTimeString(
 								"fr-FR",
 								{ hour: "2-digit", minute: "2-digit" }
 							)}
@@ -126,7 +142,8 @@ function statusLabel(status: string) {
 								: 'invisible'}"
 						>
 							<CheckOutline class="h-3.5 w-3.5" />
-							Inscrit {tournament.partner?.trim() !== ""
+							Inscrit
+							{tournament.partner?.trim() !== ""
 								? `(avec ${tournament.partner})`
 								: ""}
 						</div>

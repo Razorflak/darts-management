@@ -76,12 +76,18 @@ async function unregister(registrationId: string) {
 		{isDoubles ? "Ajouter une équipe" : "Ajouter un joueur"}
 	</Button>
 	{#if roster.length > 0}
-		<Input placeholder="Filtrer les inscrits..." bind:value={filterQuery} class="max-w-xs" />
+		<Input
+			placeholder="Filtrer les inscrits..."
+			bind:value={filterQuery}
+			class="max-w-xs"
+		/>
 	{/if}
 </div>
 
 {#if roster.length === 0}
-	<p class="mb-6 text-sm text-gray-500">Aucune équipe inscrite pour le moment.</p>
+	<p class="mb-6 text-sm text-gray-500">
+		Aucune équipe inscrite pour le moment.
+	</p>
 {:else}
 	<div class="mb-6">
 		<Table>
@@ -100,7 +106,9 @@ async function unregister(registrationId: string) {
 								{member.last_name}
 								{member.first_name}{i < entry.members.length - 1 ? " / " : ""}
 								{#if member.department}
-									<span class="ml-1 text-xs text-gray-400">({member.department})</span>
+									<span class="ml-1 text-xs text-gray-400"
+										>({member.department})</span
+									>
 								{/if}
 							{/each}
 						</TableBodyCell>
@@ -126,7 +134,11 @@ async function unregister(registrationId: string) {
 							</TableBodyCell>
 						{/if}
 						<TableBodyCell>
-							<Button color="red" size="xs" onclick={() => unregister(entry.registration_id)}>
+							<Button
+								color="red"
+								size="xs"
+								onclick={() => unregister(entry.registration_id)}
+							>
 								Retirer
 							</Button>
 						</TableBodyCell>

@@ -32,12 +32,18 @@ let { standings, teamNames }: Props = $props()
 		{#each standings as entry, i}
 			<TableBodyRow>
 				<TableBodyCell class="font-medium text-gray-500">{i + 1}</TableBodyCell>
-				<TableBodyCell>{teamNames.get(entry.team_id) ?? entry.team_id}</TableBodyCell>
+				<TableBodyCell
+					>{teamNames.get(entry.team_id) ?? entry.team_id}</TableBodyCell
+				>
 				<TableBodyCell class="text-center">{entry.played}</TableBodyCell>
 				<TableBodyCell class="text-center">{entry.wins}</TableBodyCell>
 				<TableBodyCell class="text-center">{entry.losses}</TableBodyCell>
-				<TableBodyCell class="text-center font-semibold">{entry.points}</TableBodyCell>
-				<TableBodyCell class="text-center">{entry.leg_diff > 0 ? `+${entry.leg_diff}` : entry.leg_diff}</TableBodyCell>
+				<TableBodyCell class="text-center font-semibold"
+					>{entry.points}</TableBodyCell
+				>
+				<TableBodyCell class="text-center"
+					>{entry.leg_diff > 0 ? `+${entry.leg_diff}` : entry.leg_diff}</TableBodyCell
+				>
 				<TableBodyCell class="text-center">{entry.legs_won}</TableBodyCell>
 				<TableBodyCell class="text-center">{entry.legs_lost}</TableBodyCell>
 			</TableBodyRow>

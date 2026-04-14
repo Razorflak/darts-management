@@ -51,8 +51,12 @@ async function onDragEnd() {
 
 <section class="mb-6">
 	<h2 class="mb-2 text-base font-semibold text-gray-800">Ordre de seeding</h2>
-	<p class="mb-3 text-sm text-gray-500">Glissez les équipes pour définir l'ordre de seeding avant le lancement.</p>
-	<ol class="divide-y divide-gray-100 rounded-lg border border-gray-200 bg-white">
+	<p class="mb-3 text-sm text-gray-500">
+		Glissez les équipes pour définir l'ordre de seeding avant le lancement.
+	</p>
+	<ol
+		class="divide-y divide-gray-100 rounded-lg border border-gray-200 bg-white"
+	>
 		{#each seededRosterOrder as entry, i (entry.registration_id)}
 			<li
 				class="flex cursor-grab items-center gap-3 px-3 py-2 text-sm {draggingIndex === i ? 'bg-primary-50 opacity-70' : 'hover:bg-gray-50'}"
@@ -63,11 +67,14 @@ async function onDragEnd() {
 				role="option"
 				aria-selected={false}
 			>
-				<span class="w-6 shrink-0 text-center text-xs font-medium text-gray-400">{i + 1}</span>
+				<span class="w-6 shrink-0 text-center text-xs font-medium text-gray-400"
+					>{i + 1}</span
+				>
 				<span class="text-gray-400">☰</span>
 				<span class="text-gray-800">
 					{#each entry.members as member, j}
-						{member.last_name} {member.first_name}{j < entry.members.length - 1 ? " / " : ""}
+						{member.last_name} {member.first_name}
+						{j < entry.members.length - 1 ? " / " : ""}
 					{/each}
 				</span>
 			</li>

@@ -19,7 +19,8 @@ const steps: { label: string; step: WizardStep }[] = [
 <nav class="w-full" aria-label="Étapes de création">
 	<!-- Mobile: texte seul -->
 	<p class="mb-4 text-sm text-gray-500 sm:hidden">
-		Étape {step} sur 3 — <span class="font-medium text-gray-800">{steps[step - 1].label}</span>
+		Étape {step} sur 3 —
+		<span class="font-medium text-gray-800">{steps[step - 1].label}</span>
 	</p>
 
 	<!-- Desktop: stepper visuel -->
@@ -75,7 +76,12 @@ const steps: { label: string; step: WizardStep }[] = [
 						aria-current={step === s.step ? 'step' : undefined}
 					>
 						{#if step > s.step}
-							<svg class="h-4 w-4" viewBox="0 0 20 20" fill="currentColor" aria-hidden="true">
+							<svg
+								class="h-4 w-4"
+								viewBox="0 0 20 20"
+								fill="currentColor"
+								aria-hidden="true"
+							>
 								<path
 									fill-rule="evenodd"
 									d="M16.704 4.153a.75.75 0 0 1 .143 1.052l-8 10.5a.75.75 0 0 1-1.127.075l-4.5-4.5a.75.75 0 0 1 1.06-1.06l3.894 3.893 7.48-9.817a.75.75 0 0 1 1.05-.143Z"

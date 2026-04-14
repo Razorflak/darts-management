@@ -69,7 +69,7 @@ export function columnGap(roundIndex: number): number {
 
 // ─── Construction du layout ───────────────────────────────────────────────────
 
-const DONE_STATUSES = new Set(["done", "walkover", "bye"])
+export const DONE_STATUSES = new Set(["done", "walkover", "bye"])
 
 export function buildBracketLayout(matches: MatchDisplay[]): BracketLayout {
 	const isSE = detectBracketMode(matches) === "SE"

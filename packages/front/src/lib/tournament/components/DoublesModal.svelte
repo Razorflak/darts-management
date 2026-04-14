@@ -76,9 +76,20 @@ function reset() {
 $effect(() => {
 	if (!open) reset()
 })
+
+function handleCancel() {
+	onClose()
+	open = false
+	reset()
+}
 </script>
 
-<Modal bind:open title="Inscription doubles — choisir un partenaire" size="md" outsideclose>
+<Modal
+	bind:open
+	title="Inscription doubles — choisir un partenaire"
+	size="md"
+	outsideclose
+>
 	<div class="space-y-4">
 		<!-- Partner search -->
 		{#if !selected}
@@ -90,7 +101,9 @@ $effect(() => {
 			</div>
 		{:else}
 			<!-- Selected partner display -->
-			<div class="flex items-center gap-3 rounded-md bg-green-50 p-3 dark:bg-green-900/20">
+			<div
+				class="flex items-center gap-3 rounded-md bg-green-50 p-3 dark:bg-green-900/20"
+			>
 				<span class="font-medium text-green-800 dark:text-green-200">
 					Partenaire sélectionné : {selected.last_name}
 					{selected.first_name}
@@ -105,7 +118,8 @@ $effect(() => {
 					color="alternative"
 					onclick={() => {
 						selected = null
-					}}>Changer</Button
+					}}
+					>Changer</Button
 				>
 			</div>
 		{/if}
@@ -127,8 +141,8 @@ $effect(() => {
 
 			{#if showCreateForm}
 				<span class="mt-1 block text-sm text-red-500">
-					Merci de bien vérifier que le joueur n'existe pas déjà avant de le créer. En cas
-					de doute, contactez les organisateurs.</span
+					Merci de bien vérifier que le joueur n'existe pas déjà avant de le
+					créer. En cas de doute, contactez les organisateurs.</span
 				>
 				<div class="mt-3 grid grid-cols-2 gap-3">
 					<Input placeholder="Prénom" bind:value={newPartner.first_name} />
@@ -161,14 +175,7 @@ $effect(() => {
 		>
 			{submitting ? "Inscription en cours..." : "Confirmer"}
 		</Button>
-		<Button
-			color="alternative"
-			onclick={() => {
-				onClose()
-				open = false
-				reset()
-			}}
-		>
+		<Button color="alternative" onclick={handleCancel}>
 			Annuler
 		</Button>
 	{/snippet}

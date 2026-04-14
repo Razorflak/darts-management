@@ -47,7 +47,9 @@ async function handleCancelLaunch() {
 <nav class="mb-4 text-sm text-gray-500">
 	<a href="/admin/events" class="hover:underline">Événements</a>
 	<span class="mx-2">/</span>
-	<a href="/admin/events/{eventId}" class="hover:underline">{data.tournament.event_name}</a>
+	<a href="/admin/events/{eventId}" class="hover:underline"
+		>{data.tournament.event_name}</a
+	>
 	<span class="mx-2">/</span>
 	<span class="text-gray-800">{data.tournament.name}</span>
 </nav>

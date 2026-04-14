@@ -47,7 +47,8 @@ function formatDate(date?: Date): string {
 		<div class="mb-5">
 			<p class="font-semibold text-gray-800">{event.name || "—"}</p>
 			<p class="mt-1 text-sm text-gray-500">
-				{formatDate(event.starts_at)} → {formatDate(event.ends_at)}
+				{formatDate(event.starts_at)}
+				→ {formatDate(event.ends_at)}
 				· {event.location || "—"}
 			</p>
 			{#if event.entity}
@@ -65,7 +66,9 @@ function formatDate(date?: Date): string {
 								{t.name || "Tournoi sans nom"}
 							</span>
 							{#if t.category}
-								<Badge color="blue" rounded>{CATEGORY_LABELS[t.category]}</Badge>
+								<Badge color="blue" rounded
+									>{CATEGORY_LABELS[t.category]}</Badge
+								>
 							{/if}
 						</div>
 						{#if t.start_at}
@@ -82,7 +85,8 @@ function formatDate(date?: Date): string {
 										</span>
 										{#if isGroupPhase(phase)}
 											<span class="text-gray-500">
-												— {phase.players_per_group} joueurs/poule · {phase.qualifiers_per_group}
+												— {phase.players_per_group} joueurs/poule ·
+												{phase.qualifiers_per_group}
 												qualifié{phase.qualifiers_per_group > 1
 													? "s"
 													: ""}/poule
@@ -90,17 +94,21 @@ function formatDate(date?: Date): string {
 										{:else if isEliminationPhase(phase)}
 											{#if phase.qualifiers_count}
 												<span class="text-gray-500">
-													— {phase.qualifiers_count} qualifié{phase.qualifiers_count >
+													—
+													{phase.qualifiers_count}
+													qualifié{phase.qualifiers_count >
 													1
 														? "s"
-														: ""} pour la suite
+														: ""}
+													pour la suite
 												</span>
 											{/if}
 											{#if phase.tiers.length > 0}
 												<ul class="mt-1 space-y-0.5 pl-4">
 													{#each phase.tiers as tier}
 														<li class="text-sm text-gray-400">
-															{BRACKET_ROUND_LABELS[tier.round]} · {tier.legs}
+															{BRACKET_ROUND_LABELS[tier.round]}
+															· {tier.legs}
 															manche{tier.legs > 1 ? "s" : ""}
 														</li>
 													{/each}
@@ -124,7 +132,9 @@ function formatDate(date?: Date): string {
 	</Card>
 
 	{#if publishError}
-		<div class="rounded-lg border border-red-200 bg-red-50 p-4 text-sm text-red-700">
+		<div
+			class="rounded-lg border border-red-200 bg-red-50 p-4 text-sm text-red-700"
+		>
 			{publishError}
 		</div>
 	{/if}
@@ -134,7 +144,8 @@ function formatDate(date?: Date): string {
 		<Button color="alternative" pill onclick={onPrev}>← Modifier</Button>
 		{#if eventStatus === "ready" || eventStatus === "started"}
 			<p class="text-sm text-gray-500">
-				Cet événement est publié. Utilisez "Enregistrer" pour mettre à jour le contenu.
+				Cet événement est publié. Utilisez "Enregistrer" pour mettre à jour le
+				contenu.
 			</p>
 		{:else}
 			<Button color="blue" pill onclick={onPublish}>Publier</Button>

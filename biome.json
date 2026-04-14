@@ -1,5 +1,8 @@
 {
 	"$schema": "https://biomejs.dev/schemas/2.4.9/schema.json",
 	"root": true,
-	"extends": ["@darts-management/biome-config/biome"]
+	"extends": ["@darts-management/biome-config/biome"],
+	"files": {
+		"includes": ["**", "!**/build/**"]
+	}
 }

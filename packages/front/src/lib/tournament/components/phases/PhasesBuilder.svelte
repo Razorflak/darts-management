@@ -60,7 +60,9 @@ function onSortEnd(evt: { oldIndex?: number; newIndex?: number }) {
 			{/each}
 		</ul>
 	{:else}
-		<div class="rounded-card border-2 border-dashed border-gray-200 p-8 text-center">
+		<div
+			class="rounded-card border-2 border-dashed border-gray-200 p-8 text-center"
+		>
 			<p class="text-gray-400">Aucune phase configurée.</p>
 		</div>
 	{/if}

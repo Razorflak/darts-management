@@ -47,7 +47,9 @@ async function changeStatus(newStatus: string) {
 	<h1 class="text-2xl font-semibold text-gray-900">{tournamentName}</h1>
 	<p class="mt-1 text-sm text-gray-500">{eventName}</p>
 	<p class="mt-1 text-sm text-gray-600">
-		{rosterCount} équipe{rosterCount !== 1 ? "s" : ""} inscrite{rosterCount !== 1 ? "s" : ""}
+		{rosterCount}
+		équipe{rosterCount !== 1 ? "s" : ""}
+		inscrite{rosterCount !== 1 ? "s" : ""}
 	</p>
 
 	<div class="mt-3 flex flex-wrap items-center gap-3">
@@ -70,7 +72,9 @@ async function changeStatus(newStatus: string) {
 					color="primary"
 					onclick={() => changeStatus(TOURNAMENT_STATUS_NEXT[status]!)}
 				>
-					Passer en {TOURNAMENT_STATUS_LABELS[TOURNAMENT_STATUS_NEXT[status]!]} &rarr;
+					Passer en
+					{TOURNAMENT_STATUS_LABELS[TOURNAMENT_STATUS_NEXT[status]!]}
+					&rarr;
 				</Button>
 			{/if}
 			<Button size="sm" color="primary" href="{baseUrl}/launch">

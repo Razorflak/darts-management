@@ -1,5 +1,4 @@
 import type { GeneratorResult, MatchInsertRow } from "../match-schemas.js"
-import type { PhaseType } from "../phase-schemas.js"
 
 /**
  * Valeurs par défaut de format de match par type de phase.

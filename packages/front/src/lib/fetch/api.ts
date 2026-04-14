@@ -26,6 +26,10 @@ export const apiRoutes = {
 		method: ["DELETE"],
 		path: "/api/tournament/unregister",
 	},
+	TOURNAMENT_ADVANCE_PHASE: {
+		method: ["POST"],
+		path: "/api/tournament/advance-phase",
+	},
 	PLAYERS_CREATE_PROFILE: {
 		method: ["POST"],
 		path: "/api/players/create-player-profile",

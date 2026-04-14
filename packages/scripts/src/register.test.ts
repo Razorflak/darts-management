@@ -10,7 +10,7 @@ import { getOrCreatePlayer } from "@darts-management/application"
 import { faker } from "@faker-js/faker"
 import { afterAll, describe, it } from "vitest"
 import { registerTeam } from "../../application/src/tournament/register-team.js"
-import { launchRepo, sql, tournamentRepo } from "./db.js"
+import { sql } from "./db.js"
 
 afterAll(() => sql.end())
 
@@ -25,8 +25,8 @@ INNER JOIN event ON tournament.event_id = event.id
 	})
 
 	it("Creation/Inscript de joueur en masse à un tournois", async () => {
-		const tournamentId = "030832f9-34a9-4701-a4b7-c7faa12e2ced"
-		const players = Array.from({ length: 64 }, () => ({
+		const tournamentId = "37fd7569-38a4-4219-a3bb-6564ffd2a840"
+		const players = Array.from({ length: 15 }, () => ({
 			first_name: faker.person.firstName(),
 			last_name: faker.person.lastName(),
 			department: "44",
@@ -40,5 +40,15 @@ INNER JOIN event ON tournament.event_id = event.id
 			playerIds.map((p) => registerTeam(tournamentId, [p])),
 		)
 		console.log(r)
+	})
+
+	it("checkin all players", async () => {
+		const tournamentId = "37fd7569-38a4-4219-a3bb-6564ffd2a840"
+		const update = await sql`
+            UPDATE tournament_registration
+            SET checked_in = true
+            WHERE tournament_id = ${tournamentId}
+        `
+		console.log(update)
 	})
 })

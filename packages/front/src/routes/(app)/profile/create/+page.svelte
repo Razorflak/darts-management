@@ -50,12 +50,14 @@ async function handleSubmit(event: SubmitEvent) {
 }
 </script>
 
-<svelte:head>
-	<title>Compléter mon profil — FFD Darts</title>
-</svelte:head>
+<svelte:head> <title>Compléter mon profil — FFD Darts</title> </svelte:head>
 
 <div class="mx-auto max-w-lg">
-	<p class="text-primary-500 mb-1 text-xs font-semibold tracking-widest uppercase">Profil</p>
+	<p
+		class="text-primary-500 mb-1 text-xs font-semibold tracking-widest uppercase"
+	>
+		Profil
+	</p>
 	<h1 class="mb-6 text-3xl font-bold text-gray-900">Compléter mon profil</h1>
 
 	<Card class="w-full">

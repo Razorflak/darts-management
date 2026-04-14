@@ -4,7 +4,6 @@ import type {
 	DraftTournament,
 	EliminationPhase,
 	GroupPhase,
-	PhaseType,
 } from "$lib/server/schemas/event-schemas.js"
 import { generateUuid } from "$lib/utils/uuid.js"
 

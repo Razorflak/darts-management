@@ -74,7 +74,7 @@ function onHoursKeydown(e: KeyboardEvent) {
 function onHoursInput(e: Event) {
 	const input = e.currentTarget as HTMLInputElement
 	let v = input.value.replace(/\D/g, "").slice(0, 2)
-	if (v.length === 2 && parseInt(v) > 23) v = "23"
+	if (v.length === 2 && parseInt(v, 10) > 23) v = "23"
 	hh = v
 	input.value = v
 	commit()
@@ -113,7 +113,7 @@ function onMinutesKeydown(e: KeyboardEvent) {
 function onMinutesInput(e: Event) {
 	const input = e.currentTarget as HTMLInputElement
 	let v = input.value.replace(/\D/g, "").slice(0, 2)
-	if (v.length === 2 && parseInt(v) > 59) v = "59"
+	if (v.length === 2 && parseInt(v, 10) > 59) v = "59"
 	mm = v
 	input.value = v
 	commit()
@@ -149,7 +149,7 @@ function onMinutesBlur() {
 		onblur={onHoursBlur}
 		onfocus={() => hhRef?.select()}
 		class="w-7 bg-transparent text-center outline-none"
-	/>
+	>
 
 	<span class="text-gray-400 select-none">:</span>
 
@@ -167,5 +167,5 @@ function onMinutesBlur() {
 		onblur={onMinutesBlur}
 		onfocus={() => mmRef?.select()}
 		class="w-7 bg-transparent text-center outline-none"
-	/>
+	>
 </div>

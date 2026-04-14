@@ -294,6 +294,22 @@ const internalRepoTournament = {
 			  AND r.tournament_id = ${tournamentId}
 		`
 	},
+	getNextPhaseByPhaseId: async (sql: Sql, phaseId: string) => {
+		const nextPhaseRows = await sql<{ id: string; type: string }[]>`
+			SELECT p2.id, p2.type
+			FROM phase p1
+			JOIN phase p2 ON p2.tournament_id = p1.tournament_id
+			  AND p2.position = p1.position + 1
+			WHERE p1.id = ${phaseId}
+		`
+
+		if (nextPhaseRows.length === 0) {
+			// No next phase — this is the final phase
+			return
+		}
+
+		return nextPhaseRows[0]
+	},
 }
 
 export const tournamentRepository = createRepository(

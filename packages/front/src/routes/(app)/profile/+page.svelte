@@ -15,39 +15,57 @@ function formatBirthDate(date: Date | null): string {
 }
 </script>
 
-<svelte:head>
-	<title>Mon profil — FFD Darts</title>
-</svelte:head>
+<svelte:head> <title>Mon profil — FFD Darts</title> </svelte:head>
 
 <div class="mx-auto max-w-lg">
-	<p class="mb-1 text-xs font-semibold uppercase tracking-widest text-primary-500">Compte</p>
+	<p
+		class="mb-1 text-xs font-semibold uppercase tracking-widest text-primary-500"
+	>
+		Compte
+	</p>
 	<h1 class="mb-6 text-3xl font-bold text-gray-900">Mon profil</h1>
 
 	<Card class="w-full">
 		<dl class="flex flex-col gap-4">
 			<div class="flex flex-col gap-1">
-				<dt class="text-xs font-semibold uppercase tracking-wide text-gray-400">Prénom</dt>
+				<dt class="text-xs font-semibold uppercase tracking-wide text-gray-400">
+					Prénom
+				</dt>
 				<dd class="font-medium text-gray-900">{data.player.first_name}</dd>
 			</div>
 
 			<div class="flex flex-col gap-1">
-				<dt class="text-xs font-semibold uppercase tracking-wide text-gray-400">Nom</dt>
+				<dt class="text-xs font-semibold uppercase tracking-wide text-gray-400">
+					Nom
+				</dt>
 				<dd class="font-medium text-gray-900">{data.player.last_name}</dd>
 			</div>
 
 			<div class="flex flex-col gap-1">
-				<dt class="text-xs font-semibold uppercase tracking-wide text-gray-400">Département</dt>
-				<dd class="font-medium text-gray-900">{data.player.department ?? "Non renseigné"}</dd>
+				<dt class="text-xs font-semibold uppercase tracking-wide text-gray-400">
+					Département
+				</dt>
+				<dd class="font-medium text-gray-900">
+					{data.player.department ?? "Non renseigné"}
+				</dd>
 			</div>
 
 			<div class="flex flex-col gap-1">
-				<dt class="text-xs font-semibold uppercase tracking-wide text-gray-400">Date de naissance</dt>
-				<dd class="font-medium text-gray-900">{formatBirthDate(data.player.birth_date)}</dd>
+				<dt class="text-xs font-semibold uppercase tracking-wide text-gray-400">
+					Date de naissance
+				</dt>
+				<dd class="font-medium text-gray-900">
+					{formatBirthDate(data.player.birth_date)}
+				</dd>
 			</div>
 
 			<div class="flex flex-col gap-1">
-				<dt class="text-xs font-semibold uppercase tracking-wide text-gray-400">Numéro de licence</dt>
-				<dd class="font-medium text-gray-900">{data.player.licence_no ?? "Non renseigné"}</dd>
+				<dt class="text-xs font-semibold uppercase tracking-wide text-gray-400">
+					Numéro de licence
+				</dt>
+				<dd class="font-medium text-gray-900">
+					{data.player.licence_no ?? "Non renseigné"}
+				</dd>
 			</div>
 		</dl>
 

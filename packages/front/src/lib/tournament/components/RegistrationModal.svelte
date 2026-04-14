@@ -163,6 +163,10 @@ async function submit() {
 		submitting = false
 	}
 }
+
+function handleCancel() {
+	open = false
+}
 </script>
 
 <Modal bind:open title="Inscription" size="lg" outsideclose>
@@ -199,13 +203,15 @@ async function submit() {
 					<h3 class="mb-2 font-semibold text-gray-700">Doubles</h3>
 					<div class="space-y-1">
 						{#each doublesTournaments as t (t.id)}
-							<label class="flex cursor-pointer items-center gap-2 text-sm text-gray-700">
+							<label
+								class="flex cursor-pointer items-center gap-2 text-sm text-gray-700"
+							>
 								<input
 									type="checkbox"
 									class="rounded"
 									checked={selectedDoublesTournaments.has(t.id)}
 									onchange={() => toggleDoubles(t.id)}
-								/>
+								>
 								{t.name}
 							</label>
 						{/each}
@@ -223,6 +229,8 @@ async function submit() {
 		<Button color="primary" onclick={submit} disabled={submitting}>
 			{submitting ? "Inscription en cours…" : "Valider"}
 		</Button>
-		<Button color="light" onclick={() => (open = false)} disabled={submitting}>Annuler</Button>
+		<Button color="light" onclick={handleCancel} disabled={submitting}
+			>Annuler</Button
+		>
 	{/snippet}
 </Modal>

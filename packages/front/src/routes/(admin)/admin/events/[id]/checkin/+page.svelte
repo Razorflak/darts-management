@@ -145,7 +145,8 @@ async function toggleRegistration(p: CheckinPlayer, reg: CheckinRegistration) {
 	>
 	<span class="mx-2">/</span>
 	<span class="text-gray-800">
-		Check-in {new Date(data.date).toLocaleDateString("fr-FR", {
+		Check-in
+		{new Date(data.date).toLocaleDateString("fr-FR", {
 			day: "numeric",
 			month: "long",
 		})}
@@ -169,7 +170,9 @@ async function toggleRegistration(p: CheckinPlayer, reg: CheckinRegistration) {
 <!-- Controls row -->
 <div class="mb-4 flex flex-wrap items-center gap-3">
 	<!-- Search -->
-	<div class="relative flex w-96 items-center rounded-lg border border-gray-300 focus-within:ring-2 focus-within:ring-blue-500">
+	<div
+		class="relative flex w-96 items-center rounded-lg border border-gray-300 focus-within:ring-2 focus-within:ring-blue-500"
+	>
 		<input
 			type="text"
 			placeholder="Rechercher un joueur..."
@@ -180,10 +183,12 @@ async function toggleRegistration(p: CheckinPlayer, reg: CheckinRegistration) {
 					checkinAll(filteredPlayers[0])
 				}
 			}}
-		/>
+		>
 		<div class="absolute right-2 flex items-center gap-1.5">
 			{#if search && filteredPlayers.length === 1}
-				<span class="pointer-events-none shrink-0 rounded bg-blue-100 px-1.5 py-0.5 text-xs font-medium text-blue-700">
+				<span
+					class="pointer-events-none shrink-0 rounded bg-blue-100 px-1.5 py-0.5 text-xs font-medium text-blue-700"
+				>
 					Entrer pour valider
 				</span>
 			{/if}
@@ -200,7 +205,7 @@ async function toggleRegistration(p: CheckinPlayer, reg: CheckinRegistration) {
 		</div>
 	</div>
 	<label class="flex cursor-pointer items-center gap-2 text-sm text-gray-700">
-		<input type="checkbox" bind:checked={showUncheckedOnly} class="rounded" />
+		<input type="checkbox" bind:checked={showUncheckedOnly} class="rounded">
 		Afficher uniquement les joueurs non checkés
 	</label>
 	<div class="ml-auto">
@@ -255,24 +260,24 @@ async function toggleRegistration(p: CheckinPlayer, reg: CheckinRegistration) {
 						</div>
 					</TableBodyCell>
 					<TableBodyCell class="whitespace-nowrap">
-							<Button
-								onclick={() => checkinAll(player)}
-								color="green"
-								size="xs"
-								disabled={isFullyChecked(player)}
-							>
-								Check-in tous
-							</Button>
+						<Button
+							onclick={() => checkinAll(player)}
+							color="green"
+							size="xs"
+							disabled={isFullyChecked(player)}
+						>
+							Check-in tous
+						</Button>
 					</TableBodyCell>
 					<TableBodyCell class="whitespace-nowrap">
-							<Button
-								onclick={() => unregisterPlayer(player)}
-								color="red"
-								size="xs"
-								aria-label="Désinscrire"
-							>
-								<TrashBinOutline class="h-3.5 w-3.5" />
-							</Button>
+						<Button
+							onclick={() => unregisterPlayer(player)}
+							color="red"
+							size="xs"
+							aria-label="Désinscrire"
+						>
+							<TrashBinOutline class="h-3.5 w-3.5" />
+						</Button>
 					</TableBodyCell>
 				</TableBodyRow>
 			{/each}
@@ -281,5 +286,9 @@ async function toggleRegistration(p: CheckinPlayer, reg: CheckinRegistration) {
 {/if}
 
 {#if modalOpen}
-	<RegistrationModal bind:open={modalOpen} eventTournaments={data.eventTournaments} immediateCheckin />
+	<RegistrationModal
+		bind:open={modalOpen}
+		eventTournaments={data.eventTournaments}
+		immediateCheckin
+	/>
 {/if}

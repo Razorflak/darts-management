@@ -95,7 +95,7 @@ function onSortEnd(evt: { oldIndex?: number; newIndex?: number }) {
 						min="1"
 						max="11"
 						size="sm"
-						disabled={disabled}
+						{disabled}
 						class="w-16 text-center"
 					/>
 					<span class="text-sm text-gray-500">manches</span>
@@ -105,7 +105,7 @@ function onSortEnd(evt: { oldIndex?: number; newIndex?: number }) {
 				<button
 					type="button"
 					onclick={() => removeTier(tier.round)}
-					disabled={disabled}
+					{disabled}
 					class="text-gray-300 transition-colors hover:text-red-400 disabled:pointer-events-none disabled:opacity-50"
 					aria-label="Supprimer ce palier"
 				>

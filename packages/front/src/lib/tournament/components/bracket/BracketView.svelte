@@ -1,75 +1,42 @@
 <script lang="ts">
-import { CompressOutline, ExpandOutline } from "flowbite-svelte-icons"
 import type { MatchDisplay } from "$lib/server/schemas/event-schemas.js"
 import BracketSection from "./BracketSection.svelte"
-import { buildBracketLayout, isMatchHighlighted } from "./bracket-utils.js"
+import { buildBracketLayout } from "./bracket-utils.js"
+
+type ScrollTrigger = { matchId: number; nonce: number }
 
 type Props = {
 	matches: MatchDisplay[]
 	phaseName: string
 	eventId: string
-	stickyHeader?: boolean
 	onMatchClick: (match: MatchDisplay) => void
+	searchQuery?: string
+	scrollTrigger?: ScrollTrigger | null
 }
 
-let { matches, phaseName, stickyHeader = true, onMatchClick }: Props = $props()
-
-// ─── Recherche ───────────────────────────────────────────────────────────────
-
-let searchQuery = $state("")
-let searchIndex = $state(0)
-let scrollContainer: HTMLElement | undefined = $state()
-
-$effect(() => {
-	// reset l'index quand la query change
-	searchQuery
-	searchIndex = -1
-})
-
-function getResults(): HTMLElement[] {
-	if (!scrollContainer) return []
-	return Array.from(
-		scrollContainer.querySelectorAll<HTMLElement>("[data-highlighted]"),
-	)
-}
-
-function scrollToIndex(idx: number) {
-	const results = getResults()
-	if (!results.length) return
-	const clamped = ((idx % results.length) + results.length) % results.length
-	searchIndex = clamped
-	results[clamped]?.scrollIntoView({
-		behavior: "smooth",
-		block: "center",
-		inline: "center",
-	})
-}
-
-function handleSearch(e: Event) {
-	e.preventDefault()
-	scrollToIndex(searchIndex + 1)
-}
-
-function handleSearchNext() {
-	scrollToIndex(searchIndex + 1)
-}
-
-function handleSearchPrev() {
-	scrollToIndex(searchIndex - 1)
-}
-
-let searchResultCount = $state(0)
-
-$effect(() => {
-	// dépendance réactive sur searchQuery — s'exécute après le rendu
-	searchQuery
-	searchResultCount =
-		scrollContainer?.querySelectorAll("[data-highlighted]").length ?? 0
-})
+let {
+	matches,
+	phaseName,
+	onMatchClick,
+	searchQuery = "",
+	scrollTrigger = null,
+}: Props = $props()
 
 // ─── Layout ──────────────────────────────────────────────────────────────────
 
 let layout = $derived(buildBracketLayout(matches))
+
+// ─── Scroll vers un match ciblé ──────────────────────────────────────────────
+
+let scrollContainer: HTMLElement | undefined = $state()
+
+$effect(() => {
+	if (!scrollTrigger || !scrollContainer) return
+	const el = scrollContainer.querySelector<HTMLElement>(
+		`[data-match-id="${scrollTrigger.matchId}"]`,
+	)
+	el?.scrollIntoView({ behavior: "smooth", block: "center", inline: "center" })
+})
 
 // ─── Resize ──────────────────────────────────────────────────────────────────
 
@@ -78,6 +45,30 @@ const MIN_HEIGHT = 150
 
 let containerHeight = $state(DEFAULT_HEIGHT)
 let isResizing = $state(false)
+
+function startResize(e: MouseEvent | TouchEvent) {
+	isResizing = true
+	const startY = "touches" in e ? e.touches[0].clientY : e.clientY
+	const startHeight = containerHeight
+
+	function onMove(ev: MouseEvent | TouchEvent) {
+		const y = "touches" in ev ? ev.touches[0].clientY : ev.clientY
+		containerHeight = Math.max(MIN_HEIGHT, startHeight + (y - startY))
+	}
+
+	function onUp() {
+		isResizing = false
+		window.removeEventListener("mousemove", onMove)
+		window.removeEventListener("mouseup", onUp)
+		window.removeEventListener("touchmove", onMove)
+		window.removeEventListener("touchend", onUp)
+	}
+
+	window.addEventListener("mousemove", onMove)
+	window.addEventListener("mouseup", onUp)
+	window.addEventListener("touchmove", onMove)
+	window.addEventListener("touchend", onUp)
+}
 </script>
 
 <!-- Conteneur principal -->
@@ -85,59 +76,11 @@ let isResizing = $state(false)
 	class="bracket-root flex flex-col rounded-lg border border-gray-200 bg-white"
 	class:select-none={isResizing}
 >
-	<!-- Header -->
-	<div
-		class="flex items-center gap-3 border-b border-gray-200 bg-white px-4 py-2"
-		class:sticky={stickyHeader}
-		class:top-0={stickyHeader}
-		class:z-10={stickyHeader}
-	>
-		<div class="min-w-0 flex-1">
-			<span class="font-semibold text-gray-800">{phaseName}</span>
-			<span class="ml-2 text-sm text-gray-500"
-				>{layout.finishedMatches}/{layout.totalMatches}
-				matchs terminés</span
-			>
-		</div>
-
-		<!-- Recherche -->
-		<form onsubmit={handleSearch} class="flex items-center gap-1">
-			<input
-				type="search"
-				placeholder="Rechercher une équipe…"
-				bind:value={searchQuery}
-				class="w-44 rounded border border-gray-300 px-2 py-1 text-sm focus:outline-none focus:ring-1 focus:ring-blue-400"
-			>
-			{#if searchQuery.trim() && searchResultCount > 0}
-				{#if searchIndex >= 0}
-					<span class="text-xs text-gray-500 tabular-nums">
-						{searchIndex + 1}/{searchResultCount}
-					</span>
-				{/if}
-				<button
-					type="button"
-					onclick={handleSearchPrev}
-					class="rounded px-1 py-0.5 text-gray-500 hover:bg-gray-100"
-					title="Résultat précédent"
-				>
-					‹
-				</button>
-				<button
-					type="submit"
-					class="rounded px-1 py-0.5 text-gray-500 hover:bg-gray-100"
-					title="Résultat suivant"
-				>
-					›
-				</button>
-			{/if}
-		</form>
-	</div>
-
 	<!-- Zone scrollable -->
 	<div
 		bind:this={scrollContainer}
 		class="overflow-auto p-4"
-		style={`height: ${containerHeight}px`}
+		style="height: {containerHeight}px"
 	>
 		{#if layout.isSE}
 			<!-- Single Elimination : une seule section WB -->
@@ -172,4 +115,23 @@ let isResizing = $state(false)
 			/>
 		{/if}
 	</div>
+
+	<button
+		type="button"
+		class="resize-handle group flex cursor-ns-resize items-center justify-center border-t border-gray-200 py-1 hover:bg-gray-50 active:bg-gray-100"
+		onmousedown={startResize}
+		ontouchstart={startResize}
+		aria-label="Redimensionner le bracket"
+	>
+		<div class="h-1 w-8 rounded-full bg-gray-300 group-hover:bg-gray-400"></div>
+	</button>
 </div>
+
+<style>
+.bracket-fullscreen {
+	position: fixed;
+	inset: 0;
+	z-index: 50;
+	border-radius: 0;
+}
+</style>

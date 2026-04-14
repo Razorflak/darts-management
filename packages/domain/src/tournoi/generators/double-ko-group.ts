@@ -86,6 +86,7 @@ function convertNodesToResult(
 	let localPos = 0
 
 	for (const node of sorted) {
+		// biome-ignore lint/style/noNonNullAssertion: idMap is built from the same nodes array
 		const infoId = idMap.get(node.id)!
 
 		bracketInfos.push({

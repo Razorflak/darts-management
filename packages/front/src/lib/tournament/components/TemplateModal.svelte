@@ -70,6 +70,10 @@ function apply() {
 	open = false
 }
 
+function handleCancel() {
+	open = false
+}
+
 // Reset selection when modal closes
 $effect(() => {
 	if (!open) {
@@ -94,7 +98,8 @@ $effect(() => {
 				>
 					<p class="font-medium text-gray-900">{template.title}</p>
 					<p class="mt-0.5 text-sm text-gray-500">
-						{template.title} · {template.durationDays} jour{template.durationDays > 1
+						{template.title}
+						· {template.durationDays} jour{template.durationDays > 1
 							? "s"
 							: ""}
 					</p>
@@ -119,9 +124,14 @@ $effect(() => {
 	</div>
 
 	{#snippet footer()}
-		<Button color="blue" pill onclick={apply} disabled={!selectedTemplate || !startDateObj}>
+		<Button
+			color="blue"
+			pill
+			onclick={apply}
+			disabled={!selectedTemplate || !startDateObj}
+		>
 			Appliquer le template
 		</Button>
-		<Button color="alternative" pill onclick={() => (open = false)}>Annuler</Button>
+		<Button color="alternative" pill onclick={handleCancel}>Annuler</Button>
 	{/snippet}
 </Modal>

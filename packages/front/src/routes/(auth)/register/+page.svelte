@@ -6,9 +6,7 @@ import { enhance } from "$app/forms"
 let { form } = $props()
 </script>
 
-<svelte:head>
-	<title>Inscription — FFD Darts</title>
-</svelte:head>
+<svelte:head> <title>Inscription — FFD Darts</title> </svelte:head>
 
 <Card class="w-full">
 	<h2 class="text-2xl font-bold text-gray-900 dark:text-white mb-6">
@@ -17,7 +15,9 @@ let { form } = $props()
 
 	{#if form?.error}
 		<Alert color="red" class="mb-4">
-			{#snippet icon()}<InfoCircleSolid class="w-5 h-5" />{/snippet}
+			{#snippet icon()}
+				<InfoCircleSolid class="w-5 h-5" />
+			{/snippet}
 			{form.error}
 		</Alert>
 	{/if}

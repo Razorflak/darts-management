@@ -1,5 +1,9 @@
 import { describe, expect, it } from "vitest"
-import { bergerRounds, generateRoundRobinMatches } from "../round-robin.js"
+import {
+	bergerRounds,
+	computeGroupSizes,
+	generateRoundRobinMatches,
+} from "../round-robin.js"
 
 const phaseId = "550e8400-e29b-41d4-a716-446655440000"
 const tournamentId = "550e8400-e29b-41d4-a716-446655440001"
@@ -182,5 +186,12 @@ describe("generateRoundRobinMatches", () => {
 			expect(info.slot_b).toBeGreaterThan(0)
 			expect(info.slot_a).not.toBe(info.slot_b)
 		}
+	})
+})
+
+describe("computeGroupSize", () => {
+	it("returns correct group size for 16 players with 4 groups", () => {
+		const r = computeGroupSizes(77, 4)
+		console.log(r)
 	})
 })

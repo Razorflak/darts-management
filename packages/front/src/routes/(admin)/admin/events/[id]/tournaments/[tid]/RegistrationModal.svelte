@@ -93,14 +93,20 @@ async function confirm() {
 	<div class="space-y-6">
 		<!-- Joueur 1 (ou seul joueur en solo) -->
 		<div>
-			{#if isDoubles}<h3 class="mb-2 font-semibold text-gray-700">Joueur 1</h3>{/if}
+			{#if isDoubles}
+				<h3 class="mb-2 font-semibold text-gray-700">Joueur 1</h3>
+			{/if}
 			{#if selected1}
 				<div class="flex items-center gap-2 rounded bg-gray-50 p-2">
-					<span class="font-medium">{selected1.last_name} {selected1.first_name}</span>
+					<span class="font-medium"
+						>{selected1.last_name} {selected1.first_name}</span
+					>
 					{#if selected1.department}
 						<span class="text-sm text-gray-500">({selected1.department})</span>
 					{/if}
-					<Button size="xs" color="light" onclick={() => (selected1 = null)}>Changer</Button>
+					<Button size="xs" color="light" onclick={() => (selected1 = null)}
+						>Changer</Button
+					>
 				</div>
 			{:else if !showCreate1}
 				<PlayerSearch mode="all" onSelect={(p) => { selected1 = p }} />
@@ -131,11 +137,17 @@ async function confirm() {
 				<h3 class="mb-2 font-semibold text-gray-700">Joueur 2</h3>
 				{#if selected2}
 					<div class="flex items-center gap-2 rounded bg-gray-50 p-2">
-						<span class="font-medium">{selected2.last_name} {selected2.first_name}</span>
+						<span class="font-medium"
+							>{selected2.last_name} {selected2.first_name}</span
+						>
 						{#if selected2.department}
-							<span class="text-sm text-gray-500">({selected2.department})</span>
+							<span class="text-sm text-gray-500"
+								>({selected2.department})</span
+							>
 						{/if}
-						<Button size="xs" color="light" onclick={() => (selected2 = null)}>Changer</Button>
+						<Button size="xs" color="light" onclick={() => (selected2 = null)}
+							>Changer</Button
+						>
 					</div>
 				{:else if !showCreate2}
 					<PlayerSearch mode="all" onSelect={(p) => { selected2 = p }} />

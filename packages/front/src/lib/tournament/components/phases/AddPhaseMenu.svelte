@@ -22,18 +22,30 @@ function handleAdd(type: PhaseType) {
 	onAdd(type)
 	open = false
 }
+
+function closeMenu() {
+	open = false
+}
+
+function toggleMenu() {
+	open = !open
+}
 </script>
 
 <div class="relative inline-block">
 	<!-- Backdrop -->
 	{#if open}
-		<div class="fixed inset-0 z-10" aria-hidden="true" onclick={() => (open = false)}></div>
+		<div
+			class="fixed inset-0 z-10"
+			aria-hidden="true"
+			onclick={closeMenu}
+		></div>
 	{/if}
 
 	<!-- Trigger button -->
 	<button
 		type="button"
-		onclick={() => (open = !open)}
+		onclick={toggleMenu}
 		class="inline-flex items-center gap-1.5 rounded-full border border-blue-500 px-3 py-1.5 text-sm font-medium text-blue-600 transition-colors hover:bg-blue-50"
 	>
 		<PlusOutline class="h-3.5 w-3.5" />
@@ -43,7 +55,9 @@ function handleAdd(type: PhaseType) {
 
 	<!-- Dropdown menu -->
 	{#if open}
-		<div class="absolute left-0 top-full z-20 mt-1 min-w-48 overflow-hidden rounded-lg border border-gray-200 bg-white shadow-lg">
+		<div
+			class="absolute left-0 top-full z-20 mt-1 min-w-48 overflow-hidden rounded-lg border border-gray-200 bg-white shadow-lg"
+		>
 			{#each phaseTypes as type}
 				<button
 					type="button"

@@ -57,7 +57,7 @@ function selectPlayer(player: PlayerSearchResult) {
 		placeholder="Rechercher un joueur (nom, prénom, licence)..."
 		bind:value={query}
 		class="focus:border-primary-500 focus:ring-primary-500 dark:focus:border-primary-500 dark:focus:ring-primary-500 block w-full rounded-lg border border-gray-300 bg-gray-50 p-2.5 text-sm text-gray-900 dark:border-gray-600 dark:bg-gray-700 dark:text-white dark:placeholder-gray-400"
-	/>
+	>
 	{#if open}
 		<ul
 			style="position:fixed;{dropdownStyle};z-index:9999"
@@ -70,7 +70,9 @@ function selectPlayer(player: PlayerSearchResult) {
 						class="flex w-full items-center gap-2 px-4 py-2 text-left text-sm hover:bg-gray-100 dark:hover:bg-gray-600"
 						onclick={() => selectPlayer(player)}
 					>
-						<span class="font-medium">{player.last_name} {player.first_name}</span>
+						<span class="font-medium"
+							>{player.last_name} {player.first_name}</span
+						>
 						{#if player.licence_no}
 							<span class="text-gray-500 dark:text-gray-400"
 								>#{player.licence_no}</span
