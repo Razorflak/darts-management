@@ -1,5 +1,4 @@
 <script lang="ts">
-import { Card } from "flowbite-svelte"
 import { goto } from "$app/navigation"
 import { apiRoutes } from "$lib/fetch/api"
 import PlayerCreationForm from "$lib/tournament/components/PlayerCreationForm.svelte"
@@ -51,14 +50,10 @@ async function handleSubmit(event: SubmitEvent) {
 <svelte:head> <title>Modifier mon profil — FFD Darts</title> </svelte:head>
 
 <div class="mx-auto max-w-lg">
-	<p
-		class="mb-1 text-xs font-semibold uppercase tracking-widest text-primary-500"
-	>
-		Profil
-	</p>
-	<h1 class="mb-6 text-3xl font-bold text-gray-900">Modifier mon profil</h1>
+	<p class="page-eyebrow">Profil</p>
+	<h1 class="page-title mb-6">Modifier mon profil</h1>
 
-	<Card class="w-full">
+	<div class="app-card p-6">
 		<form onsubmit={handleSubmit} class="flex flex-col gap-0">
 			<PlayerCreationForm
 				showLicence={false}
@@ -73,10 +68,10 @@ async function handleSubmit(event: SubmitEvent) {
 			/>
 		</form>
 
-		<div class="mt-4 border-t border-gray-100 pt-4">
-			<a href="/profile" class="text-sm text-gray-500 hover:underline"
-				>Retour au profil</a
+		<div class="mt-4 border-t pt-4" style="border-color: var(--color-border);">
+			<a href="/profile" class="text-sm" style="color: oklch(55% 0.01 264);"
+				>← Retour au profil</a
 			>
 		</div>
-	</Card>
+	</div>
 </div>

@@ -44,9 +44,8 @@ async function changeStatus(newStatus: string) {
 </script>
 
 <div class="mb-6">
-	<h1 class="text-2xl font-semibold text-gray-900">{tournamentName}</h1>
-	<p class="mt-1 text-sm text-gray-500">{eventName}</p>
-	<p class="mt-1 text-sm text-gray-600">
+	<h1 class="page-title">{tournamentName}</h1>
+	<p class="page-subtitle">
 		{rosterCount}
 		équipe{rosterCount !== 1 ? "s" : ""}
 		inscrite{rosterCount !== 1 ? "s" : ""}

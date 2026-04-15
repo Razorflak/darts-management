@@ -21,12 +21,12 @@ function isEliminationPhase(p: Phase): p is EliminationPhase {
 type Props = {
 	event: Event | DraftEvent
 	onPrev: () => void
-	onPublish: () => void
-	publishError?: string
+	onSave: () => void
+	saveError?: string
 	eventStatus?: "draft" | "ready" | "started" | "finished"
 }
 
-let { event, onPrev, onPublish, publishError, eventStatus }: Props = $props()
+let { event, onPrev, onSave, saveError, eventStatus }: Props = $props()
 
 function formatDate(date?: Date): string {
 	if (!date) return "—"
@@ -131,24 +131,17 @@ function formatDate(date?: Date): string {
 		{/if}
 	</Card>
 
-	{#if publishError}
+	{#if saveError}
 		<div
 			class="rounded-lg border border-red-200 bg-red-50 p-4 text-sm text-red-700"
 		>
-			{publishError}
+			{saveError}
 		</div>
 	{/if}
 
 	<!-- Actions -->
 	<div class="flex justify-between pt-2">
 		<Button color="alternative" pill onclick={onPrev}>← Modifier</Button>
-		{#if eventStatus === "ready" || eventStatus === "started"}
-			<p class="text-sm text-gray-500">
-				Cet événement est publié. Utilisez "Enregistrer" pour mettre à jour le
-				contenu.
-			</p>
-		{:else}
-			<Button color="blue" pill onclick={onPublish}>Publier</Button>
-		{/if}
+		<Button color="primary" pill onclick={onSave}>Sauvegarder</Button>
 	</div>
 </div>

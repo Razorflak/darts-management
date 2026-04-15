@@ -89,7 +89,7 @@ async function unregister(registrationId: string) {
 		Aucune équipe inscrite pour le moment.
 	</p>
 {:else}
-	<div class="mb-6">
+	<div class="table-wrapper mb-6">
 		<Table>
 			<TableHead>
 				<TableHeadCell>Équipe</TableHeadCell>

@@ -19,6 +19,11 @@ let {
 
 const emptyNew = () => ({ first_name: "", last_name: "", department: "" })
 
+// biome-ignore lint/suspicious/noGlobalAssign: `open` est une prop Svelte $bindable, pas window.open
+function closeModal() {
+	closeModal()
+}
+
 let selected1 = $state<PlayerSearchResult | null>(null)
 let showCreate1 = $state(false)
 let new1 = $state(emptyNew())
@@ -74,7 +79,7 @@ async function confirm() {
 	})
 
 	if (res.ok) {
-		open = false
+		closeModal()
 		onRegistered()
 	} else {
 		const data = await res.json().catch(() => ({}))
@@ -182,6 +187,6 @@ async function confirm() {
 		{#if canConfirm}
 			<Button color="primary" onclick={confirm}>Confirmer l'inscription</Button>
 		{/if}
-		<Button color="light" onclick={() => (open = false)}>Annuler</Button>
+		<Button color="light" onclick={() => (closeModal())}>Annuler</Button>
 	{/snippet}
 </Modal>

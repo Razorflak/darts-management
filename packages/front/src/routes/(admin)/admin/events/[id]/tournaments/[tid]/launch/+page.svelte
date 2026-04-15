@@ -26,6 +26,7 @@ function estimateGroupCount(
 	return 1
 }
 
+// biome-ignore lint/correctness/noUnusedVariables: utilisée dans le template via {@const}
 function estimateMatchCount(
 	phase: LaunchPhasePreview,
 	totalTeams: number,
@@ -63,15 +64,14 @@ async function confirmLaunch() {
 			const body = await res.json().catch(() => ({}))
 			errorMessage =
 				(body as { message?: string }).message ??
-				"Le lancement a échoué. Veuillez réessayer. Si le problème persiste, contactez l'administrateur."
+				"Le lancement a échoué. Veuillez réessayer."
 			launchState = "error"
 			return
 		}
 		launchState = "idle"
 		await goto(backUrl)
 	} catch {
-		errorMessage =
-			"Le lancement a échoué. Veuillez réessayer. Si le problème persiste, contactez l'administrateur."
+		errorMessage = "Le lancement a échoué. Veuillez réessayer."
 		launchState = "error"
 	}
 }
@@ -83,21 +83,17 @@ const phaseTypeLabel = (type: string): string =>
 <svelte:head> <title>Lancer {data.tournament.name}</title> </svelte:head>
 
 <!-- Breadcrumb -->
-<nav class="mb-4 text-sm text-gray-500">
-	<a href="/admin/events" class="hover:underline">Événements</a>
-	<span class="mx-2">/</span>
-	<a href="/admin/events/{eventId}" class="hover:underline"
-		>{data.tournament.event_name}</a
-	>
-	<span class="mx-2">/</span>
-	<a href={backUrl} class="hover:underline">{data.tournament.name}</a>
-	<span class="mx-2">/</span>
-	<span class="text-gray-800">Lancement</span>
+<nav class="breadcrumb">
+	<a href="/admin/events">Événements</a>
+	<span class="breadcrumb-sep">/</span>
+	<a href="/admin/events/{eventId}">{data.tournament.event_name}</a>
+	<span class="breadcrumb-sep">/</span>
+	<a href={backUrl}>{data.tournament.name}</a>
+	<span class="breadcrumb-sep">/</span>
+	<span class="breadcrumb-current">Lancement</span>
 </nav>
 
-<h1 class="mb-6 text-2xl font-semibold text-gray-900">
-	Lancer {data.tournament.name}
-</h1>
+<h1 class="page-title mb-6">Lancer {data.tournament.name}</h1>
 
 {#if data.tournament.status === "started"}
 	<Alert color="green" class="mb-6">
@@ -105,38 +101,33 @@ const phaseTypeLabel = (type: string): string =>
 	</Alert>
 	<Button href={backUrl} color="light">Retour au roster</Button>
 {:else}
-	<!-- Section 1: Récapitulatif des inscrits -->
+	<!-- Récapitulatif -->
 	<section class="mb-6">
-		<h2 class="mb-3 text-base font-semibold text-gray-800">
-			Récapitulatif des inscrits
-		</h2>
+		<h2 class="section-title mb-3">Récapitulatif des inscrits</h2>
 		<div class="flex items-center gap-3">
 			<Badge color="blue" class="text-base">
 				{data.totalCount}
 				équipe{data.totalCount !== 1 ? "s" : ""}
-				inscrite{data.totalCount !==
-				1
-					? "s"
-					: ""}
+				inscrite{data.totalCount !== 1 ? "s" : ""}
 			</Badge>
 			{#if data.tournament.check_in_required}
-				<span class="text-sm text-gray-600">
+				<span class="text-sm" style="color: oklch(45% 0.01 264);">
 					{data.checkedInCount}
 					/ {data.totalCount} présents
 				</span>
 			{/if}
 		</div>
 		{#if data.totalCount === 0}
-			<p class="mt-3 text-sm text-gray-500">
+			<p class="mt-3 text-sm" style="color: oklch(55% 0.01 264);">
 				Aucune équipe inscrite. Inscrivez des joueurs avant de lancer.
 			</p>
 		{/if}
 	</section>
 
-	<!-- Section 2: Avertissements (omit if none) -->
+	<!-- Avertissements -->
 	{#if data.warnings.length > 0}
 		<section class="mb-6">
-			<h2 class="mb-3 text-base font-semibold text-gray-800">Avertissements</h2>
+			<h2 class="section-title mb-3">Avertissements</h2>
 			<div class="flex flex-col gap-2">
 				{#each data.warnings as warning}
 					<Alert color="yellow">{warning}</Alert>
@@ -145,21 +136,22 @@ const phaseTypeLabel = (type: string): string =>
 		</section>
 	{/if}
 
-	<!-- Section 3: Structure générée -->
+	<!-- Structure générée -->
 	{#if data.phases.length > 0}
 		<section class="mb-6">
-			<h2 class="mb-3 text-base font-semibold text-gray-800">
-				Structure générée
-			</h2>
+			<h2 class="section-title mb-3">Structure générée</h2>
 			<div class="flex flex-col gap-3">
 				{#each data.phases as phase, i}
 					{@const groupCount = estimateGroupCount(phase, data.totalCount)}
 					{@const matchCount = estimateMatchCount(phase, data.totalCount)}
-					<div class="rounded border border-gray-200 bg-white p-4">
-						<p class="font-semibold text-gray-800">
+					<div class="app-card p-4">
+						<p class="font-semibold" style="color: oklch(20% 0.02 264);">
 							Phase {i + 1} — {phaseTypeLabel(phase.type)}
 						</p>
-						<div class="mt-1 flex flex-wrap gap-4 text-sm text-gray-600">
+						<div
+							class="mt-2 flex flex-wrap gap-x-4 gap-y-1 text-sm"
+							style="color: oklch(45% 0.01 264);"
+						>
 							{#if phase.type === "round_robin" || phase.type === "double_loss_groups"}
 								<span>{groupCount} poule{groupCount !== 1 ? "s" : ""}</span>
 								<span>{phase.players_per_group ?? "?"} équipes / poule</span>
@@ -182,14 +174,14 @@ const phaseTypeLabel = (type: string): string =>
 		</section>
 	{/if}
 
-	<!-- Error alert -->
 	{#if launchState === "error"}
 		<Alert color="red" class="mb-4">{errorMessage}</Alert>
 	{/if}
 
-	<!-- Sticky action bar -->
+	<!-- Barre d'action sticky -->
 	<div
-		class="sticky bottom-0 flex items-center gap-4 border-t border-gray-200 bg-white py-4"
+		class="sticky bottom-0 flex items-center gap-4 border-t py-4"
+		style="background: white; border-color: var(--color-border);"
 	>
 		{#if launchState === "error"}
 			<Button color="primary" class="min-h-[44px]" onclick={confirmLaunch}>
@@ -205,6 +197,8 @@ const phaseTypeLabel = (type: string): string =>
 				{launchState === "submitting" ? "Lancement en cours…" : "Confirmer le lancement"}
 			</Button>
 		{/if}
-		<a href={backUrl} class="text-sm text-gray-600 hover:underline">Annuler</a>
+		<a href={backUrl} class="text-sm" style="color: oklch(55% 0.01 264);"
+			>Annuler</a
+		>
 	</div>
 {/if}

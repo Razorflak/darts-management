@@ -29,10 +29,8 @@ function deepCopyPlayers(source: PageData["players"]) {
 	}))
 }
 
-// Copie locale mutable pour les mises à jour optimistes
 let players = $state(deepCopyPlayers(data.players))
 
-// Resynchronise depuis le serveur après invalidateAll
 $effect(() => {
 	players = deepCopyPlayers(data.players)
 })
@@ -137,49 +135,66 @@ async function toggleRegistration(p: CheckinPlayer, reg: CheckinRegistration) {
 </svelte:head>
 
 <!-- Breadcrumb -->
-<nav class="mb-4 text-sm text-gray-500">
-	<a href="/admin/events" class="hover:underline">Événements</a>
-	<span class="mx-2">/</span>
-	<a href="/admin/events/{data.event.id}" class="hover:underline"
-		>{data.event.name}</a
-	>
-	<span class="mx-2">/</span>
-	<span class="text-gray-800">
+<nav class="breadcrumb">
+	<a href="/admin/events">Événements</a>
+	<span class="breadcrumb-sep">/</span>
+	<a href="/admin/events/{data.event.id}">{data.event.name}</a>
+	<span class="breadcrumb-sep">/</span>
+	<span class="breadcrumb-current">
 		Check-in
-		{new Date(data.date).toLocaleDateString("fr-FR", {
-			day: "numeric",
-			month: "long",
-		})}
+		{new Date(data.date).toLocaleDateString("fr-FR", { day: "numeric", month: "long" })}
 	</span>
 </nav>
 
-<!-- Progress bar -->
-<div class="mb-6">
-	<div class="mb-1 flex items-center justify-between text-sm text-gray-600">
-		<span>{checkedCount} / {totalCount} joueurs checkés</span>
-		<span>{progressPct}%</span>
+<!-- Titre -->
+<h1 class="page-title mb-4">
+	Check-in —
+	{new Date(data.date).toLocaleDateString("fr-FR", { day: "numeric", month: "long", year: "numeric" })}
+</h1>
+
+<!-- Barre de progression -->
+<div
+	class="mb-6 rounded-xl border p-4"
+	style="border-color: var(--color-border); background: white;"
+>
+	<div class="mb-2 flex items-center justify-between text-sm">
+		<span style="color: oklch(40% 0.01 264);">
+			{checkedCount}
+			/ {totalCount} joueurs checkés
+		</span>
+		<span
+			class="font-semibold tabular-nums"
+			style="color: var(--color-primary-600);"
+		>
+			{progressPct}%
+		</span>
 	</div>
-	<div class="h-3 w-full overflow-hidden rounded-full bg-gray-200">
+	<div
+		class="h-2.5 w-full overflow-hidden rounded-full"
+		style="background: var(--color-primary-100);"
+	>
 		<div
-			class="h-3 rounded-full bg-green-500 transition-all"
-			style="width: {progressPct}%"
+			class="h-full rounded-full transition-all duration-300"
+			style="width: {progressPct}%; background: var(--color-primary-500);"
 		></div>
 	</div>
 </div>
 
-<!-- Controls row -->
+<!-- Contrôles -->
 <div class="mb-4 flex flex-wrap items-center gap-3">
-	<!-- Search -->
+	<!-- Recherche -->
 	<div
-		class="relative flex w-96 items-center rounded-lg border border-gray-300 focus-within:ring-2 focus-within:ring-blue-500"
+		class="relative flex min-w-0 flex-1 items-center rounded-lg border sm:max-w-sm"
+		style="border-color: var(--color-border-strong);"
 	>
 		<input
 			type="text"
 			placeholder="Rechercher un joueur..."
 			bind:value={search}
-			class="w-full bg-transparent py-2 pl-3 text-sm outline-none {search && filteredPlayers.length === 1 ? 'pr-36' : 'pr-8'}"
+			class="w-full rounded-lg bg-transparent py-2 pl-3 text-sm outline-none focus:ring-2"
+			style="padding-right: {search && filteredPlayers.length === 1 ? '9rem' : '2rem'};"
 			onkeydown={(e) => {
-				if (e.key === 'Enter' && filteredPlayers.length === 1) {
+				if (e.key === "Enter" && filteredPlayers.length === 1) {
 					checkinAll(filteredPlayers[0])
 				}
 			}}
@@ -187,9 +202,10 @@ async function toggleRegistration(p: CheckinPlayer, reg: CheckinRegistration) {
 		<div class="absolute right-2 flex items-center gap-1.5">
 			{#if search && filteredPlayers.length === 1}
 				<span
-					class="pointer-events-none shrink-0 rounded bg-blue-100 px-1.5 py-0.5 text-xs font-medium text-blue-700"
+					class="pointer-events-none shrink-0 rounded px-1.5 py-0.5 text-xs font-medium"
+					style="background: var(--color-primary-100); color: var(--color-primary-700);"
 				>
-					Entrer pour valider
+					Entrée pour valider
 				</span>
 			{/if}
 			{#if search}
@@ -204,85 +220,98 @@ async function toggleRegistration(p: CheckinPlayer, reg: CheckinRegistration) {
 			{/if}
 		</div>
 	</div>
-	<label class="flex cursor-pointer items-center gap-2 text-sm text-gray-700">
+
+	<label
+		class="flex cursor-pointer items-center gap-2 text-sm"
+		style="color: oklch(40% 0.01 264);"
+	>
 		<input type="checkbox" bind:checked={showUncheckedOnly} class="rounded">
-		Afficher uniquement les joueurs non checkés
+		Non checkés uniquement
 	</label>
+
 	<div class="ml-auto">
-		<Button onclick={() => (modalOpen = true)} color="primary" size="sm"
-			>Inscription</Button
-		>
+		<Button onclick={() => (modalOpen = true)} color="primary" size="sm">
+			Inscription
+		</Button>
 	</div>
 </div>
 
-<!-- Player list -->
+<!-- Liste des joueurs -->
 {#if filteredPlayers.length === 0}
-	<p class="text-sm text-gray-500">
-		{#if players.length === 0}
-			Aucun joueur inscrit à un tournoi en check-in ce jour.
-		{:else}
-			Aucun joueur correspondant aux filtres.
-		{/if}
-	</p>
+	<div class="empty-state">
+		<p class="text-sm" style="color: oklch(55% 0.01 264);">
+			{#if players.length === 0}
+				Aucun joueur inscrit à un tournoi en check-in ce jour.
+			{:else}
+				Aucun joueur correspondant aux filtres.
+			{/if}
+		</p>
+	</div>
 {:else}
-	<Table>
-		<TableHead>
-			<TableHeadCell>Joueur</TableHeadCell>
-			<TableHeadCell></TableHeadCell>
-			<TableHeadCell>Tournois</TableHeadCell>
-			<TableHeadCell></TableHeadCell>
-		</TableHead>
-		<TableBody>
-			{#each filteredPlayers as player (player.player_id)}
-				<TableBodyRow>
-					<TableBodyCell class="font-medium whitespace-nowrap w-px">
-						{player.first_name}
-						{player.last_name}
-					</TableBodyCell>
-					<TableBodyCell class="font-medium whitespace-nowrap w-px">
-						{#if isFullyChecked(player)}
-							<Badge color="green" class="ml-2">Checké</Badge>
-						{/if}
-					</TableBodyCell>
-					<TableBodyCell>
-						<div class="flex flex-wrap gap-2">
-							{#each player.registrations as reg (reg.registration_id)}
-								<button
-									onclick={() => toggleRegistration(player, reg)}
-									class="rounded px-2 py-1 text-xs font-medium transition-colors {reg.checked_in
-										? 'bg-blue-100 text-blue-700 hover:bg-blue-200'
-										: 'bg-gray-100 text-gray-600 hover:bg-gray-200'}"
+	<div class="table-wrapper">
+		<Table>
+			<TableHead>
+				<TableHeadCell>Joueur</TableHeadCell>
+				<TableHeadCell class="hidden sm:table-cell">Statut</TableHeadCell>
+				<TableHeadCell>Tournois</TableHeadCell>
+				<TableHeadCell></TableHeadCell>
+			</TableHead>
+			<TableBody>
+				{#each filteredPlayers as player (player.player_id)}
+					<TableBodyRow>
+						<TableBodyCell class="whitespace-nowrap font-medium">
+							<div>
+								{player.first_name} {player.last_name}
+								{#if isFullyChecked(player)}
+									<Badge color="green" class="mt-0.5 sm:hidden">Checké</Badge>
+								{/if}
+							</div>
+						</TableBodyCell>
+						<TableBodyCell class="hidden sm:table-cell">
+							{#if isFullyChecked(player)}
+								<Badge color="green">Checké</Badge>
+							{/if}
+						</TableBodyCell>
+						<TableBodyCell>
+							<div class="flex flex-wrap gap-1.5">
+								{#each player.registrations as reg (reg.registration_id)}
+									<button
+										type="button"
+										onclick={() => toggleRegistration(player, reg)}
+										class="rounded px-2 py-1 text-xs font-medium transition-colors"
+										style="background: {reg.checked_in ? 'var(--color-primary-100)' : 'oklch(94% 0.005 264)'}; color: {reg.checked_in ? 'var(--color-primary-700)' : 'oklch(45% 0.01 264)'};"
+									>
+										{reg.tournament_name}
+										{reg.checked_in ? "✓" : ""}
+									</button>
+								{/each}
+							</div>
+						</TableBodyCell>
+						<TableBodyCell class="whitespace-nowrap">
+							<div class="flex gap-1.5">
+								<Button
+									onclick={() => checkinAll(player)}
+									color="green"
+									size="xs"
+									disabled={isFullyChecked(player)}
 								>
-									{reg.tournament_name}
-									{reg.checked_in ? "✓" : ""}
-								</button>
-							{/each}
-						</div>
-					</TableBodyCell>
-					<TableBodyCell class="whitespace-nowrap">
-						<Button
-							onclick={() => checkinAll(player)}
-							color="green"
-							size="xs"
-							disabled={isFullyChecked(player)}
-						>
-							Check-in tous
-						</Button>
-					</TableBodyCell>
-					<TableBodyCell class="whitespace-nowrap">
-						<Button
-							onclick={() => unregisterPlayer(player)}
-							color="red"
-							size="xs"
-							aria-label="Désinscrire"
-						>
-							<TrashBinOutline class="h-3.5 w-3.5" />
-						</Button>
-					</TableBodyCell>
-				</TableBodyRow>
-			{/each}
-		</TableBody>
-	</Table>
+									Tout checker
+								</Button>
+								<Button
+									onclick={() => unregisterPlayer(player)}
+									color="red"
+									size="xs"
+									aria-label="Désinscrire"
+								>
+									<TrashBinOutline class="h-3.5 w-3.5" />
+								</Button>
+							</div>
+						</TableBodyCell>
+					</TableBodyRow>
+				{/each}
+			</TableBody>
+		</Table>
+	</div>
 {/if}
 
 {#if modalOpen}

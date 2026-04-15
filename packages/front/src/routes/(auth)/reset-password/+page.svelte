@@ -1,5 +1,5 @@
 <script lang="ts">
-import { Alert, Button, Card, Input, Label } from "flowbite-svelte"
+import { Alert, Button, Input, Label } from "flowbite-svelte"
 import { CheckCircleSolid, InfoCircleSolid } from "flowbite-svelte-icons"
 import { enhance } from "$app/forms"
 
@@ -8,29 +8,43 @@ let { form } = $props()
 
 <svelte:head> <title>Mot de passe oublié — FFD Darts</title> </svelte:head>
 
-<Card class="w-full">
-	<h2 class="text-2xl font-bold text-gray-900 dark:text-white mb-6">
-		Réinitialiser le mot de passe
-	</h2>
+<div class="app-card w-full p-8">
+	<h1
+		class="mb-1 text-2xl font-bold"
+		style="font-family: var(--font-display); color: oklch(18% 0.02 264);"
+	>
+		Mot de passe oublié
+	</h1>
 
 	{#if form?.sent}
+		<p class="mb-6 text-sm" style="color: oklch(55% 0.01 264);">
+			Vérifiez votre boîte email.
+		</p>
 		<Alert color="green">
 			{#snippet icon()}
-				<CheckCircleSolid class="w-5 h-5" />
+				<CheckCircleSolid class="h-5 w-5" />
 			{/snippet}
 			Si un compte existe pour <strong>{form.email}</strong>, vous recevrez un
 			email avec les instructions de réinitialisation.
 		</Alert>
-		<p class="mt-4 text-sm text-center text-gray-600">
-			<a href="/login" class="text-blue-600 hover:underline"
-				>Retour à la connexion</a
+		<p class="mt-4 text-center text-sm" style="color: oklch(55% 0.01 264);">
+			<a
+				href="/login"
+				class="font-medium"
+				style="color: var(--color-primary-600);"
 			>
+				Retour à la connexion
+			</a>
 		</p>
 	{:else}
+		<p class="mb-6 text-sm" style="color: oklch(55% 0.01 264);">
+			Saisissez votre email pour recevoir un lien de réinitialisation.
+		</p>
+
 		{#if form?.error}
 			<Alert color="red" class="mb-4">
 				{#snippet icon()}
-					<InfoCircleSolid class="w-5 h-5" />
+					<InfoCircleSolid class="h-5 w-5" />
 				{/snippet}
 				{form.error}
 			</Alert>
@@ -38,7 +52,7 @@ let { form } = $props()
 
 		<form method="POST" use:enhance class="flex flex-col gap-4">
 			<div>
-				<Label for="email" class="mb-2">Votre adresse email</Label>
+				<Label for="email" class="mb-1.5">Votre adresse email</Label>
 				<Input
 					id="email"
 					name="email"
@@ -49,15 +63,19 @@ let { form } = $props()
 				/>
 			</div>
 
-			<Button type="submit" class="w-full"
-				>Envoyer le lien de réinitialisation</Button
-			>
+			<Button type="submit" class="mt-2 w-full">
+				Envoyer le lien de réinitialisation
+			</Button>
 
-			<p class="text-sm text-center text-gray-600">
-				<a href="/login" class="text-blue-600 hover:underline"
-					>Retour à la connexion</a
+			<p class="text-center text-sm" style="color: oklch(55% 0.01 264);">
+				<a
+					href="/login"
+					class="font-medium"
+					style="color: var(--color-primary-600);"
 				>
+					Retour à la connexion
+				</a>
 			</p>
 		</form>
 	{/if}
-</Card>
+</div>

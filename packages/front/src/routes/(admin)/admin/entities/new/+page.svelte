@@ -1,5 +1,5 @@
 <script lang="ts">
-import { Alert, Button, Card, Input, Label, Select } from "flowbite-svelte"
+import { Alert, Button, Input, Label, Select } from "flowbite-svelte"
 import { InfoCircleSolid } from "flowbite-svelte-icons"
 import { enhance } from "$app/forms"
 
@@ -12,8 +12,6 @@ const PARENT_TYPE: Record<string, string | null> = {
 	club: "comite",
 }
 
-// selectedType drives the parent selector reactivity.
-// Initialized from form (server action repopulation) or empty string.
 let selectedType = $state("")
 $effect.pre(() => {
 	if (form?.type) selectedType = form.type
@@ -44,16 +42,21 @@ const typeOptions = [
 
 <svelte:head> <title>Nouvelle entité — FFD Darts</title> </svelte:head>
 
-<div class="max-w-lg mx-auto">
-	<Card class="w-full">
-		<h2 class="text-2xl font-bold text-gray-900 dark:text-white mb-6">
-			Créer une entité
-		</h2>
+<!-- Breadcrumb -->
+<nav class="breadcrumb">
+	<a href="/admin/entities">Entités</a>
+	<span class="breadcrumb-sep">/</span>
+	<span class="breadcrumb-current">Nouvelle entité</span>
+</nav>
 
+<div class="mx-auto max-w-lg">
+	<h1 class="page-title mb-6">Créer une entité</h1>
+
+	<div class="app-card p-6">
 		{#if form?.error}
 			<Alert color="red" class="mb-4">
 				{#snippet icon()}
-					<InfoCircleSolid class="w-5 h-5" />
+					<InfoCircleSolid class="h-5 w-5" />
 				{/snippet}
 				{form.error}
 			</Alert>
@@ -61,7 +64,7 @@ const typeOptions = [
 
 		<form method="POST" use:enhance class="flex flex-col gap-4">
 			<div>
-				<Label for="name" class="mb-2">Nom</Label>
+				<Label for="name" class="mb-1.5">Nom</Label>
 				<Input
 					id="name"
 					name="name"
@@ -73,7 +76,7 @@ const typeOptions = [
 			</div>
 
 			<div>
-				<Label for="type" class="mb-2">Type</Label>
+				<Label for="type" class="mb-1.5">Type</Label>
 				<Select
 					id="type"
 					name="type"
@@ -85,7 +88,7 @@ const typeOptions = [
 
 			{#if requiredParentType !== null && selectedType}
 				<div>
-					<Label for="parent_id" class="mb-2">
+					<Label for="parent_id" class="mb-1.5">
 						Parent ({requiredParentType})
 					</Label>
 					{#if parentOptions.length === 0}
@@ -110,10 +113,10 @@ const typeOptions = [
 
 			<div class="flex gap-3 pt-2">
 				<Button type="submit" class="flex-1">Créer l'entité</Button>
-				<Button href="/admin" color="alternative" class="flex-1"
+				<Button href="/admin/entities" color="alternative" class="flex-1"
 					>Annuler</Button
 				>
 			</div>
 		</form>
-	</Card>
+	</div>
 </div>

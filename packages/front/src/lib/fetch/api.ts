@@ -1,7 +1,7 @@
 // Les méthodes sont juste la à titre indicatif pour éviter d'avoir à les chercher dans les ficchiers
 export const apiRoutes = {
 	EVENT_SAVE: { method: ["POST"], path: "/api/event/save" },
-	EVENT_PUBLISH: { method: ["POST"], path: "/api/event/publish" },
+	EVENT_STATUS: { method: ["PATCH"], path: "/api/event/status" },
 	EVENT_DELETE: { method: ["DELETE"], path: "/api/event/delete" },
 	PLAYERS_PARTER_SEARCH: {
 		method: ["GET"],

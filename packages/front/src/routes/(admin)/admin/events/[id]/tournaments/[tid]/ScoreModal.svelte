@@ -14,6 +14,11 @@ let { open = $bindable(), match, eventId }: Props = $props()
 let submitting = $state(false)
 let errorMsg = $state("")
 
+// biome-ignore lint/suspicious/noGlobalAssign: `open` est une prop Svelte $bindable, pas window.open
+function closeModal() {
+	closeModal()
+}
+
 // Legs-only mode (sets_to_win === 1)
 let legA = $state("")
 let legB = $state("")
@@ -38,8 +43,8 @@ function computeSetScore(): { score_a: number; score_b: number } {
 	let setsB = 0
 	const requiredLegs = Math.ceil((match?.legs_per_set ?? 1) / 2)
 	for (const s of sets) {
-		const a = parseInt(s.a) || 0
-		const b = parseInt(s.b) || 0
+		const a = parseInt(s.a, 10) || 0
+		const b = parseInt(s.b, 10) || 0
 		if (a >= requiredLegs) setsA++
 		else if (b >= requiredLegs) setsB++
 	}
@@ -52,10 +57,10 @@ async function submit(payload: Record<string, unknown>) {
 	const res = await fetch(apiRoutes.MATCH_RESULT.path, {
 		method: "POST",
 		headers: { "Content-Type": "application/json" },
-		body: JSON.stringify({ match_id: match!.id, ...payload }),
+		body: JSON.stringify({ match_id: match?.id, ...payload }),
 	})
 	if (res.ok) {
-		open = false
+		closeModal()
 		await invalidateAll()
 	} else {
 		const data = await res.json()
@@ -67,7 +72,10 @@ async function submit(payload: Record<string, unknown>) {
 function handleValider() {
 	if (!match) return
 	if (match.sets_to_win === 1) {
-		submit({ score_a: parseInt(legA) || 0, score_b: parseInt(legB) || 0 })
+		submit({
+			score_a: parseInt(legA, 10) || 0,
+			score_b: parseInt(legB, 10) || 0,
+		})
 	} else {
 		const { score_a, score_b } = computeSetScore()
 		submit({ score_a, score_b })
@@ -187,7 +195,7 @@ function handleValider() {
 				{/if}
 			</div>
 			<div class="flex gap-2">
-				<Button color="light" onclick={() => (open = false)}>Fermer</Button>
+				<Button color="light" onclick={() => (closeModal())}>Fermer</Button>
 				{#if !isReadOnly}
 					<Button color="primary" disabled={submitting} onclick={handleValider}>
 						{submitting ? "Envoi..." : "Valider"}

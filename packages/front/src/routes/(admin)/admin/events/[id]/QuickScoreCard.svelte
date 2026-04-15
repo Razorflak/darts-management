@@ -47,7 +47,7 @@ async function lookupMatch() {
 	)
 	if (res.ok) {
 		matchInfo = await res.json()
-		if (matchInfo!.status !== "pending") {
+		if (matchInfo?.status !== "pending") {
 			errorMsg = "Ce match a déjà un résultat"
 			return
 		}
@@ -65,9 +65,9 @@ async function submitScore() {
 		method: "POST",
 		headers: { "Content-Type": "application/json" },
 		body: JSON.stringify({
-			match_id: matchInfo!.id,
-			score_a: Number.parseInt(scoreA),
-			score_b: Number.parseInt(scoreB),
+			match_id: matchInfo?.id,
+			score_a: Number.parseInt(scoreA, 10),
+			score_b: Number.parseInt(scoreB, 10),
 		}),
 	})
 	if (res.ok) {
@@ -85,7 +85,7 @@ async function submitWalkover(side: "a" | "b") {
 	const res = await fetch(apiRoutes.MATCH_RESULT.path, {
 		method: "POST",
 		headers: { "Content-Type": "application/json" },
-		body: JSON.stringify({ match_id: matchInfo!.id, walkover: side }),
+		body: JSON.stringify({ match_id: matchInfo?.id, walkover: side }),
 	})
 	if (res.ok) {
 		resetTile()

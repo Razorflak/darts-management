@@ -5,18 +5,10 @@ import { CARD_HEIGHT } from "./bracket-utils.js"
 type Props = {
 	match: MatchDisplay
 	highlighted: boolean
-	isLastColWithMatch: boolean
-	isFirstColWithMatch: boolean
 	onMatchClick: (m: MatchDisplay) => void
 }
 
-let {
-	match: m,
-	highlighted,
-	isLastColWithMatch,
-	isFirstColWithMatch,
-	onMatchClick,
-}: Props = $props()
+let { match: m, highlighted, onMatchClick }: Props = $props()
 
 const isDone = $derived(
 	m.status === "done" || m.status === "walkover" || m.status === "bye",
@@ -25,15 +17,11 @@ const isDone = $derived(
 const isBye = $derived(m.status === "bye")
 </script>
 
-<!-- Wrapper match + connecteur horizontal -->
-<div class="relative flex items-center {(!isFirstColWithMatch && m.bracket === 'W') ? 'border-l-black border-l-2' : ''}" id="wrapper-match">
-		<div
-			class="flex-1 h-0.5 w-1/10 {!isFirstColWithMatch ? 'bg-black' : ''}"
-		></div>
-	<!-- Carte de match -->
+<!-- Carte de match -->
+<div class="relative" class:invisible={isBye}>
 	<button
 		type="button"
-		class="match-card w-8/10 cursor-pointer shrink-0 select-none overflow-hidden rounded border text-xs mb-4 mt-4"
+		class="match-card w-full cursor-pointer select-none overflow-hidden rounded border text-xs mb-4 mt-4"
 		class:border-gray-200={!highlighted && !isDone}
 		class:bg-white={!highlighted && !isDone}
 		class:border-green-200={isDone && !highlighted}
@@ -41,8 +29,6 @@ const isBye = $derived(m.status === "bye")
 		class:border-blue-400={highlighted}
 		class:ring-2={highlighted}
 		class:ring-blue-300={highlighted}
-		class:opacity-40={isBye}
-		class:cursor-default={isBye}
 		disabled={isBye}
 		style="height: {CARD_HEIGHT}px; text-align: left;"
 		data-match-id={m.event_match_id}
@@ -88,11 +74,6 @@ const isBye = $derived(m.status === "bye")
 			{/if}
 		</div>
 	</button>
-
-	<!-- Trait horizontal vers la colonne suivante -->
-		<div
-			class="flex-1 h-0.5 w-1/10 {!isLastColWithMatch ? 'bg-black' : ''}"
-		></div>
 </div>
 
 <style>
@@ -100,7 +81,7 @@ const isBye = $derived(m.status === "bye")
 	transition: box-shadow 0.1s;
 }
 
-.match-card:hover:not(.cursor-default) {
+.match-card:hover:not(:disabled) {
 	box-shadow: 0 2px 8px rgba(0, 0, 0, 0.12);
 }
 </style>

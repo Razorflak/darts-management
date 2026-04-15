@@ -68,6 +68,10 @@ const internalRepoEvent = {
 	`
 	},
 
+	updateStatus: async (sql: Sql, eventId: string, status: "ready") => {
+		await sql`UPDATE event SET status = ${status} WHERE id = ${eventId}`
+	},
+
 	deleteById: (sql: Sql, eventId: string) =>
 		sql`DELETE FROM event WHERE id = ${eventId}`,
 }

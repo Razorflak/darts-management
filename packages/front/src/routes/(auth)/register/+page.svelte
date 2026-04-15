@@ -1,5 +1,5 @@
 <script lang="ts">
-import { Alert, Button, Card, Input, Label } from "flowbite-svelte"
+import { Alert, Button, Input, Label } from "flowbite-svelte"
 import { InfoCircleSolid } from "flowbite-svelte-icons"
 import { enhance } from "$app/forms"
 
@@ -8,15 +8,21 @@ let { form } = $props()
 
 <svelte:head> <title>Inscription — FFD Darts</title> </svelte:head>
 
-<Card class="w-full">
-	<h2 class="text-2xl font-bold text-gray-900 dark:text-white mb-6">
+<div class="app-card w-full p-8">
+	<h1
+		class="mb-1 text-2xl font-bold"
+		style="font-family: var(--font-display); color: oklch(18% 0.02 264);"
+	>
 		Créer un compte
-	</h2>
+	</h1>
+	<p class="mb-6 text-sm" style="color: oklch(55% 0.01 264);">
+		Rejoignez la plateforme de gestion FFD Darts.
+	</p>
 
 	{#if form?.error}
 		<Alert color="red" class="mb-4">
 			{#snippet icon()}
-				<InfoCircleSolid class="w-5 h-5" />
+				<InfoCircleSolid class="h-5 w-5" />
 			{/snippet}
 			{form.error}
 		</Alert>
@@ -24,7 +30,7 @@ let { form } = $props()
 
 	<form method="POST" use:enhance class="flex flex-col gap-4">
 		<div>
-			<Label for="name" class="mb-2">Nom complet</Label>
+			<Label for="name" class="mb-1.5">Nom complet</Label>
 			<Input
 				id="name"
 				name="name"
@@ -37,7 +43,7 @@ let { form } = $props()
 		</div>
 
 		<div>
-			<Label for="email" class="mb-2">Email</Label>
+			<Label for="email" class="mb-1.5">Adresse email</Label>
 			<Input
 				id="email"
 				name="email"
@@ -50,7 +56,7 @@ let { form } = $props()
 		</div>
 
 		<div>
-			<Label for="password" class="mb-2">Mot de passe</Label>
+			<Label for="password" class="mb-1.5">Mot de passe</Label>
 			<Input
 				id="password"
 				name="password"
@@ -61,11 +67,16 @@ let { form } = $props()
 			/>
 		</div>
 
-		<Button type="submit" class="w-full">Créer mon compte</Button>
+		<Button type="submit" class="mt-2 w-full">Créer mon compte</Button>
 
-		<p class="text-sm text-center text-gray-600">
+		<p class="mt-1 text-center text-sm" style="color: oklch(55% 0.01 264);">
 			Déjà inscrit ?
-			<a href="/login" class="text-blue-600 hover:underline">Se connecter</a>
+			<a
+				href="/login"
+				class="font-medium"
+				style="color: var(--color-primary-600);"
+				>Se connecter</a
+			>
 		</p>
 	</form>
-</Card>
+</div>

@@ -4,172 +4,232 @@ import {
 	AwardOutline,
 	BarsOutline,
 	BuildingOutline,
-	ChevronLeftOutline,
-	ChevronRightOutline,
 	CloseOutline,
 	HomeOutline,
 } from "flowbite-svelte-icons"
+import { page } from "$app/stores"
 
-let { children, data } = $props()
+let { children } = $props()
 let collapsed = $state(false)
 let mobileOpen = $state(false)
+
 function toggleCollapse() {
 	collapsed = !collapsed
 }
-function toggleMobileMenu() {
-	mobileOpen = !mobileOpen
+function closeMobile() {
+	mobileOpen = false
 }
+
+// biome-ignore lint/correctness/noUnusedVariables: utilisée dans le template via {@const}
+function isActive(href: string): boolean {
+	if (href === "/admin") return $page.url.pathname === "/admin"
+	return $page.url.pathname.startsWith(href)
+}
+
+const NAV_ITEMS = [
+	{ href: "/admin", label: "Accueil", Icon: HomeOutline },
+	{ href: "/admin/events", label: "Évènements", Icon: AwardOutline },
+	{ href: "/admin/entities", label: "Entités", Icon: BuildingOutline },
+]
 </script>
 
-<!-- Sidebar desktop : fixed overlay, hidden on mobile -->
+<!-- ─── Sidebar desktop ─── -->
 <aside
-	class="hidden md:flex flex-col fixed top-0 left-0 h-full bg-gray-900 text-white z-40 transition-all duration-200"
-	class:w-56={!collapsed}
-	class:w-14={collapsed}
+	class="hidden md:flex flex-col fixed top-0 left-0 h-full z-40 transition-[width] duration-200 overflow-hidden"
+	style="background: oklch(14% 0.02 264); color: white; width: {collapsed ? '3.5rem' : '14rem'};"
 >
-	<!-- Bouton collapse/expand -->
+	<!-- Bouton collapse -->
 	<button
+		type="button"
 		onclick={toggleCollapse}
-		class="flex items-center justify-center h-12 hover:bg-gray-700 border-b border-gray-700 w-full"
+		class="flex h-14 w-full items-center justify-center border-b transition-colors hover:opacity-80"
+		style="border-color: oklch(22% 0.02 264);"
 		aria-label={collapsed ? "Développer le menu" : "Réduire le menu"}
 	>
 		{#if collapsed}
-			<ChevronRightOutline />
+			<svg
+				aria-hidden="true"
+				class="h-5 w-5 shrink-0"
+				fill="none"
+				viewBox="0 0 24 24"
+				stroke="currentColor"
+				stroke-width="2"
+			>
+				<path
+					stroke-linecap="round"
+					stroke-linejoin="round"
+					d="M4 6h16M4 12h16M4 18h16"
+				/>
+			</svg>
 		{:else}
-			<ChevronLeftOutline />
+			<div class="flex w-full items-center gap-2 px-4">
+				<svg
+					aria-hidden="true"
+					viewBox="0 0 24 24"
+					fill="none"
+					stroke="white"
+					stroke-width="2.5"
+					stroke-linecap="round"
+					stroke-linejoin="round"
+					class="h-5 w-5 shrink-0"
+				>
+					<circle cx="12" cy="12" r="10" />
+					<circle cx="12" cy="12" r="6" />
+					<circle cx="12" cy="12" r="2" />
+				</svg>
+				<span
+					class="whitespace-nowrap text-sm font-bold"
+					style="font-family: var(--font-display);"
+				>
+					FFD Darts
+				</span>
+				<svg
+					aria-hidden="true"
+					class="ml-auto h-4 w-4 shrink-0 opacity-40"
+					fill="none"
+					viewBox="0 0 24 24"
+					stroke="currentColor"
+					stroke-width="2"
+				>
+					<path
+						stroke-linecap="round"
+						stroke-linejoin="round"
+						d="M15 19l-7-7 7-7"
+					/>
+				</svg>
+			</div>
 		{/if}
 	</button>
 
+	<!-- Label section -->
+	{#if !collapsed}
+		<div class="px-4 pt-5 pb-1">
+			<span
+				class="text-[0.65rem] font-semibold uppercase tracking-widest"
+				style="color: oklch(55% 0.02 264);"
+			>
+				Administration
+			</span>
+		</div>
+	{/if}
+
 	<!-- Nav items -->
-	<nav class="flex-1 py-2">
-		<!-- Accueil -->
-		<a
-			href="/admin"
-			class="flex items-center gap-3 px-3 py-2 hover:bg-gray-700 rounded mx-1"
-			class:justify-center={collapsed}
-			title={collapsed ? "Accueil" : undefined}
-		>
-			<!-- icône maison -->
-			<HomeOutline class="shrink-0" />
-			{#if !collapsed}
-				<span class="text-sm font-medium whitespace-nowrap">Accueil</span>
-			{/if}
-		</a>
-
-		<!-- Évènements -->
-		<a
-			href="/admin/events"
-			class="flex items-center gap-3 px-3 py-2 hover:bg-gray-700 rounded mx-1"
-			class:justify-center={collapsed}
-			title={collapsed ? "Évènements" : undefined}
-		>
-			<!-- icône cible/fléchette -->
-			<AwardOutline class="shrink-0" />
-			{#if !collapsed}
-				<span class="text-sm font-medium whitespace-nowrap">Évènements</span>
-			{/if}
-		</a>
-
-		<!-- Entités -->
-		<a
-			href="/admin/entities"
-			class="flex items-center gap-3 px-3 py-2 hover:bg-gray-700 rounded mx-1"
-			class:justify-center={collapsed}
-			title={collapsed ? "Entités" : undefined}
-		>
-			<!-- icône bâtiment -->
-			<BuildingOutline class="shrink-0" />
-			{#if !collapsed}
-				<span class="text-sm font-medium whitespace-nowrap">Entités</span>
-			{/if}
-		</a>
+	<nav class="flex-1 py-2 overflow-hidden">
+		{#each NAV_ITEMS as { href, label, Icon } (href)}
+			{@const active = isActive(href)}
+			<a
+				{href}
+				class="mx-1.5 my-0.5 flex items-center gap-3 rounded-lg px-2.5 py-2 text-sm font-medium transition-colors"
+				class:justify-center={collapsed}
+				title={collapsed ? label : undefined}
+				style="color: {active ? 'white' : 'oklch(70% 0.01 264)'}; background: {active ? 'oklch(22% 0.03 264)' : 'transparent'};"
+			>
+				<Icon class="h-4.5 w-4.5 shrink-0" />
+				{#if !collapsed}
+					<span class="whitespace-nowrap">{label}</span>
+					{#if active}
+						<div
+							class="ml-auto h-1.5 w-1.5 rounded-full"
+							style="background: var(--color-primary-400);"
+						></div>
+					{/if}
+				{/if}
+			</a>
+		{/each}
 	</nav>
 
-	<!-- Quitter l'administration -->
-	<div class="border-t border-gray-700 py-2">
+	<!-- Quitter admin -->
+	<div class="border-t pb-2 pt-1" style="border-color: oklch(22% 0.02 264);">
 		<a
 			href="/"
-			class="flex items-center gap-3 px-3 py-2 hover:bg-red-900/40 rounded mx-1 text-red-400"
+			class="mx-1.5 flex items-center gap-3 rounded-lg px-2.5 py-2 text-sm font-medium transition-colors"
 			class:justify-center={collapsed}
 			title={collapsed ? "Quitter l'administration" : undefined}
+			style="color: oklch(62% 0.15 25);"
 		>
-			<!-- icône flèche sortie -->
-			<ArrowRightToBracketOutline class="shrink-0" />
+			<ArrowRightToBracketOutline class="h-4.5 w-4.5 shrink-0" />
 			{#if !collapsed}
-				<span class="text-sm font-medium whitespace-nowrap"
-					>Quitter l'administration</span
-				>
+				<span class="whitespace-nowrap">Quitter l'administration</span>
 			{/if}
 		</a>
 	</div>
 </aside>
 
-<!-- Mobile header avec hamburger -->
+<!-- ─── Header mobile ─── -->
 <div
-	class="md:hidden fixed top-0 left-0 right-0 z-30 bg-gray-900 text-white h-12 flex items-center px-4 gap-4"
+	class="fixed left-0 right-0 top-0 z-30 flex h-14 items-center gap-3 border-b px-4 md:hidden"
+	style="background: oklch(14% 0.02 264); border-color: oklch(22% 0.02 264);"
 >
 	<button
-		onclick={toggleMobileMenu}
-		class="p-1"
+		type="button"
+		onclick={() => (mobileOpen = !mobileOpen)}
+		class="flex h-8 w-8 items-center justify-center rounded-lg transition-colors hover:bg-white/10"
 		aria-label={mobileOpen ? "Fermer le menu" : "Ouvrir le menu"}
 	>
 		{#if mobileOpen}
-			<CloseOutline />
+			<CloseOutline class="h-5 w-5 text-white" />
 		{:else}
-			<BarsOutline />
+			<BarsOutline class="h-5 w-5 text-white" />
 		{/if}
 	</button>
-	<span class="font-semibold text-sm">Administration</span>
+	<span
+		class="text-sm font-bold text-white"
+		style="font-family: var(--font-display);"
+	>
+		Administration
+	</span>
 </div>
 
-<!-- Mobile dropdown menu (overlay) -->
+<!-- ─── Menu mobile (drawer) ─── -->
 {#if mobileOpen}
-	<div
-		class="md:hidden fixed inset-0 z-20 bg-black/50"
-		onclick={toggleMobileMenu}
-		role="presentation"
-	></div>
+	<!-- Scrim -->
+	<button
+		type="button"
+		class="fixed inset-0 z-20 md:hidden"
+		style="background: rgb(0 0 0 / 0.5);"
+		onclick={closeMobile}
+		aria-label="Fermer le menu"
+	></button>
+
+	<!-- Drawer -->
 	<nav
-		class="md:hidden fixed top-12 left-0 z-20 bg-gray-900 text-white w-56 py-2"
+		class="fixed left-0 top-14 z-20 h-[calc(100dvh-3.5rem)] w-60 overflow-y-auto py-2 md:hidden"
+		style="background: oklch(14% 0.02 264);"
 	>
-		<a
-			href="/admin"
-			onclick={toggleMobileMenu}
-			class="flex items-center gap-3 px-4 py-3 hover:bg-gray-700"
+		{#each NAV_ITEMS as { href, label, Icon } (href)}
+			{@const active = isActive(href)}
+			<a
+				{href}
+				onclick={closeMobile}
+				class="mx-2 my-0.5 flex items-center gap-3 rounded-lg px-3 py-2.5 text-sm font-medium transition-colors"
+				style="color: {active ? 'white' : 'oklch(70% 0.01 264)'}; background: {active ? 'oklch(22% 0.03 264)' : 'transparent'};"
+			>
+				<Icon class="h-4.5 w-4.5 shrink-0" />
+				{label}
+			</a>
+		{/each}
+		<div
+			class="mx-2 mt-2 border-t pt-2"
+			style="border-color: oklch(22% 0.02 264);"
 		>
-			<HomeOutline />
-			Accueil
-		</a>
-		<a
-			href="/admin/events"
-			onclick={toggleMobileMenu}
-			class="flex items-center gap-3 px-4 py-3 hover:bg-gray-700"
-		>
-			<AwardOutline />
-			Évènements
-		</a>
-		<a
-			href="/admin/entities"
-			onclick={toggleMobileMenu}
-			class="flex items-center gap-3 px-4 py-3 hover:bg-gray-700"
-		>
-			<BuildingOutline />
-			Entités
-		</a>
-		<div class="border-t border-gray-700 mt-1 pt-1">
 			<a
 				href="/"
-				onclick={toggleMobileMenu}
-				class="flex items-center gap-3 px-4 py-3 hover:bg-red-900/40 text-red-400"
+				onclick={closeMobile}
+				class="flex items-center gap-3 rounded-lg px-3 py-2.5 text-sm font-medium transition-colors"
+				style="color: oklch(62% 0.15 25);"
 			>
-				<ArrowRightToBracketOutline />
+				<ArrowRightToBracketOutline class="h-4.5 w-4.5 shrink-0" />
 				Quitter l'administration
 			</a>
 		</div>
 	</nav>
 {/if}
 
-<!-- Contenu principal : pleine largeur, mêmes paddings que (app) -->
-<main class="container mx-auto px-4 py-6 mt-12 md:mt-0">
-	{@render children()}
+<!-- ─── Contenu principal ─── -->
+<!-- Offset sidebar sur md+ : collapsed = 3.5rem, expanded = 14rem -->
+<main
+	class="min-h-dvh px-4 py-6 pt-20 transition-[padding] duration-200 sm:px-6 md:pt-6"
+	style="padding-left: max(1rem, {collapsed ? '5.5rem' : '16rem'});"
+>
+	<div class="mx-auto max-w-6xl">{@render children()}</div>
 </main>

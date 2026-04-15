@@ -4,7 +4,6 @@ import type {
 	EliminationPhase,
 	GroupPhase,
 	Phase,
-	Tournament,
 } from "$lib/server/schemas/event-schemas.js"
 
 // ── Template-specific types (no IDs — generated on apply) ──────────────────

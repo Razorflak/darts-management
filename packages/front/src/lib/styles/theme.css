@@ -2,18 +2,22 @@
  * Thème global de l'application FFD
  * Modifier ce fichier pour changer l'apparence de toute l'app.
  */
+
+/* ─── Google Fonts ─── */
+@import url("https://fonts.googleapis.com/css2?family=Outfit:wght@400;500;600;700;800&family=Inter:wght@300;400;500;600;700&display=swap");
+
 @theme {
-	/* ─── Palette primaire ─── */
-	--color-primary-50: oklch(97% 0.01 264);
+	/* ─── Palette primaire (violet-indigo) ─── */
+	--color-primary-50: oklch(97% 0.012 264);
 	--color-primary-100: oklch(93% 0.04 264);
 	--color-primary-200: oklch(87% 0.08 264);
 	--color-primary-300: oklch(78% 0.13 264);
 	--color-primary-400: oklch(68% 0.18 264);
-	--color-primary-500: oklch(58% 0.2 264);
-	--color-primary-600: oklch(50% 0.22 264);
-	--color-primary-700: oklch(44% 0.2 264);
-	--color-primary-800: oklch(37% 0.17 264);
-	--color-primary-900: oklch(30% 0.14 264);
+	--color-primary-500: oklch(58% 0.22 264);
+	--color-primary-600: oklch(50% 0.23 264);
+	--color-primary-700: oklch(44% 0.21 264);
+	--color-primary-800: oklch(37% 0.18 264);
+	--color-primary-900: oklch(30% 0.15 264);
 
 	/* ─── Flowbite utilise blue-* pour sa couleur d'accentuation ─── */
 	--color-blue-50: var(--color-primary-50);
@@ -27,22 +31,43 @@
 	--color-blue-800: var(--color-primary-800);
 	--color-blue-900: var(--color-primary-900);
 
+	/* ─── Accent amber / or (énergie sportive) ─── */
+	--color-accent-50: oklch(98% 0.03 85);
+	--color-accent-100: oklch(94% 0.08 85);
+	--color-accent-200: oklch(88% 0.14 85);
+	--color-accent-400: oklch(82% 0.18 85);
+	--color-accent-500: oklch(72% 0.2 85);
+	--color-accent-600: oklch(62% 0.19 85);
+
+	/* ─── Sémantique succès ─── */
+	--color-success-50: oklch(97% 0.04 145);
+	--color-success-100: oklch(91% 0.08 145);
+	--color-success-500: oklch(63% 0.19 145);
+	--color-success-600: oklch(55% 0.18 145);
+	--color-success-700: oklch(47% 0.16 145);
+
 	/* ─── Surfaces & bordures ─── */
 	--color-surface: oklch(98% 0.005 264);
 	--color-surface-raised: oklch(100% 0 0);
+	--color-surface-muted: oklch(96% 0.008 264);
 	--color-border: oklch(91% 0.01 264);
 	--color-border-strong: oklch(82% 0.02 264);
 
 	/* ─── Typographie ─── */
+	--font-display: "Outfit", system-ui, sans-serif;
 	--font-sans: "Inter", system-ui, sans-serif;
 
 	/* ─── Rayons ─── */
 	--radius-card: 0.75rem;
 	--radius-pill: 9999px;
+	--radius-input: 0.5rem;
 
 	/* ─── Ombres ─── */
+	--shadow-xs: 0 1px 2px 0 rgb(0 0 0 / 0.05);
 	--shadow-card:
 		0 1px 3px 0 rgb(0 0 0 / 0.08), 0 1px 2px -1px rgb(0 0 0 / 0.06);
 	--shadow-card-hover:
-		0 4px 6px -1px rgb(0 0 0 / 0.1), 0 2px 4px -2px rgb(0 0 0 / 0.06);
+		0 4px 12px -2px rgb(0 0 0 / 0.12), 0 2px 4px -2px rgb(0 0 0 / 0.06);
+	--shadow-modal:
+		0 20px 60px -10px rgb(0 0 0 / 0.25), 0 8px 20px -8px rgb(0 0 0 / 0.15);
 }

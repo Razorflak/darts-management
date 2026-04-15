@@ -16,8 +16,8 @@ export const POST: RequestHandler = async ({ request, locals }) => {
 	const payload =
 		walkover !== undefined
 			? { walkover }
-			// biome-ignore lint/style/noNonNullAssertion: score_a/score_b are required when walkover is absent (validated by Zod schema)
-			: { score_a: score_a!, score_b: score_b! }
+			: // biome-ignore lint/style/noNonNullAssertion: score_a/score_b are required when walkover is absent (validated by Zod schema)
+				{ score_a: score_a!, score_b: score_b! }
 
 	const roles = await getUserRoles(locals.user.id)
 

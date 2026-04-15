@@ -228,7 +228,6 @@ function openScoreModal(m: MatchDisplay) {
 				{#if open}
 					<div
 						class="overflow-y-auto border-t border-gray-100"
-						style="max-height: 65vh"
 						bind:this={phaseContainerEls[phaseId]}
 					>
 						<!-- Toolbar sticky (recherche + boutons groupes) -->
@@ -277,26 +276,48 @@ function openScoreModal(m: MatchDisplay) {
 								{/if}
 							</form>
 
-							<!-- Boutons groupes -->
+							<!-- Navigation groupes -->
 							{#if groups.length > 1}
-								<div class="flex gap-1">
-									{#each groups as [ groupNumber ]}
-										<button
-											type="button"
-											onclick={() => {
-												phaseSelectedGroup[phaseId] = groupNumber
-											}}
-											class="rounded border px-3 py-1 text-sm transition-colors"
-											class:bg-blue-600={selectedGroup === groupNumber}
-											class:text-white={selectedGroup === groupNumber}
-											class:border-blue-600={selectedGroup === groupNumber}
-											class:border-gray-300={selectedGroup !== groupNumber}
-											class:text-gray-700={selectedGroup !== groupNumber}
-											class:hover:bg-gray-50={selectedGroup !== groupNumber}
-										>
-											Groupe {groupLabel(groupNumber ?? 0)}
-										</button>
-									{/each}
+								{@const selectedGroupIdx = groups.findIndex(([n]) => n === selectedGroup)}
+								<div class="flex items-center gap-1">
+									<button
+										type="button"
+										disabled={selectedGroupIdx <= 0}
+										onclick={() => {
+											const prev = groups[selectedGroupIdx - 1]
+											if (prev) phaseSelectedGroup[phaseId] = prev[0]
+										}}
+										class="rounded border border-gray-300 px-2 py-1 text-sm text-gray-700 hover:bg-gray-50 disabled:cursor-not-allowed disabled:opacity-40"
+									>
+										‹
+									</button>
+
+									<select
+										value={String(selectedGroup)}
+										onchange={(e) => {
+											const val = e.currentTarget.value
+											phaseSelectedGroup[phaseId] = val === "null" ? null : Number(val)
+										}}
+										class="rounded border border-gray-300 px-2 py-1 text-sm text-gray-700 focus:outline-none focus:ring-1 focus:ring-blue-400"
+									>
+										{#each groups as [ groupNumber ]}
+											<option value={String(groupNumber)}>
+												Groupe {groupLabel(groupNumber ?? 0)}
+											</option>
+										{/each}
+									</select>
+
+									<button
+										type="button"
+										disabled={selectedGroupIdx >= groups.length - 1}
+										onclick={() => {
+											const next = groups[selectedGroupIdx + 1]
+											if (next) phaseSelectedGroup[phaseId] = next[0]
+										}}
+										class="rounded border border-gray-300 px-2 py-1 text-sm text-gray-700 hover:bg-gray-50 disabled:cursor-not-allowed disabled:opacity-40"
+									>
+										›
+									</button>
 								</div>
 							{/if}
 						</div>

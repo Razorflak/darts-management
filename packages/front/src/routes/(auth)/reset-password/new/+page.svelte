@@ -1,5 +1,5 @@
 <script lang="ts">
-import { Alert, Button, Card, Input, Label } from "flowbite-svelte"
+import { Alert, Button, Input, Label } from "flowbite-svelte"
 import { InfoCircleSolid } from "flowbite-svelte-icons"
 import { enhance } from "$app/forms"
 
@@ -8,15 +8,21 @@ let { data, form } = $props()
 
 <svelte:head> <title>Nouveau mot de passe — FFD Darts</title> </svelte:head>
 
-<Card class="w-full">
-	<h2 class="text-2xl font-bold text-gray-900 dark:text-white mb-6">
-		Choisir un nouveau mot de passe
-	</h2>
+<div class="app-card w-full p-8">
+	<h1
+		class="mb-1 text-2xl font-bold"
+		style="font-family: var(--font-display); color: oklch(18% 0.02 264);"
+	>
+		Nouveau mot de passe
+	</h1>
+	<p class="mb-6 text-sm" style="color: oklch(55% 0.01 264);">
+		Choisissez un mot de passe sécurisé.
+	</p>
 
 	{#if form?.error}
 		<Alert color="red" class="mb-4">
 			{#snippet icon()}
-				<InfoCircleSolid class="w-5 h-5" />
+				<InfoCircleSolid class="h-5 w-5" />
 			{/snippet}
 			{form.error}
 		</Alert>
@@ -26,7 +32,7 @@ let { data, form } = $props()
 		<input type="hidden" name="token" value={form?.token ?? data.token}>
 
 		<div>
-			<Label for="newPassword" class="mb-2">Nouveau mot de passe</Label>
+			<Label for="newPassword" class="mb-1.5">Nouveau mot de passe</Label>
 			<Input
 				id="newPassword"
 				name="newPassword"
@@ -37,6 +43,8 @@ let { data, form } = $props()
 			/>
 		</div>
 
-		<Button type="submit" class="w-full">Enregistrer le mot de passe</Button>
+		<Button type="submit" class="mt-2 w-full"
+			>Enregistrer le mot de passe</Button
+		>
 	</form>
-</Card>
+</div>

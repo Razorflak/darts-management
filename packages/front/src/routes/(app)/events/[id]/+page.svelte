@@ -62,130 +62,126 @@ function statusLabel(status: string) {
 }
 </script>
 
-<div>
-	<!-- Event header -->
-	<div class="mb-6">
-		<div class="mb-2 flex items-center gap-3">
-			<h1 class="text-3xl font-bold text-gray-900 dark:text-white">
-				{data.event.name}
-			</h1>
-			<Badge color={statusColor(data.event.status)}
-				>{statusLabel(data.event.status)}</Badge
-			>
-		</div>
-		<p class="text-gray-600 dark:text-gray-400">{data.event.entity.name}</p>
-		<div
-			class="mt-2 flex flex-wrap gap-4 text-sm text-gray-500 dark:text-gray-400"
-		>
-			<span>
-				Du {data.event.starts_at.toLocaleDateString("fr-FR")} au
-				{data.event.ends_at.toLocaleDateString(
-					"fr-FR"
-				)}
-			</span>
-			<span>{data.event.location}</span>
-		</div>
-		{#if data.event.registration_opens_at}
-			<p class="mt-1 text-sm text-gray-500 dark:text-gray-400">
-				Inscriptions ouvertes à partir du
-				{data.event.registration_opens_at.toLocaleDateString(
-					"fr-FR"
-				)}
-			</p>
-		{/if}
+<!-- En-tête de l'événement -->
+<div class="mb-6">
+	<div class="mb-1 flex flex-wrap items-center gap-2">
+		<h1 class="page-title">{data.event.name}</h1>
+		<Badge color={statusColor(data.event.status)}>
+			{statusLabel(data.event.status)}
+		</Badge>
 	</div>
-
-	{#if data.user && !data.player}
-		<div class="mb-4 rounded-lg border border-red-200 bg-red-50 p-4">
-			<p class="text-sm text-red-700">
-				Vous devez compléter votre profil joueur pour vous inscrire à un
-				tournoi.
-				<a
-					href="/profile/create?redirectTo={encodeURIComponent(page.url.pathname)}"
-					class="font-medium underline"
-					>Créer mon profil</a
-				>
-			</p>
-		</div>
-	{/if}
-
-	<!-- Tournament list -->
-	<h2 class="mb-4 text-xl font-semibold text-gray-800 dark:text-white">
-		Tournois
-	</h2>
-
-	{#if tournaments.length === 0}
-		<p class="text-gray-500 dark:text-gray-400">
-			Aucun tournoi disponible pour cet événement.
+	<p class="page-subtitle">{data.event.entity.name}</p>
+	<div
+		class="mt-2 flex flex-wrap gap-x-4 gap-y-1 text-sm"
+		style="color: oklch(55% 0.01 264);"
+	>
+		<span>
+			Du {data.event.starts_at.toLocaleDateString("fr-FR")} au
+			{data.event.ends_at.toLocaleDateString("fr-FR")}
+		</span>
+		<span>{data.event.location}</span>
+	</div>
+	{#if data.event.registration_opens_at}
+		<p class="mt-1 text-sm" style="color: oklch(55% 0.01 264);">
+			Inscriptions ouvertes à partir du
+			{data.event.registration_opens_at.toLocaleDateString("fr-FR")}
 		</p>
-	{:else}
-		<div class="flex flex-wrap gap-3 *:min-w-100">
-			{#each tournaments as tournament (tournament.id)}
-				<div
-					class="flex items-center gap-4 rounded-xl border border-gray-200 bg-white px-4 py-3 shadow-[0_1px_3px_0_rgb(0_0_0/0.06)]"
-				>
-					<div class="min-w-0 flex-1">
-						<h3 class="leading-tight font-semibold text-gray-900">
-							{CATEGORY_LABELS[tournament.category]}
-						</h3>
-						<p class="mt-0.5 text-xs text-gray-400">
-							{tournament.start_at.toLocaleDateString("fr-FR")}
-							à
-							{tournament.start_at.toLocaleTimeString(
-								"fr-FR",
-								{ hour: "2-digit", minute: "2-digit" }
-							)}
-						</p>
-						<div
-							class="mt-1.5 flex items-center gap-1 text-xs font-medium text-green-600 {tournament.is_registered
-								? ''
-								: 'invisible'}"
-						>
-							<CheckOutline class="h-3.5 w-3.5" />
-							Inscrit
-							{tournament.partner?.trim() !== ""
-								? `(avec ${tournament.partner})`
-								: ""}
-						</div>
-					</div>
-					<div class="shrink-0">
-						{#if data.canRegister}
-							{#if tournament.is_registered}
-								<Button
-									color="red"
-									size="xs"
-									onclick={() => unregister(tournament.registration_id)}
-								>
-									Se désinscrire
-								</Button>
-							{:else if isDoublesTournament(tournament.category)}
-								<Button
-									color="primary"
-									size="xs"
-									disabled={!data.player}
-									onclick={() => openDoublesModal(tournament.id)}
-								>
-									S'inscrire (doubles)
-								</Button>
-							{:else}
-								<Button
-									color="primary"
-									size="xs"
-									disabled={!data.player}
-									onclick={() => registerSolo(tournament.id)}
-								>
-									S'inscrire
-								</Button>
-							{/if}
-						{:else}
-							<span class="text-xs text-gray-400">Inscriptions fermées</span>
-						{/if}
-					</div>
-				</div>
-			{/each}
-		</div>
 	{/if}
 </div>
+
+{#if data.user && !data.player}
+	<div
+		class="mb-6 rounded-xl border border-red-200 p-4"
+		style="background: oklch(98% 0.03 25);"
+	>
+		<p class="text-sm" style="color: oklch(40% 0.18 25);">
+			Vous devez compléter votre profil joueur pour vous inscrire à un tournoi.
+			<a
+				href="/profile/create?redirectTo={encodeURIComponent(page.url.pathname)}"
+				class="font-semibold underline"
+				>Créer mon profil</a
+			>
+		</p>
+	</div>
+{/if}
+
+<!-- Liste des tournois -->
+<h2 class="section-title mb-4">Tournois</h2>
+
+{#if tournaments.length === 0}
+	<div class="empty-state">
+		<p class="text-sm" style="color: oklch(55% 0.01 264);">
+			Aucun tournoi disponible pour cet événement.
+		</p>
+	</div>
+{:else}
+	<div class="grid gap-3 sm:grid-cols-2">
+		{#each tournaments as tournament (tournament.id)}
+			<div class="app-card flex items-center gap-4 px-4 py-3.5">
+				<div class="min-w-0 flex-1">
+					<h3
+						class="font-semibold leading-tight"
+						style="color: oklch(18% 0.02 264);"
+					>
+						{CATEGORY_LABELS[tournament.category]}
+					</h3>
+					<p class="mt-0.5 text-xs" style="color: oklch(60% 0.01 264);">
+						{tournament.start_at.toLocaleDateString("fr-FR")}
+						à
+						{tournament.start_at.toLocaleTimeString("fr-FR", {
+							hour: "2-digit",
+							minute: "2-digit",
+						})}
+					</p>
+					{#if tournament.is_registered}
+						<div
+							class="mt-1.5 flex items-center gap-1 text-xs font-medium"
+							style="color: var(--color-success-600);"
+						>
+							<CheckOutline class="h-3.5 w-3.5" />
+							Inscrit{tournament.partner?.trim() !== "" ? ` (avec ${tournament.partner})` : ""}
+						</div>
+					{/if}
+				</div>
+				<div class="shrink-0">
+					{#if data.canRegister}
+						{#if tournament.is_registered}
+							<Button
+								color="red"
+								size="xs"
+								onclick={() => unregister(tournament.registration_id)}
+							>
+								Se désinscrire
+							</Button>
+						{:else if isDoublesTournament(tournament.category)}
+							<Button
+								color="primary"
+								size="xs"
+								disabled={!data.player}
+								onclick={() => openDoublesModal(tournament.id)}
+							>
+								S'inscrire (doubles)
+							</Button>
+						{:else}
+							<Button
+								color="primary"
+								size="xs"
+								disabled={!data.player}
+								onclick={() => registerSolo(tournament.id)}
+							>
+								S'inscrire
+							</Button>
+						{/if}
+					{:else}
+						<span class="text-xs" style="color: oklch(65% 0.01 264);">
+							Inscriptions fermées
+						</span>
+					{/if}
+				</div>
+			</div>
+		{/each}
+	</div>
+{/if}
 
 <DoublesModal
 	bind:open={doublesModal.open}
@@ -193,7 +189,7 @@ function statusLabel(status: string) {
 	eventId={data.event.id}
 	onClose={() => (doublesModal.open = false)}
 	onRegistered={async () => {
-        await invalidateAll()
+		await invalidateAll()
 		doublesModal.open = false
 	}}
 />

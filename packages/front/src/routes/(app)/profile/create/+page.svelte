@@ -1,5 +1,4 @@
 <script lang="ts">
-import { Card } from "flowbite-svelte"
 import { goto } from "$app/navigation"
 import { apiRoutes } from "$lib/fetch/api"
 import PlayerCreationForm from "$lib/tournament/components/PlayerCreationForm.svelte"
@@ -53,15 +52,11 @@ async function handleSubmit(event: SubmitEvent) {
 <svelte:head> <title>Compléter mon profil — FFD Darts</title> </svelte:head>
 
 <div class="mx-auto max-w-lg">
-	<p
-		class="text-primary-500 mb-1 text-xs font-semibold tracking-widest uppercase"
-	>
-		Profil
-	</p>
-	<h1 class="mb-6 text-3xl font-bold text-gray-900">Compléter mon profil</h1>
+	<p class="page-eyebrow">Profil</p>
+	<h1 class="page-title mb-6">Compléter mon profil</h1>
 
-	<Card class="w-full">
-		<p class="mb-4 text-sm text-gray-500">
+	<div class="app-card p-6">
+		<p class="mb-4 text-sm" style="color: oklch(55% 0.01 264);">
 			Un profil joueur est requis avant de vous inscrire à un tournoi.
 		</p>
 
@@ -72,5 +67,5 @@ async function handleSubmit(event: SubmitEvent) {
 				form={formError ? { error: formError } : null}
 			/>
 		</form>
-	</Card>
+	</div>
 </div>

@@ -175,8 +175,6 @@ function handleCancel() {
 		>
 			{submitting ? "Inscription en cours..." : "Confirmer"}
 		</Button>
-		<Button color="alternative" onclick={handleCancel}>
-			Annuler
-		</Button>
+		<Button color="alternative" onclick={handleCancel}> Annuler </Button>
 	{/snippet}
 </Modal>

@@ -40,7 +40,8 @@ export async function saveDraftEvent(
 				ends_at: event.ends_at ?? null,
 				location: event.location ?? "",
 				registration_opens_at: event.registration_opens_at ?? null,
-				status: "draft",
+				status:
+					existing && existing.status !== "draft" ? existing.status : "draft",
 			},
 			userId,
 		)
