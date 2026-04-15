@@ -1,3 +1,4 @@
+import { DraftTournamentSchema } from "@darts-management/domain"
 import { z } from "zod"
 
 export const SubmitMatchResultRequestSchema = z
@@ -24,3 +25,10 @@ export const MatchLookupRequestSchema = z.object({
 })
 
 export type MatchLookupRequest = z.infer<typeof MatchLookupRequestSchema>
+
+export const SaveTournamentRequestSchema = z.object({
+	event_id: z.string().uuid(),
+	tournament: DraftTournamentSchema,
+})
+
+export type SaveTournamentRequest = z.infer<typeof SaveTournamentRequestSchema>

@@ -166,6 +166,15 @@ async function startDayCheckin(day: CheckinDay) {
 						</TableBodyCell>
 						<TableBodyCell>
 							<div class="flex flex-wrap gap-1.5">
+								{#if t.status === "ready" || t.status === "check-in"}
+									<Button
+										href="/admin/events/{data.event.id}/tournaments/{t.id}/edit"
+										size="xs"
+										color="light"
+									>
+										Modifier
+									</Button>
+								{/if}
 								<Button
 									href="/admin/events/{data.event.id}/tournaments/{t.id}"
 									size="xs"

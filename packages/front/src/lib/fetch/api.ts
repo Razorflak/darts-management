@@ -30,6 +30,7 @@ export const apiRoutes = {
 		method: ["POST"],
 		path: "/api/tournament/advance-phase",
 	},
+	TOURNAMENT_SAVE: { method: ["POST"], path: "/api/tournament/save" },
 	PLAYERS_CREATE_PROFILE: {
 		method: ["POST"],
 		path: "/api/players/create-player-profile",

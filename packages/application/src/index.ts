@@ -8,6 +8,7 @@ import { advancePhase as _advancePhase } from "./tournament/advance-phase.js"
 import { cancelLaunch as _cancelLaunch } from "./tournament/cancel-launch.js"
 import { launchTournament as _launchTournament } from "./tournament/launch-tournament.js"
 import { registerTeam as _registerTeam } from "./tournament/register-team.js"
+import { saveTournament as _saveTournament } from "./tournament/save-tournament.js"
 import { submitMatchResult as _submitMatchResult } from "./tournament/submit-match-result.js"
 
 export { ADMIN_ROLES, ORGANISABLE_ROLES } from "./event/constants.js"
@@ -33,6 +34,7 @@ export const launchTournament = traced(
 )
 export const registerTeam = traced("app.registerTeam", _registerTeam)
 export const advancePhase = traced("app.advancePhase", _advancePhase)
+export const saveTournament = traced("app.saveTournament", _saveTournament)
 export const submitMatchResult = traced(
 	"app.submitMatchResult",
 	_submitMatchResult,

@@ -294,6 +294,33 @@ const internalRepoTournament = {
 			  AND r.tournament_id = ${tournamentId}
 		`
 	},
+	upsertSingleTournament: async (
+		sql: Sql,
+		eventId: string,
+		tournament: DraftTournament,
+	): Promise<void> => {
+		await sql`
+			INSERT INTO tournament (id, event_id, name, category, start_at, auto_referee, check_in_required)
+			VALUES (
+				${tournament.id},
+				${eventId},
+				${tournament.name},
+				${tournament.category ?? null},
+				${tournament.start_at ?? null},
+				${tournament.auto_referee ?? false},
+				${tournament.check_in_required ?? false}
+			)
+			ON CONFLICT (id) DO UPDATE SET
+				name              = EXCLUDED.name,
+				category          = EXCLUDED.category,
+				start_at          = EXCLUDED.start_at,
+				auto_referee      = EXCLUDED.auto_referee,
+				check_in_required = EXCLUDED.check_in_required,
+				updated_at        = now()
+		`
+		await insertPhases(sql, tournament.id, tournament.phases)
+	},
+
 	getNextPhaseByPhaseId: async (sql: Sql, phaseId: string) => {
 		const nextPhaseRows = await sql<{ id: string; type: string }[]>`
 			SELECT p2.id, p2.type
