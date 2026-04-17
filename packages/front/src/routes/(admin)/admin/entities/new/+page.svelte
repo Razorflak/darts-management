@@ -1,5 +1,13 @@
 <script lang="ts">
-import { Alert, Button, Input, Label, Select } from "flowbite-svelte"
+import {
+	Alert,
+	Breadcrumb,
+	BreadcrumbItem,
+	Button,
+	Input,
+	Label,
+	Select,
+} from "flowbite-svelte"
 import { InfoCircleSolid } from "flowbite-svelte-icons"
 import { enhance } from "$app/forms"
 
@@ -42,12 +50,10 @@ const typeOptions = [
 
 <svelte:head> <title>Nouvelle entité — FFD Darts</title> </svelte:head>
 
-<!-- Breadcrumb -->
-<nav class="breadcrumb">
-	<a href="/admin/entities">Entités</a>
-	<span class="breadcrumb-sep">/</span>
-	<span class="breadcrumb-current">Nouvelle entité</span>
-</nav>
+<Breadcrumb class="mb-6">
+	<BreadcrumbItem href="/admin/entities" home>Entités</BreadcrumbItem>
+	<BreadcrumbItem>Nouvelle entité</BreadcrumbItem>
+</Breadcrumb>
 
 <div class="mx-auto max-w-lg">
 	<h1 class="page-title mb-6">Créer une entité</h1>

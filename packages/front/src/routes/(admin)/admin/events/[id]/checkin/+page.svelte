@@ -1,6 +1,8 @@
 <script lang="ts">
 import {
 	Badge,
+	Breadcrumb,
+	BreadcrumbItem,
 	Button,
 	Table,
 	TableBody,
@@ -134,17 +136,16 @@ async function toggleRegistration(p: CheckinPlayer, reg: CheckinRegistration) {
 	<title>Check-in {data.date} — {data.event.name}</title>
 </svelte:head>
 
-<!-- Breadcrumb -->
-<nav class="breadcrumb">
-	<a href="/admin/events">Événements</a>
-	<span class="breadcrumb-sep">/</span>
-	<a href="/admin/events/{data.event.id}">{data.event.name}</a>
-	<span class="breadcrumb-sep">/</span>
-	<span class="breadcrumb-current">
-		Check-in
-		{new Date(data.date).toLocaleDateString("fr-FR", { day: "numeric", month: "long" })}
-	</span>
-</nav>
+<Breadcrumb class="mb-4">
+	<BreadcrumbItem href="/admin/events" home>Événements</BreadcrumbItem>
+	<BreadcrumbItem href="/admin/events/{data.event.id}"
+		>{data.event.name}</BreadcrumbItem
+	>
+	<BreadcrumbItem
+		>Check-in
+		{new Date(data.date).toLocaleDateString("fr-FR", { day: "numeric", month: "long" })}</BreadcrumbItem
+	>
+</Breadcrumb>
 
 <!-- Titre -->
 <h1 class="page-title mb-4">

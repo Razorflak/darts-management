@@ -1,4 +1,5 @@
 <script lang="ts">
+import { Breadcrumb, BreadcrumbItem } from "flowbite-svelte"
 import EventWizard from "$lib/tournament/components/EventWizard.svelte"
 
 let { data } = $props()
@@ -6,12 +7,10 @@ let { data } = $props()
 
 <svelte:head><title>Créer un événement — FFD</title></svelte:head>
 
-<!-- Breadcrumb de navigation -->
-<nav class="breadcrumb mb-6">
-	<a href="/admin/events">Événements</a>
-	<span class="breadcrumb-sep">/</span>
-	<span class="breadcrumb-current">Nouvel événement</span>
-</nav>
+<Breadcrumb class="mb-6">
+	<BreadcrumbItem href="/admin/events" home>Événements</BreadcrumbItem>
+	<BreadcrumbItem>Nouvel événement</BreadcrumbItem>
+</Breadcrumb>
 
 <EventWizard
 	entities={data.entities}

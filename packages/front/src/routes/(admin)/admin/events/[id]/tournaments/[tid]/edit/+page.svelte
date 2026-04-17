@@ -1,5 +1,5 @@
 <script lang="ts">
-import { Alert, Button } from "flowbite-svelte"
+import { Alert, Breadcrumb, BreadcrumbItem, Button } from "flowbite-svelte"
 import { goto } from "$app/navigation"
 import { apiRoutes } from "$lib/fetch/api"
 import TournamentForm from "$lib/tournament/components/TournamentForm.svelte"
@@ -40,14 +40,13 @@ async function save() {
 	><title>Modifier {data.tournament.name} — Administration</title></svelte:head
 >
 
-<!-- Breadcrumb -->
-<nav class="breadcrumb mb-6">
-	<a href="/admin/events">Événements</a>
-	<span class="breadcrumb-sep">/</span>
-	<a href="/admin/events/{data.eventId}">{data.eventName}</a>
-	<span class="breadcrumb-sep">/</span>
-	<span class="breadcrumb-current">Modifier {data.tournament.name}</span>
-</nav>
+<Breadcrumb class="mb-6">
+	<BreadcrumbItem href="/admin/events" home>Événements</BreadcrumbItem>
+	<BreadcrumbItem href="/admin/events/{data.eventId}"
+		>{data.eventName}</BreadcrumbItem
+	>
+	<BreadcrumbItem>Modifier {data.tournament.name}</BreadcrumbItem>
+</Breadcrumb>
 
 <h1 class="page-title mb-6">Modifier {data.tournament.name}</h1>
 

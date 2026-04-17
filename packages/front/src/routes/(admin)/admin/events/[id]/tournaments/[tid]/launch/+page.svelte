@@ -1,5 +1,11 @@
 <script lang="ts">
-import { Alert, Badge, Button } from "flowbite-svelte"
+import {
+	Alert,
+	Badge,
+	Breadcrumb,
+	BreadcrumbItem,
+	Button,
+} from "flowbite-svelte"
 import { goto } from "$app/navigation"
 import { apiRoutes } from "$lib/fetch/api"
 import type { LaunchPhasePreview } from "$lib/server/schemas/event-schemas.js"
@@ -82,16 +88,14 @@ const phaseTypeLabel = (type: string): string =>
 
 <svelte:head> <title>Lancer {data.tournament.name}</title> </svelte:head>
 
-<!-- Breadcrumb -->
-<nav class="breadcrumb">
-	<a href="/admin/events">Événements</a>
-	<span class="breadcrumb-sep">/</span>
-	<a href="/admin/events/{eventId}">{data.tournament.event_name}</a>
-	<span class="breadcrumb-sep">/</span>
-	<a href={backUrl}>{data.tournament.name}</a>
-	<span class="breadcrumb-sep">/</span>
-	<span class="breadcrumb-current">Lancement</span>
-</nav>
+<Breadcrumb class="mb-4">
+	<BreadcrumbItem href="/admin/events" home>Événements</BreadcrumbItem>
+	<BreadcrumbItem href="/admin/events/{eventId}"
+		>{data.tournament.event_name}</BreadcrumbItem
+	>
+	<BreadcrumbItem href={backUrl}>{data.tournament.name}</BreadcrumbItem>
+	<BreadcrumbItem>Lancement</BreadcrumbItem>
+</Breadcrumb>
 
 <h1 class="page-title mb-6">Lancer {data.tournament.name}</h1>
 

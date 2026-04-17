@@ -38,6 +38,9 @@ const BracketInfoSchema = z.object({
 const MatchLookupSchema = z.object({
 	id: z.string(),
 	event_match_id: z.number().int(),
+	group_number: z.number().int().nullable(),
+	round_number: z.number().int(),
+	position: z.number().int(),
 	status: z.string(),
 	sets_to_win: z.number().int(),
 	legs_per_set: z.number().int(),
@@ -48,6 +51,11 @@ const MatchLookupSchema = z.object({
 	team_a_name: z.string().nullable(),
 	team_b_name: z.string().nullable(),
 	referee_name: z.string().nullable(),
+	phase_id: z.string(),
+	phase_type: z.string(),
+	phase_position: z.number().int(),
+	bracket: z.enum(["W", "L", "GF"]).nullable(),
+	loser_goes_to_event_match_id: z.number().int().nullable(),
 })
 
 // ─── Internal repository ───────────────────────────────────────────────────────
@@ -321,6 +329,14 @@ const internalMatchRepo = {
 			await sql<Record<string, unknown>[]>`
 				SELECT m.id, m.event_match_id, m.status, m.sets_to_win, m.legs_per_set,
 				       m.team_a_id, m.team_b_id, m.score_a, m.score_b,
+				       COALESCE(rri.group_number, bi.group_number) AS group_number,
+				       COALESCE(rri.round_number, bi.round_number) AS round_number,
+				       COALESCE(rri.position,     bi.position)     AS position,
+				       p.id       AS phase_id,
+				       p.type     AS phase_type,
+				       p.position AS phase_position,
+				       bi.bracket,
+				       lm.event_match_id AS loser_goes_to_event_match_id,
 				       (SELECT string_agg(pl.first_name || ' ' || pl.last_name, ' / ' ORDER BY pl.last_name)
 				        FROM team_member tm JOIN player pl ON pl.id = tm.player_id
 				        WHERE tm.team_id = m.team_a_id) AS team_a_name,
@@ -333,6 +349,9 @@ const internalMatchRepo = {
 				FROM match m
 				JOIN phase p ON p.id = m.phase_id
 				JOIN tournament t ON t.id = p.tournament_id
+				LEFT JOIN round_robin_match_info rri ON rri.id = m.round_robin_info_id
+				LEFT JOIN bracket_match_info bi ON bi.id = m.bracket_info_id
+				LEFT JOIN match lm ON lm.bracket_info_id = bi.loser_goes_to_info_id
 				WHERE m.event_match_id = ${eventMatchId}
 				  AND t.event_id = ${eventId}
 			`,

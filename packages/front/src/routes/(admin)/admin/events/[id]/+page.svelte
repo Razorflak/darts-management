@@ -1,6 +1,8 @@
 <script lang="ts">
 import {
 	Badge,
+	Breadcrumb,
+	BreadcrumbItem,
 	Button,
 	Table,
 	TableBody,
@@ -57,12 +59,10 @@ async function startDayCheckin(day: CheckinDay) {
 	<QuickScoreCard eventId={data.event.id} />
 {/if}
 
-<!-- Breadcrumb -->
-<nav class="breadcrumb">
-	<a href="/admin/events">Événements</a>
-	<span class="breadcrumb-sep">/</span>
-	<span class="breadcrumb-current">{data.event.name}</span>
-</nav>
+<Breadcrumb class="mb-4">
+	<BreadcrumbItem href="/admin/events" home>Événements</BreadcrumbItem>
+	<BreadcrumbItem>{data.event.name}</BreadcrumbItem>
+</Breadcrumb>
 
 <!-- En-tête de l'événement -->
 <div class="mb-6 flex flex-wrap items-start justify-between gap-3">

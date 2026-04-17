@@ -1,4 +1,5 @@
 <script lang="ts">
+import { Breadcrumb, BreadcrumbItem } from "flowbite-svelte"
 import { invalidateAll } from "$app/navigation"
 import { apiRoutes } from "$lib/fetch/api"
 import type { RosterEntry } from "$lib/server/schemas/event-schemas.js"
@@ -43,16 +44,13 @@ async function handleCancelLaunch() {
 	<title>{data.tournament.name} — Roster admin</title>
 </svelte:head>
 
-<!-- Breadcrumb -->
-<nav class="mb-4 text-sm text-gray-500">
-	<a href="/admin/events" class="hover:underline">Événements</a>
-	<span class="mx-2">/</span>
-	<a href="/admin/events/{eventId}" class="hover:underline"
-		>{data.tournament.event_name}</a
+<Breadcrumb class="mb-4">
+	<BreadcrumbItem href="/admin/events" home>Événements</BreadcrumbItem>
+	<BreadcrumbItem href="/admin/events/{eventId}"
+		>{data.tournament.event_name}</BreadcrumbItem
 	>
-	<span class="mx-2">/</span>
-	<span class="text-gray-800">{data.tournament.name}</span>
-</nav>
+	<BreadcrumbItem>{data.tournament.name}</BreadcrumbItem>
+</Breadcrumb>
 
 <TournamentHeader
 	tournamentName={data.tournament.name}
