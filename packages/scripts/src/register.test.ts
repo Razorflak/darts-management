@@ -25,8 +25,8 @@ INNER JOIN event ON tournament.event_id = event.id
 	})
 
 	it("Creation/Inscript de joueur en masse à un tournois", async () => {
-		const tournamentId = "37fd7569-38a4-4219-a3bb-6564ffd2a840"
-		const players = Array.from({ length: 15 }, () => ({
+		const tournamentId = "a95263b9-db8c-416e-88cf-f7384e38535e"
+		const players = Array.from({ length: 1 }, () => ({
 			first_name: faker.person.firstName(),
 			last_name: faker.person.lastName(),
 			department: "44",
@@ -43,7 +43,7 @@ INNER JOIN event ON tournament.event_id = event.id
 	})
 
 	it("checkin all players", async () => {
-		const tournamentId = "37fd7569-38a4-4219-a3bb-6564ffd2a840"
+		const tournamentId = "a95263b9-db8c-416e-88cf-f7384e38535e"
 		const update = await sql`
             UPDATE tournament_registration
             SET checked_in = true

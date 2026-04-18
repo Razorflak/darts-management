@@ -17,8 +17,6 @@ let { columns, bracketFilter, searchQuery, onMatchClick }: Props = $props()
 function matchesForColumn(col: BracketColumn): MatchDisplay[] {
 	return bracketFilter === "W" ? col.wbMatches : col.lbMatches
 }
-
-const showConnectors = $derived(bracketFilter === "W")
 </script>
 
 <div class="flex flex-row items-stretch min-w-max">
@@ -51,7 +49,8 @@ const showConnectors = $derived(bracketFilter === "W")
 		</div>
 
 		<!-- Connecteur entre cette colonne et la suivante -->
-		{#if showConnectors && nextCol && colMatches.length > 0 && nextColMatches.length > 0}
+		{#if nextCol && colMatches.length > 0 && nextColMatches.length > 0}
+			{@const fanRatio = colMatches.length / nextColMatches.length}
 			<div class="flex flex-col self-stretch w-8 shrink-0">
 				<!-- Espace calé sur la hauteur du header de colonne (text-xs = 16px + mb-2 = 8px) -->
 				<div class="mb-2" style="height: 16px"></div>
@@ -59,40 +58,49 @@ const showConnectors = $derived(bracketFilter === "W")
 				<!-- Slots de connecteurs : 1 slot par match dans la colonne suivante -->
 				<div class="grow flex flex-col">
 					{#each nextColMatches as _, j}
-						{@const topA = colMatches[j * 2]}
-						{@const botA = colMatches[j * 2 + 1]}
-						{@const topBye = !topA || topA.status === "bye"}
-						{@const botBye = !botA || botA.status === "bye"}
-						{@const vTop = topBye ? 50 : 25}
-						{@const vBot = botBye ? 50 : 25}
 						<div class="relative flex-1">
-							{#if !(topBye && botBye)}
-								<!-- Horizontale depuis le match du haut -->
-								{#if !topBye}
+							{#if fanRatio >= 2}
+								<!-- 2:1 : deux branches convergent vers un match (WB + LB Reshuffle) -->
+								{@const topA = colMatches[j * 2]}
+								{@const botA = colMatches[j * 2 + 1]}
+								{@const topBye = !topA || topA.status === "bye"}
+								{@const botBye = !botA || botA.status === "bye"}
+								{@const vTop = topBye ? 50 : 25}
+								{@const vBot = botBye ? 50 : 25}
+								{#if !(topBye && botBye)}
+									<!-- Horizontale depuis le match du haut -->
+									{#if !topBye}
+										<div
+											class="absolute bg-gray-300"
+											style="top: calc(25% - 1px); left: 0; right: 50%; height: 2px"
+										></div>
+									{/if}
+
+									<!-- Horizontale depuis le match du bas -->
+									{#if !botBye}
+										<div
+											class="absolute bg-gray-300"
+											style="top: calc(75% - 1px); left: 0; right: 50%; height: 2px"
+										></div>
+									{/if}
+
+									<!-- Verticale reliant les deux branches -->
 									<div
 										class="absolute bg-gray-300"
-										style="top: calc(25% - 1px); left: 0; right: 50%; height: 2px"
+										style="left: calc(50% - 1px); width: 2px; top: {vTop}%; bottom: {vBot}%"
 									></div>
-								{/if}
 
-								<!-- Horizontale depuis le match du bas -->
-								{#if !botBye}
+									<!-- Horizontale vers le match de la colonne suivante -->
 									<div
 										class="absolute bg-gray-300"
-										style="top: calc(75% - 1px); left: 0; right: 50%; height: 2px"
+										style="top: calc(50% - 1px); left: 50%; right: 0; height: 2px"
 									></div>
 								{/if}
-
-								<!-- Verticale reliant les deux branches -->
+							{:else}
+								<!-- 1:1 : ligne directe (LB R1→Drop-in, Reshuffle→suivant) -->
 								<div
 									class="absolute bg-gray-300"
-									style="left: calc(50% - 1px); width: 2px; top: {vTop}%; bottom: {vBot}%"
-								></div>
-
-								<!-- Horizontale vers le match de la colonne suivante -->
-								<div
-									class="absolute bg-gray-300"
-									style="top: calc(50% - 1px); left: 50%; right: 0; height: 2px"
+									style="top: calc(50% - 1px); left: 0; right: 0; height: 2px"
 								></div>
 							{/if}
 						</div>

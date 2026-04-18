@@ -266,12 +266,16 @@ describe("generateBracket — double elimination", () => {
 			expect(lbFinalCandidates).toHaveLength(1)
 		})
 
-		it("LB round 2 has 2 matches (LB R1)", () => {
+		it("LB round 3 has 2 matches (LB R1)", () => {
+			expect(infoAt(result, "L", 3)).toHaveLength(2)
+		})
+
+		it("LB round 2 has 2 matches (drop-in depuis WB Semis)", () => {
 			expect(infoAt(result, "L", 2)).toHaveLength(2)
 		})
 
-		it("LB round 1 has 3 matches (drop-in + reshuffle, shared round)", () => {
-			expect(infoAt(result, "L", 1)).toHaveLength(3)
+		it("LB round 1 has 1 match (reshuffle)", () => {
+			expect(infoAt(result, "L", 1)).toHaveLength(1)
 		})
 
 		it("all WB matches have loserTo set (WB Final points to LB Final)", () => {

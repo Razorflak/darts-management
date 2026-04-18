@@ -95,8 +95,12 @@ function getDropOrder(matchCount: number, wbRound: number): number[] {
 
 export type BracketMode = "single" | "double"
 
-export function buildBracket(n: number, mode: BracketMode): BracketNode[] {
-	const numWbRounds = Math.ceil(Math.log2(Math.max(n, 2)))
+export function buildBracket(
+	teamCount: number,
+	mode: BracketMode,
+): BracketNode[] {
+	const numWbRounds = Math.ceil(Math.log2(Math.max(teamCount, 2)))
+	const power2Sup = 2 ** Math.ceil(Math.log2(teamCount))
 	// baseRound: WB Final round number (0 for SE, 1 for DE so LB Final can be 0)
 	const baseRound = mode === "double" ? 1 : 0
 
@@ -154,7 +158,7 @@ export function buildBracket(n: number, mode: BracketMode): BracketNode[] {
 
 	// Assign seeds to WB R1
 	const wbR1 = wbRounds[numWbRounds - 1]
-	const matchups = getWBR1Matchups(n)
+	const matchups = getWBR1Matchups(power2Sup)
 	for (let i = 0; i < wbR1.length; i++) {
 		wbR1[i].seedA = matchups[i][0]
 		wbR1[i].seedB = matchups[i][1]
@@ -163,22 +167,25 @@ export function buildBracket(n: number, mode: BracketMode): BracketNode[] {
 	if (mode === "single") return nodes
 
 	// ── 2. Loser Bracket ───────────────────────────────────────────────────────
-	// LB round numbers follow: WB match at round R → LB receives losers at round R-1.
-	// Drop-in and reshuffle share the same LB round number.
+	// Numérotation LB indépendante du WB, comptée à rebours depuis 0 = LB Final :
+	//   LB R1           = 2*(numWbRounds-1) - 1
+	//   Drop-in niveau L = 2 * levelFromFinal      (L = 0 → LB Final)
+	//   Reshuffle        = 2 * levelFromFinal - 1   (round suivant le drop-in)
+	// Drop-in et reshuffle ont des round numbers distincts (pas de mélange visuel).
 
-	// LB R1: fed by WB R1 losers (only real matches, not byes)
-	const wbR1Round = baseRound + numWbRounds - 1 // = numWbRounds for DE
-	const lbR1Round = wbR1Round - 1
+	const lbR1Round = 2 * (numWbRounds - 1) - 1
 
-	const wbR1Real = wbR1.filter((m) => m.seedA !== null && m.seedB !== null)
+	// wbR1.length = 2^(numWbRounds-1) — toujours pair, pas besoin de filtrer les BYEs.
+	// Un match WB R1 BYE obtient quand même un loserTo : le slot LB correspondant
+	// sera vide en pratique (BYE propagé), géré lors de l'assignation des équipes.
 	let lbSurvivors: BracketNode[] = []
 
-	for (let i = 0; i < wbR1Real.length; i += 2) {
-		const mA = wbR1Real[i]
-		const mB = wbR1Real[i + 1] as BracketNode | undefined
+	for (let i = 0; i < wbR1.length; i += 2) {
+		const mA = wbR1[i]
+		const mB = wbR1[i + 1]
 		const lbM = makeNode("L", lbR1Round)
 		mA.loserTo = { nodeId: lbM.id, slot: "a" }
-		if (mB) mB.loserTo = { nodeId: lbM.id, slot: "b" }
+		mB.loserTo = { nodeId: lbM.id, slot: "b" }
 		lbSurvivors.push(lbM)
 		nodes.push(lbM)
 	}
@@ -191,30 +198,30 @@ export function buildBracket(n: number, mode: BracketMode): BracketNode[] {
 		levelFromFinal--
 	) {
 		const wbRoundNodes = wbRounds[levelFromFinal]
-		const wbRoundNumber = baseRound + levelFromFinal // e.g. WB Final → 1
-		const lbRoundNumber = wbRoundNumber - 1
 		const wbRoundIdx = numWbRounds - levelFromFinal // 1-based WB round for getDropOrder
+		const lbDiRound = 2 * levelFromFinal // drop-in round (0 = LB Final)
+		const lbRsRound = lbDiRound - 1 // reshuffle round (un cran plus bas)
 
 		const dropCount = wbRoundNodes.length
 		const dropOrder = getDropOrder(dropCount, wbRoundIdx)
 
-		// Drop-in: WB losers (reordered) meet LB survivors
+		// Drop-in : perdants WB (réordonnés) rencontrent les survivants LB
 		const dropInNodes: BracketNode[] = []
 		for (let i = 0; i < dropCount; i++) {
 			const wbMatch = wbRoundNodes[dropOrder[i]]
 			const lbSurvivor = lbSurvivors[i]
-			const lbM = makeNode("L", lbRoundNumber)
+			const lbM = makeNode("L", lbDiRound)
 			wbMatch.loserTo = { nodeId: lbM.id, slot: "a" }
 			lbSurvivor.winnerTo = { nodeId: lbM.id, slot: "b" }
 			dropInNodes.push(lbM)
 			nodes.push(lbM)
 		}
 
-		// Reshuffle: LB survivors play each other (same round as drop-in)
+		// Reshuffle : les vainqueurs du drop-in s'affrontent (round distinct du drop-in)
 		if (dropInNodes.length > 1) {
 			const reshuffleNodes: BracketNode[] = []
 			for (let i = 0; i < dropInNodes.length; i += 2) {
-				const lbM = makeNode("L", lbRoundNumber)
+				const lbM = makeNode("L", lbRsRound)
 				dropInNodes[i].winnerTo = { nodeId: lbM.id, slot: "a" }
 				dropInNodes[i + 1].winnerTo = { nodeId: lbM.id, slot: "b" }
 				reshuffleNodes.push(lbM)
@@ -270,6 +277,22 @@ export function generateBracket(config: BracketConfig): GeneratorResult {
 	const numWbRounds = Math.ceil(Math.log2(Math.max(participantCount, 2)))
 	const baseRound = mode === "double" ? 1 : 0
 	const wbR1Round = baseRound + numWbRounds - 1
+	const lbR1Round = 2 * (numWbRounds - 1) - 1
+
+	// IDs des matchs LB R1 dont au moins un feeder WB R1 est un BYE.
+	// Ces matchs sont eux-mêmes des BYEs (le perdant du BYE WB n'existe pas → slot vide).
+	const byeLbR1Ids = new Set(
+		nodes
+			.filter(
+				(n) =>
+					n.bracket === "W" &&
+					n.round === wbR1Round &&
+					(n.seedA === null || n.seedB === null) &&
+					n.loserTo !== null,
+			)
+			.map((n) => n.loserTo?.nodeId)
+			.filter((id): id is string => id !== undefined),
+	)
 
 	// Assign a UUID to each node
 	const idMap = new Map<string, string>()
@@ -314,9 +337,12 @@ export function generateBracket(config: BracketConfig): GeneratorResult {
 			loser_goes_to_slot: node.loserTo?.slot ?? null,
 		})
 
-		// BYE detection: WB R1 matches with a null seed slot
+		// BYE detection: WB R1 avec un slot null, ou LB R1 alimenté par un WB R1 BYE
 		const isWBR1 = node.bracket === "W" && node.round === wbR1Round
-		const isBye = isWBR1 && (node.seedA === null || node.seedB === null)
+		const isLbR1 = node.bracket === "L" && node.round === lbR1Round
+		const isBye =
+			(isWBR1 && (node.seedA === null || node.seedB === null)) ||
+			(isLbR1 && byeLbR1Ids.has(node.id))
 
 		const fmt = getFormat(node.round)
 		matches.push({

@@ -24,7 +24,7 @@ INNER JOIN event ON tournament.event_id = event.id
 	})
 
 	it("vider les matchs et remettre en 'ready'", async () => {
-		const id = "7d18f3e2-78db-44fb-aab6-449712510303"
+		const id = "02f8513c-1e6e-4c0e-abb9-6acc10c74a45"
 		await launchRepo.deleteMatchesByTournament(id)
 		await tournamentRepo.updateStatus(id, "ready")
 		console.log(`Tournoi ${id} → matchs supprimés, status 'ready'`)

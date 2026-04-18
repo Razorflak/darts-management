@@ -9,24 +9,32 @@ import { computeGroupSizes } from "./round-robin.js"
 /**
  * Couper le bracket DE pour obtenir exactement `qualifiersPerGroup` qualifiés.
  *
- * Algorithme : dans un bracket DE, chaque match LB élimine 1 joueur (2e défaite).
- * Pour passer de N joueurs à K qualifiés, il faut jouer exactement N-K matchs LB.
+ * Algorithme : dans un bracket DE de capacité C (puissance de 2), le nombre de
+ * matchs LB vaut C - 2. Pour qualifier K joueurs, il faut jouer C - K matchs LB.
+ *
+ * La capacité est dérivée des nœuds (pas du nombre d'inscrits), ce qui garantit
+ * que 7 ou 8 joueurs dans un bracket de 8 slots produisent le même cut.
+ * On accepte uniquement des puissances de 2 pour qualifiersPerGroup.
  *
  * On garde :
- * - Les N-K premiers matchs LB (triés par round ASC)
+ * - Les C-K premiers matchs LB (triés par round DESC = les plus précoces d'abord)
  * - Tous les matchs WB dont le perdant va dans un LB conservé
  *
  * Les références winner_goes_to / loser_goes_to vers des matchs retirés sont nullifiées.
  */
 function cutBracket(
 	nodes: BracketNode[],
-	n: number,
 	qualifiersPerGroup: number,
 ): BracketNode[] {
-	if (qualifiersPerGroup >= n) return []
 	if (qualifiersPerGroup <= 0) return []
 
-	const targetLbCount = n - qualifiersPerGroup
+	// Capacité du bracket dérivée de la structure : LB count = capacity - 2
+	const lbNodes = nodes.filter((m) => m.bracket === "L")
+	const bracketCapacity = lbNodes.length + 2
+
+	if (qualifiersPerGroup >= bracketCapacity) return []
+
+	const targetLbCount = bracketCapacity - qualifiersPerGroup
 
 	// Dans bracket.ts, round décroît vers la fin du tournoi (0 = LB Final).
 	// Trier DESC pour obtenir les matchs les plus précoces en premier.
@@ -45,6 +53,7 @@ function cutBracket(
 			})
 			.map((m) => m.id),
 	)
+	console.log("JTA keptSet:", keptSet)
 
 	return nodes
 		.filter((m) => keptSet.has(m.id))
@@ -66,6 +75,7 @@ function convertNodesToResult(
 	nodes: BracketNode[],
 	groupIndex: number,
 	groupOffset: number,
+	groupSize: number,
 	phaseId: string,
 	tournamentId: string,
 	startEventMatchId: number,
@@ -96,8 +106,14 @@ function convertNodesToResult(
 			round_number: node.round,
 			position: localPos++,
 			group_number: groupIndex,
-			seed_a: node.seedA !== null ? node.seedA + groupOffset : null,
-			seed_b: node.seedB !== null ? node.seedB + groupOffset : null,
+			seed_a:
+				node.seedA !== null && node.seedA < groupSize + 1
+					? node.seedA + groupOffset
+					: null,
+			seed_b:
+				node.seedB !== null && node.seedB < groupSize + 1
+					? node.seedB + groupOffset
+					: null,
 			winner_goes_to_info_id: node.winnerTo
 				? (idMap.get(node.winnerTo.nodeId) ?? null)
 				: null,
@@ -144,6 +160,7 @@ export function generateDoubleKoStructure(
 	config: { setsToWin: number; legsPerSet: number },
 ): GeneratorResult {
 	const groupSizes = computeGroupSizes(playerCount, playersPerGroup)
+	console.log("JTA groupSizes:", groupSizes)
 	const allMatches: MatchInsertRow[] = []
 	const allBracketInfos: BracketInfoInsertRow[] = []
 	let nextEventMatchId = startEventMatchId
@@ -151,18 +168,28 @@ export function generateDoubleKoStructure(
 
 	for (let groupIndex = 0; groupIndex < groupSizes.length; groupIndex++) {
 		const n = groupSizes[groupIndex]
+		console.log(
+			`JTA Generating group ${groupIndex + 1}/${groupSizes.length} with ${n} players`,
+		)
 		const nodes = buildBracket(n, "double")
-		const cut = cutBracket(nodes, n, qualifiersPerGroup)
+		const cut = cutBracket(nodes, qualifiersPerGroup)
 
 		const result = convertNodesToResult(
 			cut,
 			groupIndex,
 			groupOffset,
+			groupSizes[groupIndex],
 			phaseId,
 			tournamentId,
 			nextEventMatchId,
 			config,
 		)
+		if (groupIndex === 0) {
+			console.log("JTA original nodes:", nodes)
+			console.log("JTA cut nodes:", cut)
+			console.log("JTA result matches:", result.matches)
+			console.log("JTA result bracketInfos:", result.bracketInfos)
+		}
 
 		allMatches.push(...result.matches)
 		allBracketInfos.push(...result.bracketInfos)

@@ -7,14 +7,14 @@ import { ATTR_SERVICE_NAME } from "@opentelemetry/semantic-conventions"
 
 const endpoint =
 	process.env.OTEL_EXPORTER_OTLP_ENDPOINT ?? "http://localhost:4318"
-const authToken = process.env.OTEL_EXPORTER_OTLP_AUTH_TOKEN
-
-console.log("JTA otlp endpoint:", endpoint)
-console.log("JTA otlp auth token:", authToken)
+const headers = process.env.OTEL_EXPORTER_OTLP_HEADERS ?? ""
 
 const sdk = new NodeSDK({
 	resource: resourceFromAttributes({ [ATTR_SERVICE_NAME]: "darts-management" }),
-	traceExporter: new OTLPTraceExporter({ url: `${endpoint}/v1/traces` }),
+	traceExporter: new OTLPTraceExporter({
+		url: `${endpoint}/v1/traces`,
+		headers: { Authorization: headers },
+	}),
 	logRecordProcessors: [
 		new BatchLogRecordProcessor(
 			new OTLPLogExporter({ url: `${endpoint}/v1/logs` }),
