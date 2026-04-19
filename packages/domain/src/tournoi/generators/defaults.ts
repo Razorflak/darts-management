@@ -1,5 +1,4 @@
-import { updateSourceFile } from "typescript"
-import type { GeneratorResult, MatchInsertRow } from "../match-schemas.js"
+import type { GeneratorResult } from "../match-schemas.js"
 
 /**
  * Valeurs par défaut de format de match par type de phase.
@@ -15,15 +14,40 @@ import type { GeneratorResult, MatchInsertRow } from "../match-schemas.js"
  * Seeds are global indices into teamIds: seed 1 → teamIds[0], seed N → teamIds[N-1].
  * Generators are responsible for producing global seeds (offset per group).
  */
-export function assignTeamsToPhase0(
-	result: GeneratorResult,
+type Input = {
+	roundRobinInfos: Pick<
+		GeneratorResult["roundRobinInfos"][number],
+		"id" | "slot_a" | "slot_b"
+	>[]
+	bracketInfos: Pick<
+		GeneratorResult["bracketInfos"][number],
+		| "id"
+		| "seed_a"
+		| "seed_b"
+		| "winner_goes_to_info_id"
+		| "winner_goes_to_slot"
+		| "loser_goes_to_info_id"
+	>[]
+	matches: Pick<
+		GeneratorResult["matches"][number],
+		| "id"
+		| "event_match_id"
+		| "round_robin_info_id"
+		| "bracket_info_id"
+		| "team_a_id"
+		| "team_b_id"
+		| "status"
+	>[]
+}
+export function assignTeamsToPhase<T extends Input>(
+	result: T,
 	teamIds: string[],
-): GeneratorResult {
+): T {
 	const rrInfoById = new Map(result.roundRobinInfos.map((i) => [i.id, i]))
 	const bracketInfoById = new Map(result.bracketInfos.map((i) => [i.id, i]))
 
 	// Assignation des équipes aux matchs de la phase 0 (round-robin et/ou premier tour de bracket) selon les seeds définis dans les infos de structure
-	const updatedMatches = result.matches.map((m): MatchInsertRow => {
+	const updatedMatches = result.matches.map((m) => {
 		if (m.round_robin_info_id) {
 			const info = rrInfoById.get(m.round_robin_info_id)
 			if (!info) return m
@@ -60,6 +84,15 @@ export function assignTeamsToPhase0(
 				((m.team_a_id && !m.team_b_id) || (!m.team_a_id && m.team_b_id))
 			) {
 				m.status = "bye"
+				if (info.loser_goes_to_info_id) {
+					// Si le match est un bye, le match ou le perdant devrait aller est un bye aussi.
+					const loserNextMatch = updatedMatches.find(
+						(mm) => mm.bracket_info_id === info.loser_goes_to_info_id,
+					)
+					if (loserNextMatch) {
+						loserNextMatch.status = "bye"
+					}
+				}
 			}
 		}
 	})
@@ -75,7 +108,7 @@ export function assignTeamsToPhase0(
 			const bracketInfo = result.bracketInfos.find(
 				(br) => br.id === byeMatch.bracket_info_id,
 			)
-			if (!bracketInfo || !bracketInfo.winner_goes_to_info_id) return
+			if (!bracketInfo?.winner_goes_to_info_id) return
 			const { winner_goes_to_info_id, winner_goes_to_slot } = bracketInfo
 			const nextMatch = updatedMatches.find(
 				(m) => m.bracket_info_id === winner_goes_to_info_id,
@@ -91,7 +124,7 @@ export function assignTeamsToPhase0(
 	return {
 		...result,
 		matches: updatedMatches,
-	}
+	} as T
 }
 
 export const PHASE_FORMAT_DEFAULTS = {

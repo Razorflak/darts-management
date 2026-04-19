@@ -1,5 +1,5 @@
 import { describe, expect, it } from "vitest"
-import { assignTeamsToPhase0 } from "../defaults.js"
+import { assignTeamsToPhase } from "../defaults.js"
 import { generateDoubleKoStructure } from "../double-ko-group.js"
 
 const phaseId = "550e8400-e29b-41d4-a716-446655440000"
@@ -138,7 +138,7 @@ describe("generateDoubleKoStructure — 4 players, 2 qualifiers", () => {
 	})
 })
 
-describe("assignTeamsToPhase0 — double KO", () => {
+describe("assignTeamsToPhase — double KO", () => {
 	it("assigns teams to R1 WB slots via seeds (S1 vs SN, S2 vs SN-1...)", () => {
 		const teams = makeTeams(8)
 		const structure = generateDoubleKoStructure(
@@ -150,7 +150,7 @@ describe("assignTeamsToPhase0 — double KO", () => {
 			1,
 			config,
 		)
-		const result = assignTeamsToPhase0(structure, teams)
+		const result = assignTeamsToPhase(structure, teams)
 
 		// R1 WB matches have seeds → teams should be assigned
 		const infoById = new Map(result.bracketInfos.map((i) => [i.id, i]))
@@ -177,7 +177,7 @@ describe("assignTeamsToPhase0 — double KO", () => {
 			1,
 			config,
 		)
-		const result = assignTeamsToPhase0(structure, teams)
+		const result = assignTeamsToPhase(structure, teams)
 
 		const infoById = new Map(result.bracketInfos.map((i) => [i.id, i]))
 		const laterMatches = result.matches.filter((m) => {

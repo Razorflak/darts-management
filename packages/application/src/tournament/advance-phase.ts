@@ -3,7 +3,10 @@ import {
 	sql,
 	tournamentRepository,
 } from "@darts-management/db"
-import { separateGroupsForBracket } from "@darts-management/domain"
+import {
+	assignTeamsToPhase,
+	separateGroupsForBracket,
+} from "@darts-management/domain"
 import { trace } from "@opentelemetry/api"
 import { loadPhaseQualifiers } from "./phase/compute-qualifiers.js"
 
@@ -49,29 +52,37 @@ export async function advancePhase(phaseId: string): Promise<void> {
 			throw new Error("No next phase found")
 		}
 		const nextPhaseMatches = await matchRepo.getByPhaseId(nextPhase.id)
-		const seededMatches = nextPhaseMatches
-			.filter(
-				(m) =>
-					(m.bracketInfo?.seed_a && m.bracketInfo?.seed_b) ||
-					(m.roundRobinInfo?.slot_a && m.roundRobinInfo?.slot_b),
-			)
-			.map((m) => {
-				const matchSeedA = m.bracketInfo?.seed_a ?? m.roundRobinInfo?.slot_a
-				const matchSeedB = m.bracketInfo?.seed_b ?? m.roundRobinInfo?.slot_b
-				return {
-					matchId: m.id,
-					teamAId:
-						teamsNewSeed.find((team) => team.seed === matchSeedA)?.teamId ?? "",
-					teamBId:
-						teamsNewSeed.find((team) => team.seed === matchSeedB)?.teamId ?? "",
-				}
-			})
-		console.log("seededMatches", seededMatches, seededMatches.length)
+		const teamIds = teamsNewSeed
+			.sort((a, b) => a.seed - b.seed)
+			.map((t) => t.teamId)
 
-		try {
-			await matchRepo.bulkUpdateTeams(seededMatches)
-		} catch (e) {
-			console.error("Error updating teams for next phase", e)
+		const input = {
+			roundRobinInfos: nextPhaseMatches
+				.filter((m) => m.roundRobinInfo !== null)
+				.map((m) => m.roundRobinInfo!),
+			bracketInfos: nextPhaseMatches
+				.filter((m) => m.bracketInfo !== null)
+				.map((m) => m.bracketInfo!),
+			matches: nextPhaseMatches.map((m) => ({
+				id: m.id,
+				event_match_id: m.event_match_id,
+				round_robin_info_id: m.roundRobinInfo?.id ?? null,
+				bracket_info_id: m.bracketInfo?.id ?? null,
+				team_a_id: null,
+				team_b_id: null,
+				status: "pending" as const,
+			})),
 		}
+
+		const seeded = assignTeamsToPhase(input, teamIds)
+
+		await matchRepo.bulkUpdateTeams(
+			seeded.matches.map((m) => ({
+				matchId: m.id,
+				teamAId: m.team_a_id,
+				teamBId: m.team_b_id,
+				status: m.status !== "pending" ? m.status : undefined,
+			})),
+		)
 	})
 }

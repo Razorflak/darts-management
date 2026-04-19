@@ -160,7 +160,7 @@ Nodes (2): load(), computeStandings()
 
 ### Community 2 - "Community 2"
 Cohesion: 0.16
-Nodes (16): buildBracket(), generateBracket(), getDropOrder(), getWBR1Matchups(), splitAndReverse(), assignTeamsToPhase0(), convertNodesToResult(), cutBracket() (+8 more)
+Nodes (16): buildBracket(), generateBracket(), getDropOrder(), getWBR1Matchups(), splitAndReverse(), assignTeamsToPhase(), convertNodesToResult(), cutBracket() (+8 more)
 
 ### Community 3 - "Community 3"
 Cohesion: 0.13

@@ -361,11 +361,14 @@ const internalMatchRepo = {
 
 	getByPhaseId: async (sql: Sql, phaseId: string) => {
 		const rows = await sql`
-		SELECT 
-			m.id, 
+		SELECT
+			m.id,
+			m.event_match_id,
 			m.bracket_info_id,
 			bi.tournament_id AS bi_tournament_id,
 			bi.seed_a, bi.seed_b,
+			bi.winner_goes_to_info_id,
+			bi.winner_goes_to_slot,
 			m.round_robin_info_id,
 			rri.slot_a, rri.slot_b
 		FROM match m
@@ -377,10 +380,13 @@ const internalMatchRepo = {
 
 		const PhaseMatchRawSchema = z.object({
 			id: z.string(),
+			event_match_id: z.number().int(),
 			bracket_info_id: z.string().nullable(),
 			bi_tournament_id: z.string().nullable(),
 			seed_a: z.number().int().nullable(),
 			seed_b: z.number().int().nullable(),
+			winner_goes_to_info_id: z.string().nullable(),
+			winner_goes_to_slot: z.enum(["a", "b"]).nullable(),
 			round_robin_info_id: z.string().nullable(),
 			slot_a: z.number().int().nullable(),
 			slot_b: z.number().int().nullable(),
@@ -390,6 +396,7 @@ const internalMatchRepo = {
 
 		return validated.map((row) => ({
 			id: row.id,
+			event_match_id: row.event_match_id,
 			bracketInfo:
 				row.bracket_info_id !== null
 					? {
@@ -398,6 +405,8 @@ const internalMatchRepo = {
 							tournament_id: row.bi_tournament_id!,
 							seed_a: row.seed_a,
 							seed_b: row.seed_b,
+							winner_goes_to_info_id: row.winner_goes_to_info_id,
+							winner_goes_to_slot: row.winner_goes_to_slot,
 						}
 					: null,
 			roundRobinInfo:
@@ -413,24 +422,19 @@ const internalMatchRepo = {
 		}))
 	},
 
-	/**
-	 * Bulk update team assignments for multiple matches.
-	 * Updates team_a_id and team_b_id for each match in a single transaction.
-	 */
 	bulkUpdateTeams: async (
 		sql: Sql,
 		updates: Array<{
 			matchId: string
 			teamAId: string | null
 			teamBId: string | null
+			status?: string
 		}>,
 	): Promise<void> => {
 		if (updates.length === 0) return
 
 		const validUpdates = updates.filter((u) => u.matchId !== undefined)
 		if (validUpdates.length === 0) return
-
-		console.log("bulkUpdateTeamsTEST", validUpdates)
 
 		const matchIds = validUpdates.map((u) => u.matchId)
 		const teamAIds = validUpdates.map((u) => u.teamAId ?? null)
@@ -445,6 +449,22 @@ const internalMatchRepo = {
 			${sql.array(teamAIds)}::uuid[],
 			${sql.array(teamBIds)}::uuid[]
 		) AS updates(match_id, team_a_id, team_b_id)
+		WHERE match.id = updates.match_id
+	`
+
+		const statusUpdates = validUpdates.filter((u) => u.status !== undefined)
+		if (statusUpdates.length === 0) return
+
+		const statusMatchIds = statusUpdates.map((u) => u.matchId)
+		const statuses = statusUpdates.map((u) => u.status!)
+
+		await sql`
+		UPDATE match
+		SET status = updates.status
+		FROM unnest(
+			${sql.array(statusMatchIds)}::uuid[],
+			${sql.array(statuses)}::text[]
+		) AS updates(match_id, status)
 		WHERE match.id = updates.match_id
 	`
 	},

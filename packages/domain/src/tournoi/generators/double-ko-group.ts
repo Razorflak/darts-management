@@ -69,7 +69,7 @@ function cutBracket(
  * Convertir un tableau de BracketNode en GeneratorResult pour un groupe donné.
  *
  * Chaque nœud produit une BracketInfoInsertRow (auto-référentielle via idMap)
- * et un MatchInsertRow. L'assignation des équipes est faite en aval via assignTeamsToPhase0.
+ * et un MatchInsertRow. L'assignation des équipes est faite en aval via assignTeamsToPhase.
  */
 function convertNodesToResult(
 	nodes: BracketNode[],
@@ -148,7 +148,7 @@ function convertNodesToResult(
  * Internally uses buildBracket (mode "double") and cuts at the right round
  * to produce exactly `qualifiersPerGroup` qualifiers per group.
  *
- * All team slots are null — use assignTeamsToPhase0 to fill R1 slots.
+ * All team slots are null — use assignTeamsToPhase to fill R1 slots.
  */
 export function generateDoubleKoStructure(
 	playerCount: number,

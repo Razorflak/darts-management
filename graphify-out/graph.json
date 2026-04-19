@@ -2092,7 +2092,7 @@
       "norm_label": "defaults.ts"
     },
     {
-      "label": "assignTeamsToPhase0()",
+      "label": "assignTeamsToPhase()",
       "file_type": "code",
       "source_file": "packages/domain/src/tournoi/generators/defaults.ts",
       "source_location": "L17",

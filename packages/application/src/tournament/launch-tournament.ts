@@ -5,7 +5,7 @@ import {
 } from "@darts-management/db"
 import {
 	assignReferees,
-	assignTeamsToPhase0,
+	assignTeamsToPhase,
 	type GeneratorResult,
 	generateBracket,
 	generateDoubleKoStructure,
@@ -151,7 +151,7 @@ export const launchTournament = async (
 		}
 
 		if (phaseIndex === 0) {
-			phaseResult = assignTeamsToPhase0(phaseResult, teamIds)
+			phaseResult = assignTeamsToPhase(phaseResult, teamIds)
 		}
 
 		expectedQualifiers = computePhaseQualifiers(phase, expectedQualifiers)
