@@ -64,7 +64,11 @@ export async function submitMatchResult(
 			await matchRepo.advanceWinnerInBracket(matchId, winnerTeamId)
 			await matchRepo.advanceLoserInBracket(matchId, loserTeamId)
 
-			// 6. Check for GF bracket reset (D-12)
+			// 6. If the loser's destination match is a bye, automatically advance the loser
+			// through it to the next real match (mirrors bye cascade at bracket-generation time).
+			await matchRepo.advanceLoserThroughByeInBracket(matchId, loserTeamId)
+
+			// 7. Check for GF bracket reset (D-12)
 			// GF reset: LB winner beats WB winner in the GF → they must play again
 			const bracketInfo = await matchRepo.getMatchBracketInfo(matchId)
 			if (

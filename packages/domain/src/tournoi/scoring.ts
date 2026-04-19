@@ -38,7 +38,7 @@ export const SCORING_RULES = {
 	LOSS: 0,
 	WALKOVER_WIN: 3,
 	WALKOVER_LOSS: 0,
-	BYE: 0,
+	BYE: 3,
 } as const
 
 // ─── Match input type for standings computation ───────────────────────────────
@@ -109,8 +109,8 @@ export function validateScore(
 
 /**
  * Computes standings from a list of matches.
- * Only done and walkover matches are counted.
- * BYE matches are excluded.
+ * Done and walkover matches are counted normally.
+ * BYE matches give the present team 3 points (same as a win) with no legs.
  * Returns standings sorted by breakTie comparator.
  */
 export function computeStandings(
@@ -140,12 +140,23 @@ export function computeStandings(
 		if (m.team_b_id) getOrCreate(m.team_b_id)
 	}
 
-	// Only process done and walkover matches
+	// Process done, walkover, and bye matches
 	const counted = matches.filter(
-		(m) => m.status === "done" || m.status === "walkover",
+		(m) => m.status === "done" || m.status === "walkover" || m.status === "bye",
 	)
 
 	for (const m of counted) {
+		// BYE: one slot is null — credit the present team a win
+		if (m.status === "bye") {
+			const teamId = m.team_a_id ?? m.team_b_id
+			if (!teamId) continue
+			const team = getOrCreate(teamId)
+			team.played++
+			team.wins++
+			team.points += SCORING_RULES.BYE
+			continue
+		}
+
 		if (!m.team_a_id || !m.team_b_id) continue
 
 		const a = getOrCreate(m.team_a_id)
@@ -199,8 +210,11 @@ export function computeStandings(
 	const allMatches: MatchForStandings[] = matches.filter(
 		(m) => m.status === "done" || m.status === "walkover",
 	)
+	console.log("All matches for tie-breaking:", allMatches)
+	const r = Array.from(map.values()).sort((a, b) => breakTie(a, b, allMatches))
+	console.log("Computed standings:", r)
 
-	return Array.from(map.values()).sort((a, b) => breakTie(a, b, allMatches))
+	return r
 }
 
 // ─── breakTie ────────────────────────────────────────────────────────────────
@@ -208,8 +222,10 @@ export function computeStandings(
 /**
  * Comparator for sorting StandingEntry by:
  * 1. Points DESC
- * 2. leg_diff DESC
- * 3. Head-to-head result (winner of direct match ranks higher)
+ * 2. Losses ASC (fewer losses ranks higher — critical for double_loss_groups
+ *    where a 2-0 team and a 2-1 team both earn 6 points)
+ * 3. leg_diff DESC
+ * 4. Head-to-head result (winner of direct match ranks higher)
  *
  * Returns negative if a ranks before b, positive if b ranks before a, 0 if equal.
  */
@@ -223,12 +239,23 @@ export function breakTie(
 		return b.points - a.points
 	}
 
-	// 2. Leg difference DESC
+	// 2. Losses ASC — fewer losses ranks higher.
+	// In round-robin all teams play the same number of matches, so equal points
+	// implies equal losses (no-op). In double_loss_groups teams play different
+	// numbers of matches, so this correctly places 2-0 teams above 2-1 teams.
+	if (a.losses !== b.losses) {
+		console.log(
+			`Breaking tie between ${a.team_id} and ${b.team_id} by losses: ${a.losses} vs ${b.losses}`,
+		)
+		return a.losses - b.losses
+	}
+
+	// 3. Leg difference DESC
 	if (a.leg_diff !== b.leg_diff) {
 		return b.leg_diff - a.leg_diff
 	}
 
-	// 3. Head-to-head
+	// 4. Head-to-head
 	const h2h = matches.find(
 		(m) =>
 			(m.team_a_id === a.team_id && m.team_b_id === b.team_id) ||

@@ -46,6 +46,7 @@ export async function advancePhase(phaseId: string): Promise<void> {
 			phaseId,
 			qualifiersPerGroup,
 		)
+		console.log("Qualified teams for next phase:", qualifiedTeams)
 		const teamsNewSeed = separateGroupsForBracket(qualifiedTeams)
 		const nextPhase = await tournamentRepository.getNextPhaseByPhaseId(phaseId)
 		if (!nextPhase) {

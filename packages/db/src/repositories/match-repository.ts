@@ -158,6 +158,50 @@ const internalMatchRepo = {
 	},
 
 	/**
+	 * If the loser's destination match (loser_goes_to) is a bye, automatically advance
+	 * the loser through it to the bye match's own winner_goes_to slot.
+	 *
+	 * This handles the double-elimination case where a loser drops into a bye match in
+	 * the loser bracket — they should be treated as having won that bye automatically.
+	 *
+	 * Returns number of rows updated (0 if the destination match is not a bye, or if
+	 * there is no loser_goes_to at all).
+	 */
+	advanceLoserThroughByeInBracket: async (
+		sql: Sql,
+		matchId: string,
+		loserTeamId: string,
+	): Promise<number> => {
+		const result = await sql<{ count: number }[]>`
+			WITH
+			-- Step 1: find the bye match the loser was just placed into
+			loser_dest AS (
+				SELECT bi.loser_goes_to_info_id
+				FROM match m
+				JOIN bracket_match_info bi ON bi.id = m.bracket_info_id
+				WHERE m.id = ${matchId}
+				  AND bi.loser_goes_to_info_id IS NOT NULL
+			),
+			-- Step 2: confirm that destination match is a bye and get its winner_goes_to wiring
+			bye_wiring AS (
+				SELECT bye_bi.winner_goes_to_info_id, bye_bi.winner_goes_to_slot
+				FROM loser_dest ld
+				JOIN match bye_m ON bye_m.bracket_info_id = ld.loser_goes_to_info_id
+				JOIN bracket_match_info bye_bi ON bye_bi.id = bye_m.bracket_info_id
+				WHERE bye_m.status = 'bye'
+				  AND bye_bi.winner_goes_to_info_id IS NOT NULL
+			)
+			UPDATE match
+			SET team_a_id = CASE WHEN bye_wiring.winner_goes_to_slot = 'a' THEN ${loserTeamId} ELSE match.team_a_id END,
+			    team_b_id = CASE WHEN bye_wiring.winner_goes_to_slot = 'b' THEN ${loserTeamId} ELSE match.team_b_id END
+			FROM bye_wiring
+			WHERE match.bracket_info_id = bye_wiring.winner_goes_to_info_id
+			RETURNING 1 AS count
+		`
+		return result.length
+	},
+
+	/**
 	 * Check if all matches in a phase are done/walkover/bye.
 	 */
 	checkPhaseComplete: async (

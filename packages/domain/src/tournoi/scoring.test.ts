@@ -25,8 +25,8 @@ describe("SCORING_RULES", () => {
 		expect(SCORING_RULES.WALKOVER_LOSS).toBe(0)
 	})
 
-	it("BYE === 0", () => {
-		expect(SCORING_RULES.BYE).toBe(0)
+	it("BYE === 3 (counted as a win for seeding purposes)", () => {
+		expect(SCORING_RULES.BYE).toBe(3)
 	})
 })
 
@@ -183,7 +183,7 @@ describe("computeStandings", () => {
 		expect(bEntry?.legs_won).toBe(0)
 	})
 
-	it("excludes BYE matches (status=bye) from standings computation", () => {
+	it("counts BYE matches as a win (3 points) for the present team", () => {
 		const matches = [
 			{
 				team_a_id: teamA,
@@ -195,10 +195,11 @@ describe("computeStandings", () => {
 		]
 
 		const standings = computeStandings(matches)
-		// BYE matches do not contribute points to anyone
 		const aEntry = standings.find((s) => s.team_id === teamA)
-		expect(aEntry?.points).toBe(0)
-		expect(aEntry?.played).toBe(0)
+		expect(aEntry?.points).toBe(3)
+		expect(aEntry?.played).toBe(1)
+		expect(aEntry?.wins).toBe(1)
+		expect(aEntry?.losses).toBe(0)
 	})
 
 	it("returns standings sorted by rank (highest points first)", () => {
